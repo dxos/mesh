@@ -73,7 +73,7 @@ test('One protocol and one swarm key', async (done) => {
     const protocol = new TestProtocolPlugin(nodeId);
     const protocolProvider = testProtocolProvider(swarmKey, nodeId, protocol);
     return { nodeId, networkManager, protocol, protocolProvider };
-  }
+  };
 
   // Create 2 test "nodes", each node has a FeedStore, a SwarmProvider,
   // a NetworkManager, a TestProtocolPlugin, a ProtocolProvider.
@@ -127,12 +127,12 @@ test('Two protocols and two swarm keys', async (done) => {
   // Test that nodes communicate using the correct protocol.
 
   const NodeA1 = await makeNode(swarmKeyA, false);
-  const NodeB1 = await makeNode(swarmKeyB,true);
-  const NodeA2 = await makeNode(swarmKeyA,false);
-  const NodeB2 = await makeNode(swarmKeyB,true);
+  const NodeB1 = await makeNode(swarmKeyB, true);
+  const NodeA2 = await makeNode(swarmKeyA, false);
+  const NodeB2 = await makeNode(swarmKeyB, true);
 
-  const swarmATest = new Promise( async (resolve, reject) => {
-    await NodeA1.networkManager.joinProtocolSwarm(swarmKeyA, NodeA1.protocolProvider);
+  const swarmATest = new Promise((resolve, reject) => {
+    NodeA1.networkManager.joinProtocolSwarm(swarmKeyA, NodeA1.protocolProvider);
     NodeA2.protocol.on('receive', (protocol, message) => {
       log('Message', message);
       expectEqualsPromise(message, 'Node A1', resolve, reject);
@@ -143,7 +143,7 @@ test('Two protocols and two swarm keys', async (done) => {
         await NodeA1.protocol.send(NodeA2.nodeId, 'Node A1');
       }
     });
-    await NodeA2.networkManager.joinProtocolSwarm(swarmKeyA, NodeA2.protocolProvider);
+    NodeA2.networkManager.joinProtocolSwarm(swarmKeyA, NodeA2.protocolProvider);
     NodeA2.protocol.on('connect', async (protocol) => {
       logOnConnect(protocol);
       if (hasExpectedPeer(protocol, NodeA1.nodeId)) {
@@ -152,8 +152,8 @@ test('Two protocols and two swarm keys', async (done) => {
     });
   });
 
-  const swarmBTest = new Promise( async (resolve, reject) => {
-    await NodeB1.networkManager.joinProtocolSwarm(swarmKeyB, NodeB1.protocolProvider);
+  const swarmBTest = new Promise((resolve, reject) => {
+    NodeB1.networkManager.joinProtocolSwarm(swarmKeyB, NodeB1.protocolProvider);
     NodeB2.protocol.on('receive', (protocol, message) => {
       log('Message', message);
       expectEqualsPromise(message, 'NODE B1', resolve, reject);
@@ -166,7 +166,7 @@ test('Two protocols and two swarm keys', async (done) => {
       }
     });
 
-    await NodeB2.networkManager.joinProtocolSwarm(swarmKeyB, NodeB2.protocolProvider);
+    NodeB2.networkManager.joinProtocolSwarm(swarmKeyB, NodeB2.protocolProvider);
     NodeB2.protocol.on('connect', async (protocol) => {
       logOnConnect(protocol);
       if (hasExpectedPeer(protocol, NodeB1.nodeId)) {
@@ -177,7 +177,7 @@ test('Two protocols and two swarm keys', async (done) => {
 
   try {
     await Promise.all([swarmATest, swarmBTest]);
-  } catch(error) {
+  } catch (error) {
     done(error);
   }
   done();

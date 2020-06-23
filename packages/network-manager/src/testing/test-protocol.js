@@ -29,7 +29,6 @@ export const getPeerId = (protocol) => {
  * transport connection).
  */
 export class TestProtocolPlugin extends EventEmitter {
-
   /** @type {Map<string, {Protocol}>} */
   _peers;
 
@@ -46,7 +45,7 @@ export class TestProtocolPlugin extends EventEmitter {
    * @param {Buffer} peerId
    * @param {Boolean} uppercase Fold payload case to upper if set.
    */
-  constructor(peerId, uppercase = false) {
+  constructor (peerId, uppercase = false) {
     assert(Buffer.isBuffer(peerId));
     super();
 
@@ -60,7 +59,7 @@ export class TestProtocolPlugin extends EventEmitter {
    * This node's id.
    * @return {Buffer}
    */
-  get peerId() {
+  get peerId () {
     return this._peerId;
   }
 
@@ -68,7 +67,7 @@ export class TestProtocolPlugin extends EventEmitter {
    * Array of the currently connected peers' node ids (not including our id).
    * @return {{Protocol}[]}
    */
-  get peers() {
+  get peers () {
     return Array.from(this._peers.values());
   }
 
@@ -77,7 +76,7 @@ export class TestProtocolPlugin extends EventEmitter {
    * Called when a new peer transport connection is established.
    * @return {Extension}
    */
-  createExtension() {
+  createExtension () {
     return new Extension(EXTENSION_NAME, { binary: true })
       .setMessageHandler(this._receive.bind(this))
       .setHandshakeHandler(this._onPeerConnect.bind(this))
@@ -93,7 +92,7 @@ export class TestProtocolPlugin extends EventEmitter {
    * @param payload {string} Message to send
    * @return {string} Message received from peer in response to our request.
    */
-  async send(peerId, payload) {
+  async send (peerId, payload) {
     assert(Buffer.isBuffer(peerId));
     const peerIdStr = keyToString(peerId);
     const peer = this._peers.get(peerIdStr);
@@ -104,7 +103,7 @@ export class TestProtocolPlugin extends EventEmitter {
     log('Sent to %s: %s', peerIdStr, payload);
   }
 
-  async _receive(protocol, data) {
+  async _receive (protocol, data) {
     const peerIdStr = keyToString(getPeerId(protocol));
     let payload = data.data.toString();
     if (this._uppercase) {
@@ -114,7 +113,7 @@ export class TestProtocolPlugin extends EventEmitter {
     this.emit('receive', protocol, payload);
   }
 
-  _onPeerConnect(protocol) {
+  _onPeerConnect (protocol) {
     const peerId = getPeerId(protocol);
     const peerIdStr = keyToString(peerId);
     if (this._peers.has(peerIdStr)) {
@@ -125,7 +124,8 @@ export class TestProtocolPlugin extends EventEmitter {
     this.emit('connect', protocol);
   }
 
-  _onPeerDisconnect(error, protocol) {
+  _onPeerDisconnect (error, protocol) {
+    if (error) return;
     const peerId = getPeerId(protocol);
 
     this._peers.delete(keyToString(peerId));

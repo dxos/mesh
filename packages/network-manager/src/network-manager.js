@@ -38,7 +38,6 @@ const safeSwarmClose = async (swarm) => {
 // TODO(dboreham): We'd like to use only one swarm object but that's not currently possible due to limitations in
 //  hypercore-protocol/@dxos/protocol (can't have one swarm joined with two swarm keys and different protocols per key).
 export class NetworkManager {
-
   /** @type {FeedStore} */
   _feedStore;
 
@@ -52,7 +51,7 @@ export class NetworkManager {
    * @param {FeedStore} feedStore Configured FeedStore
    * @param {SwarmProvider} swarmProvider Supplies swarm objects
    */
-  constructor(feedStore, swarmProvider) {
+  constructor (feedStore, swarmProvider) {
     assert(feedStore);
     assert(swarmProvider);
     this._feedStore = feedStore;
@@ -69,7 +68,7 @@ export class NetworkManager {
    * @return {function} - Call to stop participation in the swarm, release any resources allocated.
    * @throws {Error} TODO(dboreham): add details.
    */
-  async joinProtocolSwarm(key, protocolProvider) {
+  async joinProtocolSwarm (key, protocolProvider) {
     // Existing swarm for this key is a fatal error because we have no easy way to enforce uniqueness over
     // [key x protocol] tuples.
     const keyString = keyToString(key);
@@ -94,7 +93,7 @@ export class NetworkManager {
    * Safe to call on an already "left" swarm key.
    * @param {SwarmKey} key
    */
-  async leaveProtocolSwarm(key) {
+  async leaveProtocolSwarm (key) {
     const keyString = keyToString(key);
     const swarm = this._swarms.get(keyString);
     if (swarm) {
@@ -107,7 +106,7 @@ export class NetworkManager {
   /**
    * Call to release resources and network sockets. Not subsequently usable.
    */
-  async close() {
+  async close () {
     log('Closing.');
     for await (const swarm of this._swarms.values()) {
       await safeSwarmClose(swarm);

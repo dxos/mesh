@@ -26,7 +26,7 @@ export class SwarmProvider {
   /**
    * @param {Object} config - config object for swarm.
    */
-  constructor(config = {}) {
+  constructor (config = {}) {
     assert(config);
     this._config = config;
     log('Swarm config:', config);
@@ -43,7 +43,7 @@ export class SwarmProvider {
    * @param {ProtocolContext} protocolContext
    * @return {DiscoverySwarmWebrtc}
    */
-  createSwarm(protocolProvider, protocolContext) {
+  createSwarm (protocolProvider, protocolContext) {
     // TODO(dboreham): Config contents should be opaque.
     const { signal, ice } = this._config;
 
