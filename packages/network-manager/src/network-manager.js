@@ -16,13 +16,17 @@ const log = debug('dxos:network-manager');
 /**
  * Close a swarm safely: no exceptions thrown.
  * @param {Swarm} swarm
+ * @param {Buffer} [key]
  */
-const safeSwarmClose = async (swarm) => {
+const safeSwarmClose = async (swarm, key) => {
   try {
     const swarmId = keyToString(swarm.id);
     if (swarm.close) {
       await swarm.close();
       log(`Swarm: ${swarmId} closed`);
+    } else if (swarm.leave && key) {
+      log(`Swarm: ${swarmId} left ${keyToString(key)}`);
+      await swarm.leave(discoveryKey(key));
     } else {
       log(`Swarm: ${swarmId} no close fn, skipping close`);
     }
@@ -98,7 +102,7 @@ export class NetworkManager {
     const swarm = this._swarms.get(keyString);
     if (swarm) {
       log(`Leaving: ${keyString}`);
-      await safeSwarmClose(swarm);
+      await safeSwarmClose(swarm, key);
       this._swarms.delete(keyString);
     }
   }
@@ -108,8 +112,8 @@ export class NetworkManager {
    */
   async close () {
     log('Closing.');
-    for await (const swarm of this._swarms.values()) {
-      await safeSwarmClose(swarm);
+    for await (const [key, swarm] of this._swarms.entries()) {
+      await safeSwarmClose(swarm, key);
     }
     this._swarms.clear();
     log('Closed.');
