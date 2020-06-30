@@ -4,6 +4,7 @@
 
 import assert from 'assert';
 import debug from 'debug';
+import { EventEmitter } from 'events';
 
 import { keyToString, discoveryKey } from '@dxos/crypto';
 
@@ -41,7 +42,7 @@ const safeSwarmClose = async (swarm, key) => {
  */
 // TODO(dboreham): We'd like to use only one swarm object but that's not currently possible due to limitations in
 //  hypercore-protocol/@dxos/protocol (can't have one swarm joined with two swarm keys and different protocols per key).
-export class NetworkManager {
+export class NetworkManager extends EventEmitter {
   /** @type {FeedStore} */
   _feedStore;
 
@@ -56,6 +57,8 @@ export class NetworkManager {
    * @param {SwarmProvider} swarmProvider Supplies swarm objects
    */
   constructor (feedStore, swarmProvider) {
+    super();
+
     assert(feedStore);
     assert(swarmProvider);
     this._feedStore = feedStore;
@@ -84,6 +87,15 @@ export class NetworkManager {
     // Create a new swarm for this key (shouldn't be necessary, see above for details).
     const swarm = await this._swarmProvider.createSwarm(protocolProvider, { feedStore: this._feedStore });
     this._swarms.set(keyString, swarm);
+
+    swarm.on('connection', (conn, info) => {
+      this.emit('connection', key, swarm, conn, info);
+    });
+
+    swarm.on('connection-closed', (conn, info) => {
+      this.emit('connection-closed', key, swarm, conn, info);
+    });
+
     // swarm.join() in combination with Protocol requires discoveryKey(realKey)
     swarm.join(discoveryKey(key));
     log(`Joined: ${keyString} using swarm: ${keyToString(swarm.id)}`);

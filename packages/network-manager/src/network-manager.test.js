@@ -64,6 +64,7 @@ test('Create a NetworkManager', async () => {
 
 test('One protocol and one swarm key', async (done) => {
   const swarmKey = createKey();
+  const fnOnConnection = jest.fn();
 
   const makeNode = async (swarmKey) => {
     const nodeId = createKey();
@@ -80,6 +81,7 @@ test('One protocol and one swarm key', async (done) => {
   // Test that the nodes when joined with a swarm key communicate via the intended protocol.
 
   const node1 = await makeNode(swarmKey);
+  node1.networkManager.once('connection', fnOnConnection);
   const node2 = await makeNode(swarmKey);
 
   await node1.networkManager.joinProtocolSwarm(swarmKey, node1.protocolProvider);
@@ -87,6 +89,7 @@ test('One protocol and one swarm key', async (done) => {
 
   node2.protocol.on('receive', (protocol, message) => {
     log('Message', message);
+    expect(fnOnConnection).toHaveBeenCalled();
     expectEqualsDone(message, 'Node 1', done);
   });
 
