@@ -89,11 +89,11 @@ export class NetworkManager extends EventEmitter {
     this._swarms.set(keyString, swarm);
 
     swarm.on('connection', (conn, info) => {
-      this.emit('connection', swarm, conn, info);
+      this.emit('connection', key, swarm, conn, info);
     });
 
     swarm.on('connection-closed', (conn, info) => {
-      this.emit('connection-closed', swarm, conn, info);
+      this.emit('connection-closed', key, swarm, conn, info);
     });
 
     // swarm.join() in combination with Protocol requires discoveryKey(realKey)
