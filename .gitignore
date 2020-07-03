@@ -39,3 +39,6 @@ version.json
 *.log*
 
 .vscode
+
+.cache
+public
