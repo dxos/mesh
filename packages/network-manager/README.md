@@ -18,5 +18,5 @@ PRs accepted.
 
 ## License
 
-GPL-3.0 © Wireline
+GPL-3.0 © DXOS.org
 
