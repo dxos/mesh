@@ -42,5 +42,19 @@
     "eslint": "^5.16.0",
     "jest": "^24.8.0"
   },
+  "semistandard": {
+    "parser": "babel-eslint",
+    "env": [
+      "jest",
+      "node",
+      "browser"
+    ],
+    "ignore": [
+      "dist"
+    ]
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "gitHead": "0364698ca71eaf38d892bfc0c6f9b9c7d0f3cb00"
 }
