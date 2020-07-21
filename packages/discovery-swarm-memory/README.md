@@ -1,4 +1,4 @@
-# Wireline Discovery Swarm Memory
+# DXOS Discovery Swarm Memory
 
 ## Description
 
@@ -10,7 +10,7 @@ to simulate and test multiple connections in memory.
 ### Example
 
 ```javascript
-import swarm from '@wirelineio/discovery-swarm-memory';
+import swarm from '@dxos/discovery-swarm-memory';
 
 const sw = swarm();
 

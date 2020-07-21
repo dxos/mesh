@@ -1,14 +1,14 @@
 {
-  "name": "@wirelineio/hyperswarm-network-memory",
+  "name": "@dxos/hyperswarm-network-memory",
   "version": "0.2.17",
-  "description": "Wireline hyperswarm network implementation in memory.",
-  "homepage": "https://github.com/wirelineio/gravity/tree/master/packages/hyperswarm-network-memory#readme",
+  "description": "DXOS hyperswarm network implementation in memory.",
+  "homepage": "https://github.com/dxos/mesh/tree/master/packages/hyperswarm-network-memory#readme",
   "bugs": {
-    "url": "https://github.com/wirelineio/gravity/issues"
+    "url": "https://github.com/dxos/mesh/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wirelineio/gravity.git"
+    "url": "git+https://github.com/dxos/mesh.git"
   },
   "license": "GPL-3.0",
   "main": "dist/index",

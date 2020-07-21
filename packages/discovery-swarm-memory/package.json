@@ -1,14 +1,14 @@
 {
-  "name": "@wirelineio/discovery-swarm-memory",
+  "name": "@dxos/discovery-swarm-memory",
   "version": "0.2.17",
-  "description": "Wireline discovery swarm implementation in memory.",
-  "homepage": "https://github.com/wirelineio/gravity/tree/master/packages/discovery-swarm-memory#readme",
+  "description": "DXOS discovery swarm implementation in memory.",
+  "homepage": "https://github.com/dxos/mesh/tree/master/packages/discovery-swarm-memory#readme",
   "bugs": {
-    "url": "https://github.com/wirelineio/gravity/issues"
+    "url": "https://github.com/dxos/mesh/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wirelineio/gravity.git"
+    "url": "git+https://github.com/dxos/mesh.git"
   },
   "license": "GPL-3.0",
   "main": "dist/index",

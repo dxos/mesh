@@ -1,4 +1,4 @@
-# Wireline Hyperswarm Network Memory
+# DXOS Hyperswarm Network Memory
 
 ## Description
 
@@ -10,7 +10,7 @@ to simulate and test multiple connections in memory.
 ### Example
 
 ```javascript
-import network from '@wirelineio/hyperswarm-network-memory';
+import network from '@dxos/hyperswarm-network-memory';
 
 const net = network();
 
