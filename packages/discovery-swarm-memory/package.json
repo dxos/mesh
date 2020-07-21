@@ -14,12 +14,12 @@
   "main": "dist/index",
   "module": "src/index",
   "scripts": {
-    "build": "npm run clean && babel ./src --out-dir ./dist --ignore \"**/*.test.js\" --source-maps",
     "clean": "rm -rf dist",
-    "lint": "eslint ./src --ignore-path ../../.eslintignore",
-    "test": "jest --verbose",
-    "posttest": "npm run lint",
-    "prepublishOnly": "npm run test && npm run build"
+    "build": "npm run clean && babel ./src --out-dir ./dist/es --ignore \"**/*.test.js\" --source-maps inline",
+    "build:watch": "npm run build -- --watch",
+    "lint": "semistandard",
+    "prepublishOnly": "npm run build && npm run test",
+    "test": "jest --rootDir ./src --verbose --passWithNoTests"
   },
   "browserslist": [
     "> 5%"

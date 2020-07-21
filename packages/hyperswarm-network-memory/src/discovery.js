@@ -12,13 +12,12 @@ import duplexify from 'duplexify';
 
  */
 class Discovery {
-
   /**
    * constructor
    *
    * @returns {undefined}
    */
-  constructor() {
+  constructor () {
     this._peersByTopic = new Map();
   }
 
@@ -34,7 +33,7 @@ class Discovery {
    * @param {function(socket, details)} cb
    * @returns {undefined}
    */
-  lookup(info, cb) {
+  lookup (info, cb) {
     const { peerId, topic: bufferTopic } = info;
 
     const hexTopic = bufferTopic.toString('hex');
@@ -98,7 +97,7 @@ class Discovery {
    * @param {Buffer} info.topic
    * @returns {undefined}
    */
-  leave(info) {
+  leave (info) {
     const { peerId, topic: bufferTopic } = info;
     const hexTopic = bufferTopic.toString('hex');
 

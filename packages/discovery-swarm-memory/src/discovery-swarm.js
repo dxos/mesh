@@ -16,7 +16,6 @@ import network from '@wirelineio/hyperswarm-network-memory';
  * @extends {EventEmitter}
  */
 class DiscoverySwarm extends EventEmitter {
-
   /**
    * constructor
    *
@@ -24,7 +23,7 @@ class DiscoverySwarm extends EventEmitter {
    * @param {function(info)} args.stream Function that returns the stream to replicate across peers.
    * @returns {undefined}
    */
-  constructor(args = {}) {
+  constructor (args = {}) {
     super();
 
     const { id = crypto.randomBytes(32), stream } = args;
@@ -70,7 +69,7 @@ class DiscoverySwarm extends EventEmitter {
    *
    * @returns {Buffer}
    */
-  get id() {
+  get id () {
     return this._id;
   }
 
@@ -89,7 +88,7 @@ class DiscoverySwarm extends EventEmitter {
    * @param {Buffer|string} key
    * @returns {undefined}
    */
-  join(key) {
+  join (key) {
     const topic = Buffer.isBuffer(key) ? key : Buffer.from(key, 'hex');
     this._network.join(topic);
   }
@@ -100,7 +99,7 @@ class DiscoverySwarm extends EventEmitter {
    * @param {Buffer|string} key
    * @returns {undefined}
    */
-  leave(key) {
+  leave (key) {
     const topic = Buffer.isBuffer(key) ? key : Buffer.from(key, 'hex');
     this._network.leave(topic);
   }

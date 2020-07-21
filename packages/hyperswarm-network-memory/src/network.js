@@ -18,13 +18,12 @@ const discovery = new Discovery();
  * @extends {EventEmitter}
  */
 class Network extends EventEmitter {
-
   /**
    * @constructor
    * @param {Buffer|string} args.id The peer-id for user.
    * @returns {undefined}
    */
-  constructor(args = {}) {
+  constructor (args = {}) {
     super();
 
     const { id } = args;
@@ -42,7 +41,7 @@ class Network extends EventEmitter {
    * @param {Buffer} topic
    * @returns {undefined}
    */
-  join(topic) {
+  join (topic) {
     discovery.lookup({ peerId: this._id, topic }, (connection, details) => {
       eos(connection, () => {
         this._deleteConnection(connection, details);
@@ -58,7 +57,7 @@ class Network extends EventEmitter {
    * @param {Buffer} topic
    * @returns {undefined}
    */
-  leave(topic) {
+  leave (topic) {
     discovery.leave({ peerId: this._id, topic });
 
     this._connections.forEach(({ connection, details }) => {
@@ -82,7 +81,7 @@ class Network extends EventEmitter {
    * @param {Buffer} details.topic The identifier which this peer was discovered under.
    * @returns {undefined}
    */
-  _addConnection(connection, details) {
+  _addConnection (connection, details) {
     const { id, client, peer } = details;
 
     const key = `${peer.topic.toString('hex')}/${id.toString('hex')}`;
@@ -109,7 +108,7 @@ class Network extends EventEmitter {
    * @param {Buffer} details.topic The identifier which this peer was discovered under.
    * @returns {undefined}
    */
-  _deleteConnection(connection, details) {
+  _deleteConnection (connection, details) {
     const { id, client, peer } = details;
 
     const key = `${peer.topic.toString('hex')}/${id.toString('hex')}`;

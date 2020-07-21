@@ -6,7 +6,7 @@ import crypto from 'crypto';
 import { Discovery } from './discovery';
 
 test('lookup and create a connection between two peers', (done) => {
-  function _done() {
+  function _done () {
     _done.times -= 1;
     if (_done.times === 0) {
       done();

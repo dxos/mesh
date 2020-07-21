@@ -40,7 +40,6 @@ test('leave from a topic and close the connections', (done) => {
     conn.push('hi');
   });
 
-
   peerOne.on('disconnection', (connection, details) => {
     expect(details.id).toBe(peerTwo._id);
     expect(peerOne._connections.size).toBe(0);
