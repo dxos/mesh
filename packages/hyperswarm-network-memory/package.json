@@ -1,0 +1,60 @@
+{
+  "name": "@dxos/hyperswarm-network-memory",
+  "version": "0.2.17",
+  "description": "DXOS hyperswarm network implementation in memory.",
+  "homepage": "https://github.com/dxos/mesh/tree/master/packages/hyperswarm-network-memory#readme",
+  "bugs": {
+    "url": "https://github.com/dxos/mesh/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dxos/mesh.git"
+  },
+  "license": "GPL-3.0",
+  "main": "dist/index",
+  "module": "src/index",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "npm run clean && babel ./src --out-dir ./dist/es --ignore \"**/*.test.js\" --source-maps inline",
+    "build:watch": "npm run build -- --watch",
+    "lint": "semistandard",
+    "prepublishOnly": "npm run build && npm run test",
+    "test": "jest --rootDir ./src --verbose --passWithNoTests"
+  },
+  "browserslist": [
+    "> 5%"
+  ],
+  "dependencies": {
+    "duplexify": "^4.1.1",
+    "end-of-stream": "^1.4.1",
+    "through2": "^3.0.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@babel/cli": "7.4.4",
+    "@babel/core": "^7.4.5",
+    "@babel/plugin-proposal-export-default-from": "^7.5.2",
+    "@babel/preset-env": "^7.4.5",
+    "babel-jest": "^24.8.0",
+    "babel-plugin-add-module-exports": "^1.0.2",
+    "eslint": "^5.16.0",
+    "jest": "^24.8.0"
+  },
+  "semistandard": {
+    "parser": "babel-eslint",
+    "env": [
+      "jest",
+      "node",
+      "browser"
+    ],
+    "ignore": [
+      "dist"
+    ]
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "0364698ca71eaf38d892bfc0c6f9b9c7d0f3cb00"
+}
