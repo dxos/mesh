@@ -40,72 +40,64 @@ test('DirectedReplicationNetwork', async () => {
   const message3 = randomMessage();
   const message4 = randomMessage();
 
-  {
-    // Check replication isn't occurring.
+  // Check replication isn't occurring.
 
-    expect(network.connections.length).toBe(0);
+  expect(network.connections.length).toBe(0);
 
-    await peer1.append(message1);
-    await peer2.append(message2);
+  await peer1.append(message1);
+  await peer2.append(message2);
 
-    await waitForExpect(async () => {
-      const peer1Messages = await peer1.getMessages();
-      const peer2Messages = await peer2.getMessages();
-      expect(peer1Messages).toContainEqual(message1);
-      expect(peer2Messages).toContainEqual(message2);
-    });
+  await waitForExpect(async () => {
+    const peer1Messages = await peer1.getMessages();
+    const peer2Messages = await peer2.getMessages();
+    expect(peer1Messages).toContainEqual(message1);
+    expect(peer2Messages).toContainEqual(message2);
+  });
 
-    await waitForExpect(async () => {
-      const peer1Messages = await peer1.getMessages();
-      const peer2Messages = await peer2.getMessages();
-      expect(peer1Messages).not.toContainEqual(message2);
-      expect(peer2Messages).not.toContainEqual(message1);
-    });
-  }
+  await waitForExpect(async () => {
+    const peer1Messages = await peer1.getMessages();
+    const peer2Messages = await peer2.getMessages();
+    expect(peer1Messages).not.toContainEqual(message2);
+    expect(peer2Messages).not.toContainEqual(message1);
+  });
 
-  {
-    // Check replication occurs when the peers are connected.
+  // Check replication occurs when the peers are connected.
 
-    await network.addConnection(peer1.id, peer2.id);
-    expect(network.connections.length).toBe(1);
+  await network.addConnection(peer1.id, peer2.id);
+  expect(network.connections.length).toBe(1);
 
-    await waitForExpect(async () => {
-      const peer1Messages = await peer1.getMessages();
-      const peer2Messages = await peer2.getMessages();
-      expect(peer1Messages).toContainEqual(message2);
-      expect(peer2Messages).toContainEqual(message1);
-    });
-  }
+  await waitForExpect(async () => {
+    const peer1Messages = await peer1.getMessages();
+    const peer2Messages = await peer2.getMessages();
+    expect(peer1Messages).toContainEqual(message2);
+    expect(peer2Messages).toContainEqual(message1);
+  });
 
-  {
-    // Check replication stops again if we remove the connection.
+  // Check replication stops again if we remove the connection.
 
-    await network.deleteConnection(peer1.id, peer2.id);
-    expect(network.connections.length).toBe(0);
+  await network.deleteConnection(peer1.id, peer2.id);
+  expect(network.connections.length).toBe(0);
 
-    await peer1.append(message3);
-    await peer2.append(message4);
+  await peer1.append(message3);
+  await peer2.append(message4);
 
-    await waitForExpect(async () => {
-      const peer1Messages = await peer1.getMessages();
-      const peer2Messages = await peer2.getMessages();
-      expect(peer1Messages).not.toContainEqual(message4);
-      expect(peer2Messages).not.toContainEqual(message3);
-    });
-  }
+  await waitForExpect(async () => {
+    const peer1Messages = await peer1.getMessages();
+    const peer2Messages = await peer2.getMessages();
+    expect(peer1Messages).not.toContainEqual(message4);
+    expect(peer2Messages).not.toContainEqual(message3);
+  });
 
-  {
-    // Check replication occurs again if we add the connection again.
+  // Check replication occurs again if we add the connection again.
 
-    await network.addConnection(peer1.id, peer2.id);
-    expect(network.connections.length).toBe(1);
+  await network.addConnection(peer1.id, peer2.id);
+  expect(network.connections.length).toBe(1);
 
-    await waitForExpect(async () => {
-      log('Getting messages2');
-      const peer1Messages = await peer1.getMessages();
-      const peer2Messages = await peer2.getMessages();
-      expect(peer1Messages).toContainEqual(message4);
-      expect(peer2Messages).toContainEqual(message3);
-    });
-  }
+  await waitForExpect(async () => {
+    log('Getting messages2');
+    const peer1Messages = await peer1.getMessages();
+    const peer2Messages = await peer2.getMessages();
+    expect(peer1Messages).toContainEqual(message4);
+    expect(peer2Messages).toContainEqual(message3);
+  });
 });

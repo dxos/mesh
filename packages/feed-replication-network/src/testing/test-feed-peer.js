@@ -10,14 +10,6 @@ import { FeedReplicationPeer } from '../feed-replication-peer';
 const log = debug('dxos:feed-replication-network');
 
 export class TestFeedPeer extends FeedReplicationPeer {
-  getFeeds () {
-    return this.feedStore.getOpenFeeds();
-  }
-
-  getDescriptors () {
-    return this.feedStore.getDescriptors();
-  }
-
   async append (msg) {
     return this.feed.append(msg);
   }
@@ -26,7 +18,7 @@ export class TestFeedPeer extends FeedReplicationPeer {
     const messages = [];
     const stream = this.feedStore.createReadStream();
     stream.on('data', (data) => {
-      log(`Got data: ${JSON.stringify(data)}`);
+      log(`Subscription message: ${JSON.stringify(data)}`);
       messages.push(data);
     });
     return new Promise((resolve, reject) => {
@@ -34,7 +26,6 @@ export class TestFeedPeer extends FeedReplicationPeer {
         if (err) {
           reject(err);
         } else {
-          log(`Returning ${messages.length} messages`);
           resolve(messages);
         }
       });

@@ -6,7 +6,6 @@ import assert from 'assert';
 import debug from 'debug';
 
 import { createId, keyToBuffer } from '@dxos/crypto';
-import { Network } from '@dxos/network-generator';
 import { ProtocolNetworkGenerator } from '@dxos/protocol-network-generator';
 
 const log = debug('dxos:feed-replication-network');
@@ -21,7 +20,7 @@ const createKey = () => {
  * @param opts
  * @property opts.peerCount {number} - Create this many peers.
  * @property opts.initializeConnected - Connect initial peer set if true.
- * @returns {Promise<Network>}
+ * @returns {Promise<Network>} - Network from '@dxos/network-generator
  */
 export const createDirectedReplicationNetwork = async (opts, peerFactory) => {
   assert(peerFactory);

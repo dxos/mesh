@@ -5,7 +5,7 @@
 import debug from 'debug';
 import ram from 'random-access-memory';
 
-import { discoveryKey } from '@dxos/crypto';
+import { discoveryKey, humanize } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 import { Protocol } from '@dxos/protocol';
 import { DefaultReplicator } from '@dxos/protocol-plugin-replicator';
@@ -50,6 +50,7 @@ export class FeedReplicationPeer {
         this.closed = true;
       }
     });
+    log(`Created peer ${humanize(peerId)}`);
   }
 
   createStream () {
