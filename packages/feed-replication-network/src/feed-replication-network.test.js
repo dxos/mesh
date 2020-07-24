@@ -7,7 +7,7 @@ import waitForExpect from 'wait-for-expect';
 
 import { humanize, createId } from '@dxos/crypto';
 
-import { createDirectedReplicationNetwork } from './feed-replication-network';
+import { createReplicationNetwork } from './feed-replication-network';
 import { TestReplicationPeerFactory } from './testing/test-feed-peer';
 
 const log = debug('dxos:feed-replication-network:test');
@@ -25,7 +25,7 @@ test('DirectedReplicationNetwork', async () => {
   // expose a method to check if a specific message has been received by any feed read by a node
   // allow other introspection such as check if two nodes are synced with each other
 
-  const network = await createDirectedReplicationNetwork({ initializeConnected: false, peerCount: 2 }, TestReplicationPeerFactory);
+  const network = await createReplicationNetwork({ initializeConnected: false, peerCount: 2 }, TestReplicationPeerFactory);
 
   const peers = network.peers;
   expect(peers.length).toEqual(2);

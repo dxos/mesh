@@ -38,7 +38,7 @@ export class FeedReplicationPeer {
    */
   async initialize (topic, peerId) {
     this.id = peerId;
-    // TODO(dboreham): Allow specification of storage type
+    // TODO(dboreham): Allow specification of storage type and encoding.
     this.feedStore = await FeedStore.create(ram, { feedOptions: { valueEncoding: 'json' } });
     this.feed = await this.feedStore.openFeed('/feed', { metadata: { topic: topic.toString('hex') } });
     this.closed = false;
