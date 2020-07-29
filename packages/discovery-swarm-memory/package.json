@@ -1,6 +1,6 @@
 {
   "name": "@dxos/discovery-swarm-memory",
-  "version": "0.2.17",
+  "version": "1.0.0-beta.102",
   "description": "DXOS discovery swarm implementation in memory.",
   "homepage": "https://github.com/dxos/mesh/tree/master/packages/discovery-swarm-memory#readme",
   "bugs": {
@@ -54,9 +54,6 @@
     "ignore": [
       "dist"
     ]
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "gitHead": "0364698ca71eaf38d892bfc0c6f9b9c7d0f3cb00"
 }

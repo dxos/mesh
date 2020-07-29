@@ -1,6 +1,6 @@
 {
   "name": "@dxos/feed-replication-network",
-  "version": "1.0.0-beta.101",
+  "version": "1.0.0-beta.102",
   "description": "Bare Feeds Replication Network Simulation",
   "license": "GPL-3.0",
   "main": "dist/es/index.js",
@@ -23,11 +23,11 @@
     "@dxos/protocol": "^1.1.0-beta.1",
     "@dxos/protocol-network-generator": "^1.1.0-beta.1",
     "@dxos/protocol-plugin-replicator": "^1.1.0-beta.1",
-    "random-access-memory": "^3.1.1",
     "assert": "^2.0.0",
     "debug": "^4.1.1",
     "end-of-stream": "^1.4.4",
     "pify": "^5.0.0",
+    "random-access-memory": "^3.1.1",
     "wait-for-expect": "^3.0.2"
   },
   "devDependencies": {
