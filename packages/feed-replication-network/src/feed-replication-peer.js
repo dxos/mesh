@@ -2,6 +2,7 @@
 // Copyright 2020 DXOS.org
 //
 
+import assert from 'assert';
 import debug from 'debug';
 import ram from 'random-access-memory';
 
@@ -38,6 +39,7 @@ export class FeedReplicationPeer {
    */
   async initialize (topic, peerId) {
     this.id = peerId;
+    this.topic = topic;
     // TODO(dboreham): Allow specification of storage type and encoding.
     this.feedStore = await FeedStore.create(ram, { feedOptions: { valueEncoding: 'json' } });
     this.feed = await this.feedStore.openFeed('/feed', { metadata: { topic: topic.toString('hex') } });
@@ -54,6 +56,10 @@ export class FeedReplicationPeer {
   }
 
   createStream () {
+    // TODO(dboreham): We believe that topic is required in init(discoveryKey(this.topic) below.
+    // However it appears that even if this.topic is undefined, our tests pass.
+    assert(this.topic);
+    assert(this.feedStore);
     return new Protocol({
       streamOptions: {
         live: true
