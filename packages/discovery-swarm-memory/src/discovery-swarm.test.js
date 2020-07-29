@@ -15,6 +15,7 @@ test('replicate using discovery-swarm and hypercore', async (done) => {
   const replicaFeed = hypercore(ram, localFeed.key, { valueEncoding: 'utf-8' });
   replicaFeed.on('append', () => {
     replicaFeed.head((err, message) => {
+      expect(err).toBeFalsy();
       expect(message).toBe('hello');
       done();
     });
