@@ -5,14 +5,13 @@
 // TODO(dboreham): Discuss whether this design makes sense (vs swarm ownership encapsulated entirely within
 //   network-manager, or entirely owned outwith network-manager). Also should we plan for hetrogeneous swarms?
 
+import discoverySwarmWebRTC from '@geut/discovery-swarm-webrtc';
 import assert from 'assert';
 import debug from 'debug';
 
-import discoverySwarmWebRTC from '@geut/discovery-swarm-webrtc';
-import discoverySwarmMemory from '@wirelineio/discovery-swarm-memory';
-
 import { keyToString } from '@dxos/crypto';
 import metrics from '@dxos/metrics';
+import discoverySwarmMemory from '@wirelineio/discovery-swarm-memory';
 
 // NodeJS requires a native extension for WebRTC, but modern browsers will already have it.
 const wrtc = typeof window === 'undefined' ? require('wrtc') : undefined; // eslint-disable-line global-require

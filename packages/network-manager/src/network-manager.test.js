@@ -15,7 +15,6 @@ import { FeedStore } from '@dxos/feed-store';
 
 import { NetworkManager } from './network-manager';
 import { SwarmProvider } from './swarm-provider';
-
 import { testProtocolProvider, TestProtocolPlugin, getPeerId } from './testing/test-protocol';
 
 const log = debug('dxos:network-manager:test');
@@ -62,6 +61,7 @@ test('Create a NetworkManager', async () => {
   log('Closed NetworkManager');
 });
 
+// eslint-disable-next-line jest/no-test-callback
 test('One protocol and one swarm key', async (done) => {
   const swarmKey = createKey();
   const fnOnConnection = jest.fn();
@@ -101,6 +101,7 @@ test('One protocol and one swarm key', async (done) => {
   });
 });
 
+// eslint-disable-next-line jest/no-test-callback
 test('Two protocols and two swarm keys', async (done) => {
   const swarmKeyA = createKey();
   const swarmKeyB = createKey();
