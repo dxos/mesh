@@ -125,7 +125,7 @@ export class NetworkManager extends EventEmitter {
    * @param {Buffer} peerId
    * @returns {Promise<SimplePeer>}
    */
-  async connecTo (key, peerId) {
+  async connect (key, peerId) {
     assert(Buffer.isBuffer(key));
     assert(Buffer.isBuffer(peerId));
 
