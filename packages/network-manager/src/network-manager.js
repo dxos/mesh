@@ -120,6 +120,25 @@ export class NetworkManager extends EventEmitter {
   }
 
   /**
+   * Connect directly to a peer in the swarm bypassing the MMST
+   * @param {Buffer} key
+   * @param {Buffer} peerId
+   * @returns {Promise<SimplePeer>}
+   */
+  async connecTo (key, peerId) {
+    assert(Buffer.isBuffer(key));
+    assert(Buffer.isBuffer(peerId));
+
+    const keyString = keyToString(key);
+    const swarm = this._swarms.get(keyString);
+    if (!swarm) {
+      throw new Error(`You need to be connected to the swarm: ${keyString}`);
+    }
+
+    return swarm.connect(key, peerId);
+  }
+
+  /**
    * Call to release resources and network sockets. Not subsequently usable.
    */
   async close () {
