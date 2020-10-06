@@ -1,6 +1,6 @@
 {
   "name": "@dxos/network-manager",
-  "version": "1.0.0-beta.110",
+  "version": "1.0.0-beta.111",
   "description": "Network Manager",
   "license": "GPL-3.0",
   "main": "dist/src/index.js",
