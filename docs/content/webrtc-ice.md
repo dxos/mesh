@@ -1,3 +1,6 @@
 # WebRTC ICE
 
-\<Insert doc here\>
+TODO(dboreham): complete this doc
+
+![Signal Mesh Diagram](diagrams/webrtc-connection-establishment.png)
+
