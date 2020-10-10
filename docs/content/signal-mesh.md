@@ -1,6 +1,6 @@
 # Signal Mesh
 The Signal Mesh system 
-allows any pair of edge nodes to open peer-to-peer connections between each other even if both nodes
+allows any pair of edge nodes to open peer-to-peer connections between each other, including the case that both nodes
 are web browsers using an internet connection with NAT. The system has no centralized control or coordination.
 
 In order to allow web browser clients with NAT, peer-to-peer connections are made with WebRTC. 
