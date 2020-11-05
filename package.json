@@ -11,7 +11,7 @@
     "type": "git",
     "url": "git+https://github.com/dxos/mesh.git"
   },
-  "license": "GPL-3.0",
+  "license": "AGPLv3",
   "workspaces": {
     "packages": [
       "packages/*"
