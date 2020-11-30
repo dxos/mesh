@@ -71,6 +71,7 @@ The diagram below shows the relationsip between the Signal Mesh node's major com
 * [socket-signal](https://github.com/geut/socket-signal)
 * [nanomessage-rpc](https://github.com/geut/nanomessage-rpc)
 * [nanomessage](https://github.com/geut/nanomessage)
+* [discovery-swarm-webrtc](https://github.com/geut/discovery-swarm-webrtc)
 * [simple-peer](https://github.com/feross/simple-peer)
 * [simple-websocket](https://github.com/feross/simple-websocket)
 * [moleculer](https://github.com/moleculerjs/moleculer)
