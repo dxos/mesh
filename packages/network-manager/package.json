@@ -28,7 +28,7 @@
   "dependencies": {
     "@dxos/crypto": "^1.0.0-beta.1",
     "@dxos/metrics": "^1.0.0-beta.6",
-    "@dxos/protocol": "^1.1.0-beta.20",
+    "@dxos/protocol": "^1.1.0-beta.21",
     "@geut/discovery-swarm-webrtc": "^4.0.1",
     "@wirelineio/discovery-swarm-memory": "^0.2.17",
     "assert": "^2.0.0",

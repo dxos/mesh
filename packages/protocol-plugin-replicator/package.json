@@ -1,6 +1,6 @@
 {
   "name": "@dxos/protocol-plugin-replicator",
-  "version": "1.1.0-beta.20",
+  "version": "1.1.0-beta.21",
   "description": "Protocol plugin replicator.",
   "homepage": "https://github.com/dxos/protocol/tree/master/packages/protocol-plugin-replicator#readme",
   "bugs": {
@@ -24,6 +24,7 @@
     "clean": "del-cli dist",
     "coverage": "npm test -- --coverage",
     "coveralls": "npm run coverage && cat ./coverage/lcov.info | coveralls",
+    "lint": "semistandard 'src/**/*.js'",
     "prepublishOnly": "npm run build && npm run test",
     "test": "jest --verbose --passWithNoTests src",
     "posttest": "npm run lint"
@@ -36,7 +37,7 @@
   },
   "dependencies": {
     "@dxos/codec-protobuf": "1.1.0-beta.10",
-    "@dxos/protocol": "^1.1.0-beta.20",
+    "@dxos/protocol": "^1.1.0-beta.21",
     "buffer-json-encoding": "^1.0.2",
     "debug": "^4.1.1",
     "source-map-support": "^0.5.12"
@@ -49,7 +50,7 @@
     "@babel/preset-env": "^7.4.5",
     "@dxos/crypto": "^1.0.0-beta.1",
     "@dxos/feed-store": "^1.2.0-beta.30",
-    "@dxos/protocol-network-generator": "^1.1.0-beta.20",
+    "@dxos/protocol-network-generator": "^1.1.0-beta.21",
     "babel-eslint": "^10.0.2",
     "babel-jest": "^24.8.0",
     "babel-plugin-add-module-exports": "^1.0.2",
@@ -61,9 +62,18 @@
     "jest": "^26.6.3",
     "pify": "^4.0.1",
     "random-access-memory": "^3.1.1",
+    "semistandard": "14.2.0",
     "wait-for-expect": "^3.0.1"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "semistandard": {
+    "parser": "babel-eslint",
+    "env": [
+      "jest",
+      "node",
+      "browser"
+    ]
   }
 }
