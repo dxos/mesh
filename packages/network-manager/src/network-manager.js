@@ -75,7 +75,7 @@ export class NetworkManager extends EventEmitter {
    * @return {function} - Call to stop participation in the swarm, release any resources allocated.
    * @throws {Error} TODO(dboreham): add details.
    */
-  async joinProtocolSwarm (key, protocolProvider) {
+  async joinProtocolSwarm (key, protocolProvider, swarmOptions) {
     // Existing swarm for this key is a fatal error because we have no easy way to enforce uniqueness over
     // [key x protocol] tuples.
     const keyString = keyToString(key);
@@ -85,7 +85,7 @@ export class NetworkManager extends EventEmitter {
 
     // TODO(dboreham): Discuss alternatives to this pattern: Inject context known only here (FeedStore currently).
     // Create a new swarm for this key (shouldn't be necessary, see above for details).
-    const swarm = await this._swarmProvider.createSwarm(protocolProvider, { feedStore: this._feedStore });
+    const swarm = await this._swarmProvider.createSwarm(protocolProvider, { feedStore: this._feedStore }, swarmOptions);
     this._swarms.set(keyString, swarm);
 
     swarm.on('connection', (conn, info) => {
