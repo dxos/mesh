@@ -25,7 +25,7 @@ const log = debug('dxos:network-manager');
 export const protocolFactory = ({ session = {}, plugins = [], getTopics }) => {
   assert(getTopics);
   // eslint-disable-next-line no-unused-vars
-  return ({ channel, protocolContext }) => {
+  return ({ channel }) => {
     const protocol = new Protocol({
       streamOptions: { live: true },
       discoveryToPublicKey: (dk) => {

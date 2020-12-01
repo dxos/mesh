@@ -35,7 +35,7 @@ class DiscoverySwarmWebrtc extends EventEmitter {
         maxPeers,
         queueTimeout, // queue mmst
         lookupTimeout: timeout
-      }, 
+      },
       requestTimeout: timeout,
       simplePeer,
       reconnectingWebsocket: {

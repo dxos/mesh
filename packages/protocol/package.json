@@ -37,11 +37,11 @@
     "testEnvironment": "node"
   },
   "dependencies": {
-    "@dxos/codec-protobuf": "0.2.2",
+    "@dxos/codec-protobuf": "1.1.0-beta.10",
     "assert": "^2.0.0",
     "buffer-json-encoding": "^1.0.2",
     "debug": "^4.1.1",
-    "end-of-stream": "^1.4.1",
+    "end-of-stream": "^1.4.4",
     "humanhash": "^1.0.4",
     "hypercore-protocol": "^6.11.1",
     "nanoerror": "^1.2.1",
@@ -51,7 +51,7 @@
     "source-map-support": "^0.5.12"
   },
   "devDependencies": {
-    "@dxos/eslint-plugin": "^1.0.8",
+    "@dxos/eslint-plugin": "1.0.9",
     "@dxos/protobuf-compiler": "^0.2.2",
     "coveralls": "^3.0.7",
     "cpy-cli": "^2.0.0",

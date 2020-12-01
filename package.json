@@ -25,27 +25,8 @@
     "test": "lerna run test",
     "posttest": "npm run lint"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.js": "semistandard"
-  },
   "devDependencies": {
     "babel-eslint": "^10.0.2",
-    "husky": "^3.1.0",
-    "lerna": "^3.19.0",
-    "lint-staged": "^9.5.0",
-    "semistandard": "^14.2.0"
-  },
-  "semistandard": {
-    "parser": "babel-eslint",
-    "env": [
-      "jest",
-      "node",
-      "browser"
-    ]
+    "lerna": "^3.19.0"
   }
 }

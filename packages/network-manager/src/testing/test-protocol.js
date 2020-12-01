@@ -125,7 +125,9 @@ export class TestProtocolPlugin extends EventEmitter {
   }
 
   _onPeerDisconnect (error, protocol) {
-    if (error) return;
+    if (error) {
+      return;
+    }
     const peerId = getPeerId(protocol);
 
     this._peers.delete(keyToString(peerId));
