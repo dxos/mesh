@@ -40,9 +40,11 @@ export class SwarmProvider {
    * configuration determined by this._config and bound with the supplied ProtocolProvider.
    * @param {ProtocolProvider} protocolProvider
    * @param {ProtocolContext} protocolContext
+   * @param {object} [options]
+   * @property {object} [options.signal] Implementation of signal client.
    * @return {DiscoverySwarmWebrtc}
    */
-  createSwarm (protocolProvider, protocolContext) {
+  createSwarm (protocolProvider, protocolContext, options = {}) {
     // TODO(dboreham): Config contents should be opaque.
     const { signal, ice } = this._config;
 
@@ -57,7 +59,8 @@ export class SwarmProvider {
       },
       stream: ({ channel }) => {
         return protocolProvider({ channel, protocolContext }).stream;
-      }
+      },
+      signal: options.signal
     });
 
     metrics.inc('swarm.create');

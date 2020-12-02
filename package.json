@@ -22,18 +22,10 @@
     "clean": "lerna run clean",
     "lint": "lerna run lint",
     "lint:fix": "lerna run lint -- --fix",
-    "test": "lerna run test",
-    "posttest": "npm run lint"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
+    "test": "lerna run test"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.2",
-    "husky": "^3.1.0",
-    "lerna": "^3.19.0",
-    "lint-staged": "^9.5.0"
+    "lerna": "^3.19.0"
   }
 }
