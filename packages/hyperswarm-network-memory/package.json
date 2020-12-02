@@ -17,7 +17,6 @@
     "clean": "rm -rf dist",
     "build": "npm run clean && babel ./src --out-dir ./dist/es --ignore \"**/*.test.js\" --source-maps inline",
     "build:watch": "npm run build -- --watch",
-    "lint": "semistandard",
     "prepublishOnly": "npm run build && npm run test",
     "test": "jest --rootDir ./src --verbose --passWithNoTests"
   },
@@ -41,17 +40,6 @@
     "babel-plugin-add-module-exports": "^1.0.2",
     "eslint": "^5.16.0",
     "jest": "^24.8.0"
-  },
-  "semistandard": {
-    "parser": "babel-eslint",
-    "env": [
-      "jest",
-      "node",
-      "browser"
-    ],
-    "ignore": [
-      "dist"
-    ]
   },
   "gitHead": "0364698ca71eaf38d892bfc0c6f9b9c7d0f3cb00"
 }
