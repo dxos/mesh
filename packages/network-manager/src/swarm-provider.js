@@ -5,11 +5,11 @@
 // TODO(dboreham): Discuss whether this design makes sense (vs swarm ownership encapsulated entirely within
 //   network-manager, or entirely owned outwith network-manager). Also should we plan for hetrogeneous swarms?
 
+import discoverySwarmWebRTC from '@geut/discovery-swarm-webrtc';
 import assert from 'assert';
 import debug from 'debug';
 
 import { keyToString } from '@dxos/crypto';
-import discoverySwarmWebRTC from '@dxos/discovery-swarm-webrtc';
 import metrics from '@dxos/metrics';
 import discoverySwarmMemory from '@wirelineio/discovery-swarm-memory';
 
