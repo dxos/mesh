@@ -20,7 +20,11 @@ const createPeer = (controlTopic, peerId) => {
   }))
 
   const presencePlugin = new Presence(peerId)
-  networkManager.joinProtocolSwarm(controlTopic, transportProtocolProvider(controlTopic, peerId, presencePlugin), { signal: TopologySignalClient });
+  const leaveProtocolSwarm = networkManager.joinProtocolSwarm(controlTopic, transportProtocolProvider(controlTopic, peerId, presencePlugin), { /*signal: TopologySignalClient*/ });
+
+  presencePlugin.leave = async () => {
+    (await leaveProtocolSwarm)();
+  };
 
   return presencePlugin;
 }
@@ -86,10 +90,19 @@ const GraphDemo = () => {
     })
   }, [])
 
+  const [peers, setPeers] = useState([]);
+
   function addPeers(n) {
     for(let i = 0; i < n; i++) {
-      createPeer(controlTopic, randomBytes())
+      const peer = createPeer(controlTopic, randomBytes())
+      setPeers(peers => [...peers, peer])
     }
+  }
+
+  const killPeer = () => {
+    const peer = peers[Math.floor(Math.random() * peers.length)];
+    console.log('leave', peer)
+    peer && peer.leave();
   }
 
   return (
@@ -100,6 +113,7 @@ const GraphDemo = () => {
         <button onClick={() => addPeers(1)}>Add peer</button>
         <button onClick={() => addPeers(5)}>Add 5 peers</button>
         <button onClick={() => addPeers(10)}>Add 10 peers</button>
+        <button onClick={() => killPeer()}>Kill peer</button>
       </div>
 
       <SVG width={width} height={height}>
