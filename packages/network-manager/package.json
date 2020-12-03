@@ -25,6 +25,7 @@
     "testEnvironment": "node"
   },
   "dependencies": {
+    "@dxos/async": "^1.0.2-alpha.0",
     "@dxos/crypto": "^1.0.0-beta.1",
     "@dxos/metrics": "^1.0.0-beta.6",
     "@dxos/protocol": "^1.1.0-beta.21",
@@ -35,6 +36,7 @@
     "wrtc": "^0.4.3"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-decorators": "^7.12.1",
     "@dxos/eslint-plugin": "1.0.9",
     "@dxos/feed-store": "^1.2.0-beta.30",
     "eslint": "^7.13.0",

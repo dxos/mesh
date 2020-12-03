@@ -1,12 +1,13 @@
 const { SocketSignalWebsocketClient } = require('socket-signal-websocket')
 const MMST = require('mostly-minimal-spanning-tree')
 const assert = require('nanocustomassert')
+import { synchronized } from '@dxos/async'
 const { Readable } = require('stream')
 
 const log = require('debug')('discovery-swarm-webrtc:mmst-signal')
-const { toHex } = require('./utils')
-const { ERR_INVALID_CHANNEL, ERR_MAX_PEERS_REACHED } = require('./errors')
-const Scheduler = require('./scheduler')
+const { toHex } = require('@dxos/discovery-swarm-webrtc/lib/utils')
+const { ERR_INVALID_CHANNEL, ERR_MAX_PEERS_REACHED } = require('@dxos/discovery-swarm-webrtc/lib/errors')
+const Scheduler = require('@dxos/discovery-swarm-webrtc/lib/scheduler')
 
 const assertChannel = channel => assert(Buffer.isBuffer(channel) && channel.length === 32, 'Channel must be a buffer of 32 bytes')
 
@@ -28,6 +29,7 @@ export class TopologySignalClient extends SocketSignalWebsocketClient {
     this._mmsts = new Map()
     this._candidates = new Map()
     this._scheduler = new Scheduler()
+    this._peers = {}
 
     this[kOnConnected] = this[kOnConnected].bind(this)
   }
@@ -41,28 +43,30 @@ export class TopologySignalClient extends SocketSignalWebsocketClient {
     }
 
     this._channels.set(channelStr, channel)
+    this._peers[toHex(channel)] |= {}
 
     const mmst = new MMST({
       ...this._mmstOpts,
       id: this.id,
       lookup: () => this._lookup(channel),
       connect: async (to) => {
-        await this.open()
+        // console.log('connect', to)
+        // await this.open()
 
-        try {
-          const peer = this.connect(channel, to)
-          this._runCreateConnection(peer)
-          await peer.ready()
-          return peer.stream
-        } catch (err) {
-          // Remove a candidate.
-          const candidates = this[kGetCandidates](channel)
-          candidates.list = candidates.list.filter(candidate => !candidate.equals(to))
-          if (candidates.list.length === 0) {
-            candidates.lookup = true
-          }
-          throw err
-        }
+        // try {
+        //   const peer = this.connect(channel, to)
+        //   this._runCreateConnection(peer)
+        //   await peer.ready()
+        //   return peer.stream
+        // } catch (err) {
+        //   // Remove a candidate.
+        //   const candidates = this[kGetCandidates](channel)
+        //   candidates.list = candidates.list.filter(candidate => !candidate.equals(to))
+        //   if (candidates.list.length === 0) {
+        //     candidates.lookup = true
+        //   }
+        //   throw err
+        // }
       }
     })
 
@@ -152,8 +156,27 @@ export class TopologySignalClient extends SocketSignalWebsocketClient {
     if (this.getPeersByTopic(channel).filter(p => p.initiator).length > 0) return
 
     try {
-      if (this.hasChannel(channel)) {
-        await this._getMMST(channel).run()
+      const candidates = this[kGetCandidates](channel)
+      console.log('connectLoop', toHex(channel), candidates.list.length)
+      let i = 0;
+      while(candidates.list.length > i) {
+        const to = candidates.list[i];
+        if(this._peers[toHex(channel)][toHex(to)]) continue;
+        console.log('connect', to, i)
+        try {
+            const peer = this.connect(channel, to)
+            this._runCreateConnection(peer)
+            await peer.ready()
+            this._peers[toHex(channel)][toHex(to)] = peer;
+            i++
+          } catch (err) {
+            // Remove a candidate.
+            candidates.list = candidates.list.filter(candidate => !candidate.equals(to))
+            if (candidates.list.length === 0) {
+              candidates.lookup = true
+            }
+            // throw err
+          }
       }
     } catch (err) {
       // nothing to do
@@ -214,6 +237,7 @@ export class TopologySignalClient extends SocketSignalWebsocketClient {
     }
     candidates = { list: [], lookup: false }
     this._candidates.set(toHex(channel), candidates)
+    console.log(candidates)
     return candidates
   }
 }

@@ -27,6 +27,8 @@ class DiscoverySwarmWebrtc extends EventEmitter {
 
     const queueTimeout = timeout * 2
 
+    console.log('using signal', signal)
+
     this.signal = new (signal || MMSTSignalClient)({
       id: this.id,
       bootstrap,

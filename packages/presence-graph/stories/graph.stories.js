@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { FullScreen, SVG, useGrid, Grid } from '@dxos/gem-core';
 import { Markers, createSimulationDrag, ForceLayout, Graph, NodeProjector } from '@dxos/gem-spore';
 import useResizeAware from 'react-resize-aware';
-import { NetworkManager, SwarmProvider, transportProtocolProvider } from '@dxos/network-manager'
+import { NetworkManager, SwarmProvider, transportProtocolProvider, TopologySignalClient } from '@dxos/network-manager'
 import { randomBytes, PublicKey } from '@dxos/crypto';
 import { Presence } from '@dxos/protocol-plugin-presence'
 
@@ -20,7 +20,7 @@ const createPeer = (controlTopic, peerId) => {
   }))
 
   const presencePlugin = new Presence(peerId)
-  networkManager.joinProtocolSwarm(controlTopic, transportProtocolProvider(controlTopic, peerId, presencePlugin));
+  networkManager.joinProtocolSwarm(controlTopic, transportProtocolProvider(controlTopic, peerId, presencePlugin), { signal: TopologySignalClient });
 
   return presencePlugin;
 }
@@ -36,12 +36,12 @@ const GraphDemo = () => {
   const [layout] = useState(() => new ForceLayout({
     initializer: (node, center) => {
       // Freeze this peer.
-      if (node.id === controlTopic.toString('hex')) {
-        return {
-          fx: center.x,
-          fy: center.y
-        };
-      }
+      // if (node.id === controlTopic.toString('hex')) {
+      //   return {
+      //     fx: center.x,
+      //     fy: center.y
+      //   };
+      // }
     }
   }));
   const [drag] = useState(() => createSimulationDrag(layout.simulation));
