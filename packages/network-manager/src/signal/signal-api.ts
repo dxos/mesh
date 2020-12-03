@@ -27,7 +27,7 @@ export class SignalApi {
       send: async (data: Uint8Array) => {
         await this._connectTrigger.wait();
         assert(this._socket, 'No socket');
-        await promisify(this._socket.send.bind(this._socket))(data)
+        await promisify(this._socket.send.bind(this._socket) as any)(data)
       },
       subscribe: (next: (data: Uint8Array) => void) => {
         this._connectTrigger.wait().then(() => {
