@@ -1,9 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { FullScreen, SVG, useGrid, Grid } from '@dxos/gem-core';
-import { Markers, createSimulationDrag, ForceLayout, Graph } from '@dxos/gem-spore';
+import { Markers, createSimulationDrag, ForceLayout, Graph, NodeProjector } from '@dxos/gem-spore';
 import useResizeAware from 'react-resize-aware';
 import { NetworkManager, SwarmProvider, transportProtocolProvider } from '@dxos/network-manager'
-import { randomBytes } from '@dxos/crypto';
+import { randomBytes, PublicKey } from '@dxos/crypto';
 import { Presence } from '@dxos/protocol-plugin-presence'
 
 export default {
@@ -45,6 +45,19 @@ const GraphDemo = () => {
     }
   }));
   const [drag] = useState(() => createSimulationDrag(layout.simulation));
+  const [{ nodeProjector }] = useState({
+    nodeProjector: new NodeProjector({
+      node: {
+        showLabels: true,
+        propertyAdapter: (node) => {
+          return {
+            radius: node.id === controlTopic.toString('hex') ? 20 : 10
+          };
+        }
+      }
+    })
+  });
+
 
 
   const [data, setData] = useState(() => buildGraph(controlPeer.graph));
@@ -54,6 +67,7 @@ const GraphDemo = () => {
     graph.forEachNode(node => {
       nodes.push({
         id: node.id,
+        title: PublicKey.fromHex(node.id).humanize(),
       })
     })
     graph.forEachLink(link => {
@@ -95,6 +109,7 @@ const GraphDemo = () => {
           grid={grid}
           data={data}
           layout={layout}
+          nodeProjector={nodeProjector}
           drag={drag}
         />
       </SVG>
