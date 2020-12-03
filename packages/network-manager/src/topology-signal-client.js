@@ -26,7 +26,7 @@ export class TopologySignalClient extends SocketSignalWebsocketClient {
     this._strict = strict
 
     this._channels = new Map()
-    this._mmsts = new Map()
+    // this._mmsts = new Map()
     this._candidates = new Map()
     this._scheduler = new Scheduler()
     this._peers = {}
@@ -45,33 +45,6 @@ export class TopologySignalClient extends SocketSignalWebsocketClient {
     this._channels.set(channelStr, channel)
     this._peers[toHex(channel)] |= {}
 
-    const mmst = new MMST({
-      ...this._mmstOpts,
-      id: this.id,
-      lookup: () => this._lookup(channel),
-      connect: async (to) => {
-        // console.log('connect', to)
-        // await this.open()
-
-        // try {
-        //   const peer = this.connect(channel, to)
-        //   this._runCreateConnection(peer)
-        //   await peer.ready()
-        //   return peer.stream
-        // } catch (err) {
-        //   // Remove a candidate.
-        //   const candidates = this[kGetCandidates](channel)
-        //   candidates.list = candidates.list.filter(candidate => !candidate.equals(to))
-        //   if (candidates.list.length === 0) {
-        //     candidates.lookup = true
-        //   }
-        //   throw err
-        // }
-      }
-    })
-
-    this._mmsts.set(channelStr, mmst)
-
     if (this.connected) {
       super.join(channel).catch(() => {})
     }
@@ -83,8 +56,8 @@ export class TopologySignalClient extends SocketSignalWebsocketClient {
     const channelStr = toHex(channel)
 
     this._scheduler.delete(channelStr)
-    this._mmsts.get(channelStr).destroy()
-    this._mmsts.delete(channelStr)
+    // this._mmsts.get(channelStr).destroy()
+    // this._mmsts.delete(channelStr)
     this._channels.delete(channelStr)
     this._candidates.delete(channelStr)
 
@@ -126,17 +99,17 @@ export class TopologySignalClient extends SocketSignalWebsocketClient {
       throw new ERR_INVALID_CHANNEL(toHex(peer.topic))
     }
 
-    const mmst = this._getMMST(peer.topic)
+    // const mmst = this._getMMST(peer.topic)
 
-    if (this._strict && !peer.initiator && !mmst.shouldHandleIncoming()) {
-      throw new ERR_MAX_PEERS_REACHED(this._mmstOpts.maxPeers)
-    }
+    // if (this._strict && !peer.initiator && !mmst.shouldHandleIncoming()) {
+    //   throw new ERR_MAX_PEERS_REACHED(this._mmstOpts.maxPeers)
+    // }
 
     this._createConnection(peer)
 
-    if (!peer.initiator) {
-      mmst.addConnection(peer.id, peer.stream)
-    }
+    // if (!peer.initiator) {
+    //   mmst.addConnection(peer.id, peer.stream)
+    // }
 
     return peer
   }
@@ -144,8 +117,8 @@ export class TopologySignalClient extends SocketSignalWebsocketClient {
   async _close () {
     await super._close()
     this.removeListener('connected', this[kOnConnected])
-    this._mmsts.forEach(mmst => mmst.destroy())
-    this._mmsts.clear()
+    // this._mmsts.forEach(mmst => mmst.destroy())
+    // this._mmsts.clear()
     this._channels.clear()
     this._candidates.clear()
     this._scheduler.clear()
@@ -184,9 +157,9 @@ export class TopologySignalClient extends SocketSignalWebsocketClient {
     }
   }
 
-  _getMMST (channel) {
-    return this._mmsts.get(toHex(channel))
-  }
+  // _getMMST (channel) {
+  //   return this._mmsts.get(toHex(channel))
+  // }
 
   _lookup (channel) {
     const stream = new Readable({
