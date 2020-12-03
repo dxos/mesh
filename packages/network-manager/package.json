@@ -3,11 +3,10 @@
   "version": "1.0.0-beta.113",
   "description": "Network Manager",
   "license": "GPL-3.0",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
+  "main": "dist/es/index.js",
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "npm run clean && tsc",
+    "build": "npm run clean && babel ./src --out-dir ./dist/es --ignore \"**/*.test.js\" --source-maps inline",
     "build:watch": "npm run build -- --watch",
     "lint": "eslint 'src/**/*.{ts,js}'",
     "prepublishOnly": "npm run build && npm run test",
