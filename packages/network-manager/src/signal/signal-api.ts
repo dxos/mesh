@@ -19,8 +19,7 @@ export class SignalApi {
 
   constructor(
     private readonly _host: string,
-    private readonly _id: PublicKey,
-    private readonly _onOffer: () => Promise<void>,
+    private readonly _onOffer: (message: any) => Promise<void>,
     private readonly _onSignal: () => Promise<void>,
   ) {
     this._rpc = nanomessagerpc({
@@ -44,10 +43,15 @@ export class SignalApi {
           }
         };
       }
+    });
+    this._rpc.on('error', console.log)
+    this._rpc.actions({
+      offer: (message: any) => this._onOffer(message),
     })
+    // TODO(marik-d): Bind offer/signal events.
   }
 
-  async connect() {
+  connect() {
     if(this._state !== SignalApi.State.NOT_CONNECTED) {
       throw new Error('Invalid state');
     }
@@ -55,37 +59,47 @@ export class SignalApi {
 
     this._socket = new WebSocket(this._host);
     this._socket.onopen = () => {
+      console.log('OPEN')
       this._state = SignalApi.State.CONNECTED;
       this._connectTrigger.wake();
     }
     this._socket.onclose = () => {
+      console.log('CLOSE')
       this._state = SignalApi.State.DISCONNECTED;
       // TODO(marik-d): Reconnect.
     }
     this._socket.onerror = e => {
+      console.log('ERROR', e)
       this._state = SignalApi.State.ERROR;
       this._lastError = e.error;
       // TODO(marik-d): Reconnect.
     }
   }
 
-  async join() {
-
+  async join(topic: PublicKey, peerId: PublicKey): Promise<PublicKey[]> {
+    await this._rpc.open();
+    const peers: Buffer[] = await this._rpc.call('join', {
+      id: peerId.asBuffer(),
+      topic: topic.asBuffer(),
+    })
+    return peers.map(id => PublicKey.from(id))
   }
 
   async leave() {
 
   }
 
-  async lookup(topic: PublicKey) {
-    return this._rpc.send({
-      id: this._id.asUint8Array(),
-      topic: topic.asUint8Array(),
+  async lookup(topic: PublicKey): Promise<PublicKey[]> {
+    await this._rpc.open();
+    const peers: Buffer[] = await this._rpc.call('lookup', {
+      topic: topic.asBuffer(),
     })
+    return peers.map(id => PublicKey.from(id))
   }
 
-  async offer() {
-
+  async offer(payload: SignalApi.OfferPayload) {
+    // await this._rpc.open();
+    // return this._rpc.call('offer', )
   }
 
   async signal() {
@@ -100,5 +114,12 @@ export namespace SignalApi {
     CONNECTED,
     ERROR,
     DISCONNECTED,
+  }
+
+  export interface OfferPayload {
+    remoteId: Uint8Array,
+    topic: Uint8Array,
+    sessionId: Uint8Array,
+    data: any[],
   }
 }
