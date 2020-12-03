@@ -19,7 +19,7 @@ export class SignalApi {
 
   constructor(
     private readonly _host: string,
-    private readonly _onOffer: (message: any) => Promise<void>,
+    private readonly _onOffer: (message: SignalApi.OfferPayload) => Promise<unknown>,
     private readonly _onSignal: () => Promise<void>,
   ) {
     this._rpc = nanomessagerpc({
@@ -85,8 +85,12 @@ export class SignalApi {
     return peers.map(id => PublicKey.from(id))
   }
 
-  async leave() {
-
+  async leave(topic: PublicKey, peerId: PublicKey): Promise<void> {
+    await this._rpc.open();
+    await this._rpc.call('leave', {
+      id: peerId.asBuffer(),
+      topic: topic.asBuffer(),
+    })
   }
 
   async lookup(topic: PublicKey): Promise<PublicKey[]> {
@@ -97,9 +101,19 @@ export class SignalApi {
     return peers.map(id => PublicKey.from(id))
   }
 
-  async offer(payload: SignalApi.OfferPayload) {
-    // await this._rpc.open();
-    // return this._rpc.call('offer', )
+  /**
+   * Routes an offer to the other peer's _onOffer callback.
+   * @returns Other peer's _onOffer callback return value.
+   */
+  async offer(payload: SignalApi.OfferPayload): Promise<unknown> {
+    await this._rpc.open();
+    return this._rpc.call('offer', {
+      id: payload.id.asBuffer(),
+      remoteId: payload.remoteId.asBuffer(),
+      topic: payload.topic.asBuffer(),
+      sessionId: payload.sessionId.asBuffer(),
+      data: payload.data,
+    })
   }
 
   async signal() {
@@ -117,9 +131,10 @@ export namespace SignalApi {
   }
 
   export interface OfferPayload {
-    remoteId: Uint8Array,
-    topic: Uint8Array,
-    sessionId: Uint8Array,
-    data: any[],
+    id: PublicKey
+    remoteId: PublicKey,
+    topic: PublicKey,
+    sessionId: PublicKey,
+    data: unknown,
   }
 }
