@@ -6,6 +6,9 @@ import assert from 'assert';
 import { promisify } from 'util'
 import { PublicKey } from '@dxos/crypto';
 
+/**
+ * Establishes a websocket connection to signal server and provides RPC methods.
+ */
 export class SignalApi {
   private _state = SignalApi.State.NOT_CONNECTED;
 
@@ -17,10 +20,15 @@ export class SignalApi {
 
   private readonly _connectTrigger = new Trigger();
 
+  /**
+   * @param _host Signal server websocket URL.
+   * @param _onOffer See `SignalApi.offer`.
+   * @param _onSignal See `SignalApi.signal`.
+   */
   constructor(
     private readonly _host: string,
-    private readonly _onOffer: (message: SignalApi.OfferPayload) => Promise<unknown>,
-    private readonly _onSignal: () => Promise<void>,
+    private readonly _onOffer: (message: SignalApi.SignalMessage) => Promise<unknown>,
+    private readonly _onSignal: (message: SignalApi.SignalMessage) => Promise<void>,
   ) {
     this._rpc = nanomessagerpc({
       send: async (data: Uint8Array) => {
@@ -46,8 +54,21 @@ export class SignalApi {
     });
     this._rpc.on('error', console.log)
     this._rpc.actions({
-      offer: (message: any) => this._onOffer(message),
+      offer: (message: any) => this._onOffer({
+        id: PublicKey.from(message.id),
+        remoteId: PublicKey.from(message.remoteId),
+        topic: PublicKey.from(message.topic),
+        sessionId: PublicKey.from(message.sessionId),
+        data: message.data
+      }),
     })
+    this._rpc.on('signal', (msg: SignalApi.SignalMessage) => this._onSignal({
+      id: PublicKey.from(msg.id),
+      remoteId: PublicKey.from(msg.remoteId),
+      topic: PublicKey.from(msg.topic),
+      sessionId: PublicKey.from(msg.sessionId),
+      data: msg.data
+    }))
     // TODO(marik-d): Bind offer/signal events.
   }
 
@@ -59,17 +80,14 @@ export class SignalApi {
 
     this._socket = new WebSocket(this._host);
     this._socket.onopen = () => {
-      console.log('OPEN')
       this._state = SignalApi.State.CONNECTED;
       this._connectTrigger.wake();
     }
     this._socket.onclose = () => {
-      console.log('CLOSE')
       this._state = SignalApi.State.DISCONNECTED;
       // TODO(marik-d): Reconnect.
     }
     this._socket.onerror = e => {
-      console.log('ERROR', e)
       this._state = SignalApi.State.ERROR;
       this._lastError = e.error;
       // TODO(marik-d): Reconnect.
@@ -105,7 +123,7 @@ export class SignalApi {
    * Routes an offer to the other peer's _onOffer callback.
    * @returns Other peer's _onOffer callback return value.
    */
-  async offer(payload: SignalApi.OfferPayload): Promise<unknown> {
+  async offer(payload: SignalApi.SignalMessage): Promise<unknown> {
     await this._rpc.open();
     return this._rpc.call('offer', {
       id: payload.id.asBuffer(),
@@ -116,8 +134,18 @@ export class SignalApi {
     })
   }
 
-  async signal() {
-
+  /**
+   * Routes an offer to the other peer's _onSignal callback.
+   */
+  async signal(payload: SignalApi.SignalMessage): Promise<void> {
+    await this._rpc.open();
+    return this._rpc.emit('signal', {
+      id: payload.id.asBuffer(),
+      remoteId: payload.remoteId.asBuffer(),
+      topic: payload.topic.asBuffer(),
+      sessionId: payload.sessionId.asBuffer(),
+      data: payload.data,
+    })
   }
 }
 
@@ -130,7 +158,8 @@ export namespace SignalApi {
     DISCONNECTED,
   }
 
-  export interface OfferPayload {
+  // TODO(marik-d): Define more concrete types for offer/answer.
+  export interface SignalMessage {
     id: PublicKey
     remoteId: PublicKey,
     topic: PublicKey,
