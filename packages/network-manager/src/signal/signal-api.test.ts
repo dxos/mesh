@@ -3,6 +3,7 @@ import { PublicKey } from "@dxos/crypto"
 import { expect, mockFn } from "earljs";
 import { SignalApi } from "./signal-api"
 import waitForExpect from 'wait-for-expect';
+import { SignalData } from "simple-peer";
 
 describe('SignalApi', () => {
   let topic: PublicKey;
@@ -21,7 +22,7 @@ describe('SignalApi', () => {
   })
 
   it('join', async () => {
-    api = new SignalApi('wss://apollo1.kube.moon.dxos.network/dxos/signal', async () => {}, async () => {});
+    api = new SignalApi('wss://apollo1.kube.moon.dxos.network/dxos/signal', (async () => {}) as any, async () => {});
 
     api.connect();
 
@@ -34,8 +35,8 @@ describe('SignalApi', () => {
 
   it('offer', async () => {
     
-    const offerMock = mockFn<(msg: SignalApi.SignalMessage) => Promise<unknown>>()
-      .resolvesTo({ foo: 'bar' })
+    const offerMock = mockFn<(msg: SignalApi.SignalMessage) => Promise<SignalData>>()
+      .resolvesTo({ foo: 'bar' } as any)
     api = new SignalApi('wss://apollo1.kube.moon.dxos.network/dxos/signal', offerMock, async () => {});
 
     api.connect();
@@ -43,21 +44,21 @@ describe('SignalApi', () => {
     await api.join(topic, peer1);
 
     const offer: SignalApi.SignalMessage = {
-      data: { foo: 'bar' },
+      data: { foo: 'bar' } as any,
       id: peer2,
       remoteId: peer1,
       sessionId: PublicKey.random(),
       topic,
     }
     const offerResult = await api.offer(offer)
-    expect(offerResult).toEqual({ foo: 'bar' })
+    expect(offerResult).toEqual({ foo: 'bar' } as any)
     expect(offerMock).toHaveBeenCalledWith([offer])
   }).timeout(5_000)
 
   it('signal', async () => {
     const signalMock = mockFn<(msg: SignalApi.SignalMessage) => Promise<void>>()
       .resolvesTo()
-    api = new SignalApi('wss://apollo1.kube.moon.dxos.network/dxos/signal', async () => {}, signalMock);
+    api = new SignalApi('wss://apollo1.kube.moon.dxos.network/dxos/signal', (async () => {}) as any, signalMock);
 
     api.connect();
 
@@ -68,12 +69,12 @@ describe('SignalApi', () => {
       remoteId: peer1,
       sessionId: PublicKey.random(),
       topic,
-      data: { foo: 'bar' },
+      data: { foo: 'bar' } as any,
     }
     await api.signal(msg)
 
     await waitForExpect(() => {
       expect(signalMock).toHaveBeenCalledWith([msg]);
-    })
+    }, 4_000)
   }).timeout(5_000)
 })

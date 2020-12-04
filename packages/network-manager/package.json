@@ -26,15 +26,18 @@
     "@dxos/crypto": "^1.0.0-beta.1",
     "@dxos/metrics": "^1.0.0-beta.6",
     "@dxos/protocol": "^1.1.0-beta.21",
+    "@dxos/util": "^2.4.0",
     "@geut/discovery-swarm-webrtc": "^4.0.1",
     "@types/mocha": "^8.0.4",
+    "@types/simple-peer": "^9.6.1",
     "@types/ws": "^7.4.0",
     "@wirelineio/discovery-swarm-memory": "^0.2.17",
     "assert": "^2.0.0",
     "debug": "^4.1.1",
     "isomorphic-ws": "^4.0.1",
     "nanomessage-rpc": "^3.0.0",
-    "wrtc": "^0.4.3"
+    "simple-peer": "^9.9.3",
+    "wrtc": "^0.4.6"
   },
   "devDependencies": {
     "@dxos/eslint-plugin": "1.0.9",

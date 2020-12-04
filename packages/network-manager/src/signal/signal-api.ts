@@ -5,6 +5,7 @@ import nanomessagerpc from 'nanomessage-rpc';
 import assert from 'assert';
 import { promisify } from 'util'
 import { PublicKey } from '@dxos/crypto';
+import { SignalData } from 'simple-peer';
 
 /**
  * Establishes a websocket connection to signal server and provides RPC methods.
@@ -27,7 +28,7 @@ export class SignalApi {
    */
   constructor(
     private readonly _host: string,
-    private readonly _onOffer: (message: SignalApi.SignalMessage) => Promise<unknown>,
+    private readonly _onOffer: (message: SignalApi.SignalMessage) => Promise<SignalData>,
     private readonly _onSignal: (message: SignalApi.SignalMessage) => Promise<void>,
   ) {
     this._rpc = nanomessagerpc({
@@ -128,7 +129,7 @@ export class SignalApi {
    * Routes an offer to the other peer's _onOffer callback.
    * @returns Other peer's _onOffer callback return value.
    */
-  async offer(payload: SignalApi.SignalMessage): Promise<unknown> {
+  async offer(payload: SignalApi.SignalMessage): Promise<SignalData> {
     await this._rpc.open();
     return this._rpc.call('offer', {
       id: payload.id.asBuffer(),
@@ -169,6 +170,6 @@ export namespace SignalApi {
     remoteId: PublicKey,
     topic: PublicKey,
     sessionId: PublicKey,
-    data: unknown,
+    data: SignalData,
   }
 }
