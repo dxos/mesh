@@ -94,6 +94,11 @@ export class SignalApi {
     }
   }
 
+  async close() {
+    await this._rpc.close();
+    this._socket?.close();
+  }
+
   async join(topic: PublicKey, peerId: PublicKey): Promise<PublicKey[]> {
     await this._rpc.open();
     const peers: Buffer[] = await this._rpc.call('join', {
