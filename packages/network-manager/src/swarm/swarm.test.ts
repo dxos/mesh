@@ -7,13 +7,52 @@ import { Swarm } from "./swarm";
 import { Protocol } from "@dxos/protocol";
 
 describe('Swarm', () => {
-  it('connects two peers in a swarm', async () => {
-    const topic = PublicKey.random()
-    const firstPeerId = PublicKey.random()
-    const secondPeerId = PublicKey.random()
-    const swarm1: Swarm = new Swarm(topic, firstPeerId, () => new Protocol(), msg => swarm2.onOffer(msg), msg => swarm2.onSignal(msg))
-    const swarm2: Swarm = new Swarm(topic, secondPeerId, () => new Protocol(), msg => swarm1.onOffer(msg), msg => swarm1.onSignal(msg))
+  let topic: PublicKey;
+  let firstPeerId: PublicKey;
+  let secondPeerId: PublicKey;
+  let swarm1: Swarm;
+  let swarm2: Swarm;
 
+  beforeEach(() => {
+    topic = PublicKey.random()
+    firstPeerId = PublicKey.random()
+    secondPeerId = PublicKey.random()
+    swarm1 = new Swarm(
+      topic,
+      firstPeerId,
+      () => new Protocol(),
+      async msg => {
+        await sleep(10); // Simulating network delay
+        await swarm2.onOffer(msg)
+      },
+      async msg => {
+        await sleep(10); // Simulating network delay
+        await swarm2.onSignal(msg)
+      },
+    )
+    swarm2 = new Swarm(
+      topic,
+      secondPeerId,
+      () => new Protocol(),
+      async msg => {
+        await sleep(10); // Simulating network delay
+        await swarm1.onOffer(msg)
+      },
+      async msg => {
+        await sleep(10); // Simulating network delay
+        await swarm1.onSignal(msg)
+      },
+    )
+  })
+
+  afterEach(async () => {
+    // await Promise.all([
+    //   swarm1.destroy(),
+    //   swarm2.destroy(),
+    // ])
+  })
+
+  it('connects two peers in a swarm', async () => {
     expect(swarm1.connections.length).toEqual(0)
     expect(swarm2.connections.length).toEqual(0)
 
@@ -38,7 +77,23 @@ describe('Swarm', () => {
     })
   })
 
-  it('two peers try to originate connections to each other simultaneously', async () => {
+  it.only('two peers try to originate connections to each other simultaneously', async () => {
+    expect(swarm1.connections.length).toEqual(0)
+    expect(swarm2.connections.length).toEqual(0)
 
-  })
+    swarm1.onCandidatesChanged([secondPeerId])
+    swarm2.onCandidatesChanged([firstPeerId])
+
+    await waitForExpect(() => {
+      expect(swarm1.connections.length).toEqual(1)
+      expect(swarm2.connections.length).toEqual(1)
+    })
+
+    console.log('got connection')
+
+    await Promise.all([
+      Event.wrap(swarm1.connections[0].peer, 'connect').waitForCount(1),
+      Event.wrap(swarm2.connections[0].peer, 'connect').waitForCount(1),
+    ])
+  }).timeout(5_000)
 })

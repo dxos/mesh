@@ -25,14 +25,19 @@ export class Connection {
       initiator: _initiator,
       wrtc: SimplePeerConstructor.WEBRTC_SUPPORT ? undefined : wrtc,
     })
-    this._peer.on('signal', data => {
-      this._sendSignal({
-        id: this._ownId,
-        remoteId: this._remoteId,
-        sessionId: this._sessionId,
-        topic: this._topic,
-        data,
-      })
+    this._peer.on('signal', async data => {
+      try {
+        await this._sendSignal({
+          id: this._ownId,
+          remoteId: this._remoteId,
+          sessionId: this._sessionId,
+          topic: this._topic,
+          data,
+        })
+      } catch(err) {
+        // TODO(marik-d): Error handling.
+        console.error(err);
+      }
     })
     this._peer.on('connect', () => {
       this._state = Connection.State.CONNECTED;

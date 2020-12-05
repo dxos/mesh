@@ -4,6 +4,9 @@ import { SignalApi } from '../signal/signal-api'
 import assert from 'assert'
 import { ProtocolProvider } from "../network-manager";
 import { Connection } from "./connection";
+import debug from 'debug';
+
+const log = debug('dxos:network-manager:swarm');
 
 /**
  * A single peer's view of the swarm.
@@ -55,6 +58,8 @@ export class Swarm {
     const connection = this._connections.get(message.id);
     if(connection) {
       connection.signal(message);
+    } else {
+      log(`Received signal message for non-existent connection: topic=${this._topic}, peerId=${message.id}`);
     }
   }
 
