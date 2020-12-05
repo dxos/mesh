@@ -10,7 +10,7 @@ import wrtc from 'wrtc';
 export class Connection {
   private _state: Connection.State;
   private readonly _peer: SimplePeer;
-  
+
   constructor(
     private readonly _initiator: boolean,
     private readonly _protocol: Protocol,
@@ -43,12 +43,16 @@ export class Connection {
       this._state = Connection.State.CONNECTED;
       
       const stream = this._protocol.stream as any as NodeJS.ReadWriteStream;
-      stream.pipe(this._peer).pipe(stream); // TODO(marik-d): Unpipe.
+      stream.pipe(this._peer).pipe(stream);
     })
     this._peer.on('error', err => {
       // TODO(marik-d): Error handling.
       console.error('peer error')
       console.error(err)
+    })
+    this._peer.on('close', () => {
+      this._state = Connection.State.CLOSED;
+      this._closeStream();
     })
   }
 
@@ -66,6 +70,20 @@ export class Connection {
     }
     this._peer.signal(msg.data);
   }
+
+  async close() {
+    this._state = Connection.State.CLOSED;
+    this._closeStream();
+    await new Promise(resolve => {
+      this._peer.once('close', resolve);
+      this._peer.destroy();
+    });
+  }
+
+  private _closeStream() {
+    const stream = this._protocol.stream as any as NodeJS.ReadWriteStream;
+    stream.unpipe(this._peer).unpipe(stream);
+  }
 }
 
 export namespace Connection {
@@ -73,5 +91,6 @@ export namespace Connection {
     INITIATING_CONNECTION,
     WAITING_FOR_CONNECTION,
     CONNECTED,
+    CLOSED,
   }
 }
