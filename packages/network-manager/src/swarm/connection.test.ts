@@ -75,7 +75,6 @@ describe('Connection', () => {
     plugin1.on('receive', mockReceive);
   
     plugin2.on('connect', async (protocol) => {
-      console.log('peer 2 connected')
       plugin2.send(peer1Id.asBuffer(), 'Foo')
     });
 
