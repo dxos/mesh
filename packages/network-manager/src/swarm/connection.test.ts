@@ -1,7 +1,8 @@
 import { Event, sleep } from "@dxos/async"
-import { PublicKey } from "@dxos/crypto"
+import { discoveryKey, PublicKey } from "@dxos/crypto"
 import { Protocol } from "@dxos/protocol"
-import { expect } from "earljs"
+import { expect, mockFn } from "earljs"
+import waitForExpect from "wait-for-expect"
 import { TestProtocolPlugin, testProtocolProvider } from "../testing/test-protocol"
 import { afterTest } from "../testutils"
 import { Connection } from "./connection"
@@ -27,17 +28,17 @@ describe('Connection', () => {
     expect(connection.state).toEqual(Connection.State.CLOSED);
   });
 
-  it.only('establish connection and send data through', async () => {
+  it('establish connection and send data through with protocol', async () => {
     const topic = PublicKey.random();
     const peer1Id = PublicKey.random();
     const peer2Id = PublicKey.random();
     const sessionId = PublicKey.random();
 
     const plugin1 = new TestProtocolPlugin(peer1Id.asBuffer());
-    const protocolProvider1 = testProtocolProvider(topic, peer1Id, plugin1);
+    const protocolProvider1 = testProtocolProvider(topic.asBuffer(), peer1Id.asBuffer(), plugin1);
     const connection1 = new Connection(
       true,
-      protocolProvider1({ channel: peer2Id.asBuffer() }),
+      protocolProvider1({ channel: discoveryKey(topic) }),
       peer1Id,
       peer2Id,
       sessionId,
@@ -50,10 +51,10 @@ describe('Connection', () => {
     afterTest(() => connection1.close());
 
     const plugin2 = new TestProtocolPlugin(peer2Id.asBuffer());
-    const protocolProvider2 = testProtocolProvider(topic, peer2Id, plugin2);
+    const protocolProvider2 = testProtocolProvider(topic.asBuffer(), peer2Id.asBuffer(), plugin2);
     const connection2 = new Connection(
       false,
-      protocolProvider2({ channel: peer1Id.asBuffer() }),
+      protocolProvider2({ channel: discoveryKey(topic) }),
       peer2Id,
       peer1Id,
       sessionId,
@@ -69,5 +70,17 @@ describe('Connection', () => {
       Event.wrap(connection1.peer, 'connect').waitForCount(1),
       Event.wrap(connection2.peer, 'connect').waitForCount(1),
     ])
-  })
+
+    const mockReceive = mockFn<[Protocol, string]>().returns(undefined);
+    plugin1.on('receive', mockReceive);
+  
+    plugin2.on('connect', async (protocol) => {
+      console.log('peer 2 connected')
+      plugin2.send(peer1Id.asBuffer(), 'Foo')
+    });
+
+    await waitForExpect(() => {
+      expect(mockReceive).toHaveBeenCalledWith([expect.a(Protocol), 'Foo']);
+    })
+  }).timeout(5_000)
 });

@@ -6,8 +6,7 @@ import { NetworkManager } from "./network-manager"
 import { TestProtocolPlugin, testProtocolProvider } from "./testing/test-protocol";
 
 describe('Network manager', () => {
-  // TODO(marik-d): Crashes not process.
-  it.skip('two peers connect to each other', async () => {
+  it('two peers connect to each other', async () => {
     const networkManager1 = new NetworkManager(['wss://apollo1.kube.moon.dxos.network/dxos/signal']);
     const networkManager2 = new NetworkManager(['wss://apollo1.kube.moon.dxos.network/dxos/signal']);
 

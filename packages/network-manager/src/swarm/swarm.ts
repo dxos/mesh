@@ -1,4 +1,4 @@
-import { PublicKey } from "@dxos/crypto";
+import { discoveryKey, PublicKey } from "@dxos/crypto";
 import { ComplexMap } from "@dxos/util";
 import { SignalApi } from '../signal/signal-api'
 import assert from 'assert'
@@ -84,7 +84,7 @@ export class Swarm {
     let signals: SignalData[]
     const connection = new Connection(
       initiator,
-      this._protocol({ channel: remoteId.asBuffer() }),
+      this._protocol({ channel: discoveryKey(remoteId) }),
       this._ownPeerId,
       remoteId,
       sessionId,
