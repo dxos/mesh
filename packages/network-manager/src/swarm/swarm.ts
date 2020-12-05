@@ -4,6 +4,8 @@ import SimplePeerConstructor, { Instance as SimplePeer, SignalData } from 'simpl
 import { SignalApi } from '../signal/signal-api'
 import assert from 'assert'
 import wrtc from 'wrtc';
+import { ProtocolProvider } from "../network-manager";
+import { Connection } from "./connection";
 
 /**
  * A single peer's view of the swarm.
@@ -11,7 +13,7 @@ import wrtc from 'wrtc';
  * Routes signal events and maintains swarm topology.
  */
 export class Swarm {
-  private readonly _connections = new ComplexMap<PublicKey, SimplePeer>(x => x.toHex());
+  private readonly _connections = new ComplexMap<PublicKey, Connection>(x => x.toHex());
 
   get connections() {
     return Array.from(this._connections.values())
@@ -20,6 +22,7 @@ export class Swarm {
   constructor(
     private readonly _topic: PublicKey,
     private readonly _ownPeerId: PublicKey,
+    private readonly _protocol: ProtocolProvider,
     private readonly _sendOffer: (message: SignalApi.SignalMessage) => Promise<void>,
     private readonly _sendSignal: (message: SignalApi.SignalMessage) => Promise<void>,
   ) {}
@@ -51,27 +54,23 @@ export class Swarm {
   async onSignal(message: SignalApi.SignalMessage): Promise<void> {
     assert(message.remoteId.equals(this._ownPeerId));
     assert(message.topic.equals(this._topic));
-    const peer = this._connections.get(message.id);
-    if(peer) {
-      peer.signal(message.data);
+    const connection = this._connections.get(message.id);
+    if(connection) {
+      connection.signal(message);
     }
   }
 
   private _createConnection(initiator: boolean, remoteId: PublicKey, sessionId: PublicKey) {
     assert(!this._connections.has(remoteId), 'Peer already connected');
-    const peer = new SimplePeerConstructor({
+    const connection = new Connection(
       initiator,
-      wrtc: SimplePeerConstructor.WEBRTC_SUPPORT ? undefined : wrtc,
-    })
-    peer.on('signal', data => {
-      this._sendSignal({
-        id: this._ownPeerId,
-        remoteId,
-        sessionId,
-        topic: this._topic,
-        data,
-      })
-    })
-    this._connections.set(remoteId, peer)
+      this._protocol({ channel: remoteId.asBuffer() }),
+      this._ownPeerId,
+      remoteId,
+      sessionId,
+      this._topic,
+      msg => this._sendSignal(msg),
+    )
+    this._connections.set(remoteId, connection)
   }
 }

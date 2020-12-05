@@ -14,7 +14,16 @@ export class SignalManager {
 
   async connect() {
     await Promise.all(this._hosts.map(async host => {
-      const server = new SignalApi(host, async (msg) => {  console.log('offer', msg); return {} as any }, async msg => { console.log('signal', msg) })
+      const server = new SignalApi(
+        host,
+        async (msg) => { 
+          this.onOffer.emit(msg); 
+          return {} as any; // TODO(marik-d): Figure out how to do answers or remove the entirely.
+        },
+        async msg => {
+          this.onSignal.emit(msg);
+        },
+      )
       this._servers.set(host, server);
       await server.connect();
     }))
@@ -44,5 +53,22 @@ export class SignalManager {
     }
   }
 
+  offer(msg: SignalApi.SignalMessage) {
+    for(const server of this._servers.values()) {
+      server.offer(msg);
+      // TODO(marik-d): Return value & error handling.
+    }
+  }
+
+  signal(msg: SignalApi.SignalMessage) {
+    for(const server of this._servers.values()) {
+      server.signal(msg);
+      // TODO(marik-d): Error handling.
+    }
+  }
+
   candidatesChanged = new Event<[topic: PublicKey, candidates: PublicKey[]]>()
+
+  onOffer = new Event<SignalApi.SignalMessage>();
+  onSignal = new Event<SignalApi.SignalMessage>();
 }

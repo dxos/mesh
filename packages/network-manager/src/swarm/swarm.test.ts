@@ -4,14 +4,15 @@ import { expect, mockFn } from "earljs";
 import waitForExpect from 'wait-for-expect';
 import { SignalData } from "simple-peer";
 import { Swarm } from "./swarm";
+import { Protocol } from "@dxos/protocol";
 
 describe('Swarm', () => {
   it('connects two peers in a swarm', async () => {
     const topic = PublicKey.random()
     const firstPeerId = PublicKey.random()
     const secondPeerId = PublicKey.random()
-    const swarm1: Swarm = new Swarm(topic, firstPeerId, msg => swarm2.onOffer(msg), msg => swarm2.onSignal(msg))
-    const swarm2: Swarm = new Swarm(topic, secondPeerId, msg => swarm1.onOffer(msg), msg => swarm1.onSignal(msg))
+    const swarm1: Swarm = new Swarm(topic, firstPeerId, () => new Protocol(), msg => swarm2.onOffer(msg), msg => swarm2.onSignal(msg))
+    const swarm2: Swarm = new Swarm(topic, secondPeerId, () => new Protocol(), msg => swarm1.onOffer(msg), msg => swarm1.onSignal(msg))
 
     expect(swarm1.connections.length).toEqual(0)
     expect(swarm2.connections.length).toEqual(0)
@@ -26,16 +27,18 @@ describe('Swarm', () => {
     const swarm1Connection = swarm1.connections[0]
     const swarm2Connection = swarm2.connections[0]
     const onData = mockFn<(data: Buffer) => void>().returns(undefined)
-    swarm2Connection.on('data', onData)
+    swarm2Connection.peer.on('data', onData)
     
-    await Event.wrap(swarm1Connection, 'connect').waitForCount(1)
+    await Event.wrap(swarm1Connection.peer, 'connect').waitForCount(1)
 
     const data = Buffer.from('1234');
-    swarm1Connection.send(data)
+    swarm1Connection.peer.send(data)
     await waitForExpect(() => {
       expect(onData).toHaveBeenCalledWith([data])
     })
   })
 
-  it('two peers try to originate connections to each other simultaneously')
+  it('two peers try to originate connections to each other simultaneously', async () => {
+
+  })
 })
