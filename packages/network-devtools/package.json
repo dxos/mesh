@@ -2,17 +2,22 @@
   "name": "@dxos/network-devtools",
   "version": "0.1.0",
   "scripts": {
-    "storybook": "start-storybook -s ./stories/static -p 9001 -c .storybook"
+    "storybook": "start-storybook -s ./stories/static -p 9001 -c .storybook",
+    "build": "tsc -b"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.12.1",
     "@storybook/react": "^6.0.21",
     "awesome-typescript-loader": "^5.2.1",
     "react-docgen-typescript-loader": "^3.7.2",
-    "react-dom": "^17.0.1"
+    "react-dom": "^17.0.1",
+    "typescript": "^4.1.2"
   },
   "dependencies": {
+    "@dxos/gem-core": "1.0.0-beta.25",
+    "@dxos/gem-spore": "1.0.0-beta.25",
     "@types/react": "^17.0.0",
-    "react": "^17.0.1"
+    "react": "^17.0.1",
+    "react-resize-aware": "^3.1.0"
   }
 }
