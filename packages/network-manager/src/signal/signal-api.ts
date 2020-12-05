@@ -91,6 +91,8 @@ export class SignalApi {
     this._socket.onerror = e => {
       this._state = SignalApi.State.ERROR;
       this._lastError = e.error;
+      console.error('Signal socket error')
+      console.error(e.error)
       // TODO(marik-d): Reconnect.
     }
   }

@@ -1,9 +1,7 @@
 import { PublicKey } from "@dxos/crypto";
 import { ComplexMap } from "@dxos/util";
-import SimplePeerConstructor, { Instance as SimplePeer, SignalData } from 'simple-peer';
 import { SignalApi } from '../signal/signal-api'
 import assert from 'assert'
-import wrtc from 'wrtc';
 import { ProtocolProvider } from "../network-manager";
 import { Connection } from "./connection";
 
