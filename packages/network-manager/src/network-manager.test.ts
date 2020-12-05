@@ -20,11 +20,11 @@ describe('Network manager', () => {
 
     const plugin1 = new TestProtocolPlugin(peer1Id.asBuffer());
     const protocolProvider1 = testProtocolProvider(topic, peer1Id, plugin1);
-    // networkManager1.joinProtocolSwarm(topic, peer1Id, protocolProvider1, {})
+    networkManager1.joinProtocolSwarm(topic, peer1Id, protocolProvider1, {})
 
     const plugin2 = new TestProtocolPlugin(peer2Id.asBuffer());
     const protocolProvider2 = testProtocolProvider(topic, peer2Id, plugin2);
-    // networkManager2.joinProtocolSwarm(topic, peer2Id, protocolProvider2, {})
+    networkManager2.joinProtocolSwarm(topic, peer2Id, protocolProvider2, {})
 
     const mockReceive = mockFn<[Protocol, string]>().returns(undefined);
     plugin1.on('receive', mockReceive);
