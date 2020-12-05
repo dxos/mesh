@@ -3,6 +3,11 @@ import { Protocol } from "@dxos/protocol";
 import { SignalApi } from "../signal/signal-api";
 import SimplePeerConstructor, { Instance as SimplePeer, SignalData } from 'simple-peer';
 import wrtc from 'wrtc';
+import { Trigger } from "@dxos/util";
+import assert from 'assert'
+import debug from 'debug';
+
+const log = debug('dxos:network-manager:swarm:connection');
 
 /**
  * Wrapper around simple-peer. Tracks peer state.
@@ -65,6 +70,10 @@ export class Connection {
   }
 
   signal(msg: SignalApi.SignalMessage) {
+    if(msg.sessionId !== this._sessionId) {
+      log('Dropping signal for incorrect session id.');
+      return;
+    }
     if(msg.data.type === 'offer' && this._state === Connection.State.INITIATING_CONNECTION) {
       throw new Error('Invalid state: Cannot send offer to an initiating peer.');
     }

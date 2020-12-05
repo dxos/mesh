@@ -58,18 +58,16 @@ describe('Swarm', () => {
 
     swarm1.onCandidatesChanged([secondPeerId])
 
-    await waitForExpect(() => {
-      expect(swarm1.connections.length).toEqual(1)
-      expect(swarm2.connections.length).toEqual(1)
-    })
+    await Promise.all([
+      swarm1.connected.waitForCount(1),
+      swarm1.connected.waitForCount(1),
+    ])
 
     const swarm1Connection = swarm1.connections[0]
     const swarm2Connection = swarm2.connections[0]
     const onData = mockFn<(data: Buffer) => void>().returns(undefined)
     swarm2Connection.peer.on('data', onData)
     
-    await Event.wrap(swarm1Connection.peer, 'connect').waitForCount(1)
-
     const data = Buffer.from('1234');
     swarm1Connection.peer.send(data)
     await waitForExpect(() => {
@@ -77,23 +75,16 @@ describe('Swarm', () => {
     })
   })
 
-  it.only('two peers try to originate connections to each other simultaneously', async () => {
+  it('two peers try to originate connections to each other simultaneously', async () => {
     expect(swarm1.connections.length).toEqual(0)
     expect(swarm2.connections.length).toEqual(0)
 
     swarm1.onCandidatesChanged([secondPeerId])
     swarm2.onCandidatesChanged([firstPeerId])
 
-    await waitForExpect(() => {
-      expect(swarm1.connections.length).toEqual(1)
-      expect(swarm2.connections.length).toEqual(1)
-    })
-
-    console.log('got connection')
-
     await Promise.all([
-      Event.wrap(swarm1.connections[0].peer, 'connect').waitForCount(1),
-      Event.wrap(swarm2.connections[0].peer, 'connect').waitForCount(1),
+      swarm1.connected.waitForCount(1),
+      swarm1.connected.waitForCount(1),
     ])
   }).timeout(5_000)
 })

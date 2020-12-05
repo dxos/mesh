@@ -5,6 +5,8 @@ import assert from 'assert'
 import { ProtocolProvider } from "../network-manager";
 import { Connection } from "./connection";
 import debug from 'debug';
+import { SignalData } from "simple-peer";
+import { Event } from "@dxos/async";
 
 const log = debug('dxos:network-manager:swarm');
 
@@ -19,6 +21,8 @@ export class Swarm {
   get connections() {
     return Array.from(this._connections.values())
   }
+
+  readonly connected = new Event<PublicKey>();
 
   constructor(
     private readonly _topic: PublicKey,
@@ -49,6 +53,18 @@ export class Swarm {
   async onOffer(message: SignalApi.SignalMessage): Promise<void> {
     assert(message.remoteId.equals(this._ownPeerId));
     assert(message.topic.equals(this._topic));
+
+    if(this._connections.has(message.id)) {
+      if(message.id.toHex() < message.remoteId.toHex()) {
+        this._closeConnection(message.id).catch(err => {
+          console.error(err);
+          // TODO(marik-d): Error handling.
+        });
+      } else {
+        return;
+      }
+    }
+
     this._createConnection(false, message.id, message.sessionId);
   }
 
@@ -56,15 +72,16 @@ export class Swarm {
     assert(message.remoteId.equals(this._ownPeerId));
     assert(message.topic.equals(this._topic));
     const connection = this._connections.get(message.id);
-    if(connection) {
-      connection.signal(message);
-    } else {
-      log(`Received signal message for non-existent connection: topic=${this._topic}, peerId=${message.id}`);
+    if(!connection) {
+      log(`Dropping signal message for non-existent connection: topic=${this._topic}, peerId=${message.id}`);
+      return;
     }
+    connection.signal(message);
   }
 
   private _createConnection(initiator: boolean, remoteId: PublicKey, sessionId: PublicKey) {
     assert(!this._connections.has(remoteId), 'Peer already connected');
+    let signals: SignalData[]
     const connection = new Connection(
       initiator,
       this._protocol({ channel: remoteId.asBuffer() }),
@@ -75,5 +92,14 @@ export class Swarm {
       msg => this._sendSignal(msg),
     )
     this._connections.set(remoteId, connection)
+    Event.wrap(connection.peer, 'connect').once(() => this.connected.emit(remoteId));
+    return connection;
+  }
+
+  private async _closeConnection(peerId: PublicKey) {
+    const connection = this._connections.get(peerId);
+    assert(connection);
+    this._connections.delete(peerId);
+    await connection.close();
   }
 }
