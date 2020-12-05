@@ -34,6 +34,7 @@ export class Swarm {
 
   onCandidatesChanged(candidates: PublicKey[]) {
     for(const candidate of candidates) {
+      if(candidate.equals(this._ownPeerId)) continue;
       if(this._connections.has(candidate)) continue;
 
       // connect
@@ -84,7 +85,7 @@ export class Swarm {
     let signals: SignalData[]
     const connection = new Connection(
       initiator,
-      this._protocol({ channel: discoveryKey(remoteId) }),
+      this._protocol({ channel: discoveryKey(this._topic) }),
       this._ownPeerId,
       remoteId,
       sessionId,

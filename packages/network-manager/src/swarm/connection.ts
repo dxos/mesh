@@ -45,6 +45,7 @@ export class Connection {
       }
     })
     this._peer.on('connect', () => {
+      log(`Connection established ${this._ownId} -> ${this._remoteId}`)
       this._state = Connection.State.CONNECTED;
       
       const stream = this._protocol.stream as any as NodeJS.ReadWriteStream;
@@ -56,9 +57,11 @@ export class Connection {
       console.error(err)
     })
     this._peer.on('close', () => {
+      log(`Connection closed ${this._ownId} -> ${this._remoteId}`)
       this._state = Connection.State.CLOSED;
       this._closeStream();
     })
+    log(`Created connection ${this._ownId} -> ${this._remoteId} initiator=${this._initiator}`)
   }
 
   get state() {
@@ -70,13 +73,16 @@ export class Connection {
   }
 
   signal(msg: SignalApi.SignalMessage) {
-    if(msg.sessionId !== this._sessionId) {
+    if(!msg.sessionId.equals(this._sessionId)) {
       log('Dropping signal for incorrect session id.');
       return;
     }
     if(msg.data.type === 'offer' && this._state === Connection.State.INITIATING_CONNECTION) {
       throw new Error('Invalid state: Cannot send offer to an initiating peer.');
     }
+    assert(msg.id.equals(this._remoteId))
+    assert(msg.remoteId.equals(this._ownId))
+    log(`${this._ownId} received signal from ${this._remoteId}: ${msg.data.type}`)
     this._peer.signal(msg.data);
   }
 
