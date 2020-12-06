@@ -45,11 +45,16 @@ export class SignalApi {
       subscribe: (next: (data: any) => void) => {
         this._connectTrigger.wait().then(() => {
           assert(this._socket, 'No socket');
-          this._socket.onmessage = e => {
+          this._socket.onmessage = async e => {
             try {
-              // console.log(e.data)
-              // assert(e.data instanceof Buffer);
-              next(e.data);
+              // e.data is Buffer in node, and Blob in chrome
+              let data: Uint8Array;
+              if(Object.getPrototypeOf(e.data).constructor.name === 'Blob') {
+                data = new Uint8Array(await (e.data as any).arrayBuffer())
+              } else {
+                data = e.data as any;
+              }
+              next(data);
             } catch(err) {
               console.error('Unhandled error in signal server RPC:')
               console.error(err);
