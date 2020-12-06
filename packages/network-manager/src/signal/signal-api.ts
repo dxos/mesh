@@ -131,6 +131,7 @@ export class SignalApi {
 
   private async _rpcCall(method: string, payload: any): Promise<any> {
     await this._rpc.open();
+    const start = Date.now();
     try {
       const response = await Promise.race([
         this._rpc.call(method, payload),
@@ -138,6 +139,7 @@ export class SignalApi {
       ])
       this.commandTrace.emit({
         host: this._host,
+        time: Date.now() - start,
         method,
         payload,
         response,
@@ -146,6 +148,7 @@ export class SignalApi {
     } catch(err) {
       this.commandTrace.emit({
         host: this._host,
+        time: Date.now() - start,
         method,
         payload,
         error: err.message,
@@ -204,6 +207,7 @@ export class SignalApi {
     }
     this.commandTrace.emit({
       host: this._host,
+      time: 0,
       method: 'signal',
       payload: serializedPayload,
     })
@@ -228,6 +232,7 @@ export namespace SignalApi {
 
   export interface CommandTrace {
     host: string
+    time: number
     method: string
     payload: any
     response?: any
