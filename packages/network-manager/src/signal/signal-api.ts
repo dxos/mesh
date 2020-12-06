@@ -48,9 +48,9 @@ export class SignalApi {
           this._socket.onmessage = async e => {
             try {
               // e.data is Buffer in node, and Blob in chrome
-              let data: Uint8Array;
+              let data: Buffer;
               if(Object.getPrototypeOf(e.data).constructor.name === 'Blob') {
-                data = new Uint8Array(await (e.data as any).arrayBuffer())
+                data = Buffer.from(await (e.data as any).arrayBuffer())
               } else {
                 data = e.data as any;
               }
