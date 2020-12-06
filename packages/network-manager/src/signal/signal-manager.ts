@@ -6,10 +6,16 @@ import assert from 'assert'
 export class SignalManager {
   private readonly _servers = new Map<string, SignalApi>();
 
+  readonly statusChanged = new Event<SignalApi.Status[]>();
+
   constructor(
     private readonly _hosts: string[],
   ) {
     assert(_hosts.length === 1, 'Only a single signaling server connection is supported');
+  }
+
+  getStatus(): SignalApi.Status[] {
+    return Array.from(this._servers.values()).map(server => server.getStatus());
   }
 
   async connect() {
@@ -25,6 +31,7 @@ export class SignalManager {
         },
       )
       this._servers.set(host, server);
+      server.statusChanged.on(() => this.statusChanged.emit(this.getStatus()));
       await server.connect();
     }))
   }

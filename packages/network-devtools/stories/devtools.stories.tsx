@@ -12,9 +12,8 @@ export default {
 
 const createPeer = (controlTopic: PublicKey, peerId: PublicKey) => {
   const networkManager = new NetworkManager(['wss://apollo2.kube.moon.dxos.network/dxos/signal']);
-
-  const presencePlugin = new Presence(peerId)
-  networkManager.joinProtocolSwarm(controlTopic, peerId, transportProtocolProvider(controlTopic.asBuffer(), peerId.asBuffer(), presencePlugin), {});
+  const presencePlugin = new Presence(peerId.asBuffer())
+  networkManager.start().then(() => networkManager.joinProtocolSwarm(controlTopic, peerId, transportProtocolProvider(controlTopic.asBuffer(), peerId.asBuffer(), presencePlugin), {}), err => console.error(err));
 
   return presencePlugin;
 }

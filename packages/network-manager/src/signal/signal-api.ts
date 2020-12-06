@@ -21,6 +21,8 @@ export class SignalApi {
 
   private readonly _connectTrigger = new Trigger();
 
+  readonly statusChanged = new Event<SignalApi.Status>();
+
   /**
    * @param _host Signal server websocket URL.
    * @param _onOffer See `SignalApi.offer`.
@@ -37,12 +39,18 @@ export class SignalApi {
         assert(this._socket, 'No socket');
         await promisify(this._socket.send.bind(this._socket) as any)(data)
       },
-      subscribe: (next: (data: Uint8Array) => void) => {
+      subscribe: (next: (data: any) => void) => {
         this._connectTrigger.wait().then(() => {
           assert(this._socket, 'No socket');
           this._socket.onmessage = e => {
-            assert(e.data instanceof Uint8Array);
-            next(e.data);
+            try {
+              // console.log(e.data)
+              // assert(e.data instanceof Buffer);
+              next(e.data);
+            } catch(err) {
+              console.error('Unhandled error in signal server RPC:')
+              console.error(err);
+            }
           }
         });
 
@@ -70,7 +78,7 @@ export class SignalApi {
       sessionId: PublicKey.from(msg.sessionId),
       data: msg.data
     }))
-    // TODO(marik-d): Bind offer/signal events.
+    this.statusChanged.emit(this.getStatus());
   }
 
   connect() {
@@ -82,15 +90,18 @@ export class SignalApi {
     this._socket = new WebSocket(this._host);
     this._socket.onopen = () => {
       this._state = SignalApi.State.CONNECTED;
+      this.statusChanged.emit(this.getStatus());
       this._connectTrigger.wake();
     }
     this._socket.onclose = () => {
       this._state = SignalApi.State.DISCONNECTED;
+      this.statusChanged.emit(this.getStatus());
       // TODO(marik-d): Reconnect.
     }
     this._socket.onerror = e => {
       this._state = SignalApi.State.ERROR;
       this._lastError = e.error;
+      this.statusChanged.emit(this.getStatus());
       console.error('Signal socket error')
       console.error(e.error)
       // TODO(marik-d): Reconnect.
@@ -100,6 +111,14 @@ export class SignalApi {
   async close() {
     await this._rpc.close();
     this._socket?.close();
+  }
+
+  getStatus(): SignalApi.Status {
+    return {
+      host: this._host,
+      state: this._state,
+      error: this._lastError,
+    }
   }
 
   async join(topic: PublicKey, peerId: PublicKey): Promise<PublicKey[]> {
@@ -159,11 +178,17 @@ export class SignalApi {
 
 export namespace SignalApi {
   export enum State {
-    NOT_CONNECTED,
-    CONNECTING,
-    CONNECTED,
-    ERROR,
-    DISCONNECTED,
+    NOT_CONNECTED = 'NOT_CONNECTED',
+    CONNECTING = 'CONNECTING',
+    CONNECTED = 'CONNECTED',
+    ERROR = 'ERROR',
+    DISCONNECTED = 'DISCONNECTED',
+  }
+
+  export interface Status {
+    host: string,
+    state: State,
+    error?: Error
   }
 
   // TODO(marik-d): Define more concrete types for offer/answer.

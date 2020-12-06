@@ -16,6 +16,7 @@ export class NetworkManager {
     this._signal.candidatesChanged.on(([topic, candidates]) => this._swarms.get(topic)?.onCandidatesChanged(candidates))
     this._signal.onOffer.on(msg => this._swarms.get(msg.topic)?.onOffer(msg))
     this._signal.onSignal.on(msg => this._swarms.get(msg.topic)?.onSignal(msg))
+    this._signal.statusChanged.on(console.log);
   }
 
   // TODO(marik-d): Remove.
