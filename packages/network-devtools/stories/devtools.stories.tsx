@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { FullScreen, SVG, useGrid, Grid } from '@dxos/gem-core';
 import { Markers, createSimulationDrag, ForceLayout, Graph, NodeProjector } from '@dxos/gem-spore';
 import useResizeAware from 'react-resize-aware';
-import { NetworkManager, transportProtocolProvider } from '@dxos/network-manager'
+import { NetworkManager, PeerState, SwarmMapper, transportProtocolProvider } from '@dxos/network-manager'
 import { randomBytes, PublicKey } from '@dxos/crypto';
 import { Presence } from '@dxos/protocol-plugin-presence'
 
@@ -10,32 +10,36 @@ export default {
   title: 'Devtools'
 }
 
-const createPeer = (controlTopic: PublicKey, peerId: PublicKey) => {
+const createPeer = async (controlTopic: PublicKey, peerId: PublicKey) => {
   const networkManager = new NetworkManager(['wss://apollo2.kube.moon.dxos.network/dxos/signal']);
   const presencePlugin = new Presence(peerId.asBuffer())
-  networkManager.start().then(() => networkManager.joinProtocolSwarm(controlTopic, peerId, transportProtocolProvider(controlTopic.asBuffer(), peerId.asBuffer(), presencePlugin), {}), err => console.error(err));
-
-  return presencePlugin;
+  await networkManager.start()
+  networkManager.joinProtocolSwarm(controlTopic, peerId, transportProtocolProvider(controlTopic.asBuffer(), peerId.asBuffer(), presencePlugin), { presence: presencePlugin })
+  return networkManager.getSwarmMap(controlTopic)!;
 }
 
 const GraphDemo = () => {
   const [controlTopic] = useState(() => PublicKey.random())
-  const [controlPeer] = useState(() => createPeer(controlTopic, controlTopic))
+  const [controlPeer, setControlPeer] = useState<SwarmMapper | undefined>();
+
+  useEffect(() => {
+    createPeer(controlTopic, controlTopic).then(peer => setControlPeer(peer))
+  }, [])
 
   const [resizeListener, size] = useResizeAware();
   const { width, height } = size;
   const grid = useGrid({ width, height });
 
   const [layout] = useState(() => new ForceLayout({
-    initializer: (node: any, center: any) => {
-      // Freeze this peer.
-      // if (node.id === controlTopic.toString('hex')) {
-      //   return {
-      //     fx: center.x,
-      //     fy: center.y
-      //   };
-      // }
-    }
+    // initializer: (node: any, center: any) => {
+    //   // Freeze this peer.
+    //   // if (node.id === controlTopic.toString('hex')) {
+    //   //   return {
+    //   //     fx: center.x,
+    //   //     fy: center.y
+    //   //   };
+    //   // }
+    // }
   }));
   const [drag] = useState(() => createSimulationDrag(layout.simulation));
   const [{ nodeProjector }] = useState({
@@ -53,31 +57,34 @@ const GraphDemo = () => {
 
 
 
-  const [data, setData] = useState(() => buildGraph(controlPeer.graph));
+  const [data, setData] = useState<any>({ nodes: [], links: [] });
 
-  function buildGraph(graph: any) {
+  function buildGraph(peers: PeerState[]) {
     const nodes: any[] = [], links: any[] = []
-    graph.forEachNode((node: any) => {
+    for(const peer of peers) {
       nodes.push({
-        id: node.id,
-        title: PublicKey.fromHex(node.id).humanize(),
+        id: peer.id.toHex(),
+        title: `${peer.id.humanize()} ${peer.state}`,
       })
-    })
-    graph.forEachLink((link: any) => {
-      links.push({
-        id: link.id,
-        source: link.fromId,
-        target: link.toId,
-      })
-    })
+      for(const connection of peer.connections) {
+        links.push({
+          id: `${peer.id.toHex()}-${connection.toHex()}`,
+          source: peer.id.toHex(),
+          target: connection.toHex(),
+        })
+      }
+    }
     return { nodes, links }
   }
 
   useEffect(() => {
-    controlPeer.on('graph-updated', (_: any, graph: any) => {
-      setData(buildGraph(graph))
+    controlPeer?.mapUpdated.on(peers => {
+      console.log(peers)
+      setData(buildGraph(peers))
     })
-  }, [])
+    console.log(controlPeer?.peers)
+    controlPeer && setData(buildGraph(controlPeer.peers))
+  }, [controlPeer])
 
   const [peers, setPeers] = useState<any[]>([]);
 
@@ -93,6 +100,8 @@ const GraphDemo = () => {
     console.log('leave', peer)
     peer && peer.leave();
   }
+
+  console.log('data', data)
 
   return (
     <FullScreen>

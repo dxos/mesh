@@ -1,13 +1,18 @@
 import { PublicKey } from "@dxos/crypto";
 import { Protocol } from "@dxos/protocol";
 import { ComplexMap } from "@dxos/util";
+import { expect } from "earljs";
 import { SignalManager } from "./signal/signal-manager";
+import { SwarmMapper } from "./swarm-mapper";
+import { Connection } from "./swarm/connection";
 import { Swarm } from "./swarm/swarm";
 
 export type ProtocolProvider = (opts: { channel: Buffer }) => Protocol;
 
 export class NetworkManager {
   private readonly _swarms = new ComplexMap<PublicKey, Swarm>(x => x.toHex());
+
+  private readonly _maps = new ComplexMap<PublicKey, SwarmMapper>(x => x.toHex());
 
   private readonly _signal: SignalManager;
 
@@ -26,13 +31,22 @@ export class NetworkManager {
     
   }
 
-  joinProtocolSwarm(topic: PublicKey, peerId: PublicKey, protocol: ProtocolProvider, options: {})  {
+  getSwarmMap(topic: PublicKey): SwarmMapper | undefined {
+    return this._maps.get(topic);
+  }
+
+  joinProtocolSwarm(topic: PublicKey, peerId: PublicKey, protocol: ProtocolProvider, options: SwarmOptions)  {
     if(this._swarms.has(topic)) {
       throw new Error(`Already connected to swarm ${topic}`);
     }
 
     const swarm = new Swarm(topic, peerId, protocol, async offer => this._signal.offer(offer), async msg => this._signal.signal(msg))
     this._swarms.set(topic, swarm);
-    this._signal.join(topic, peerId);
+    this._signal.join(topic, peerId);    
+    this._maps.set(topic, new SwarmMapper(swarm, options.presence));
   }
+}
+
+export interface SwarmOptions {
+  presence?: any /* Presence */ 
 }

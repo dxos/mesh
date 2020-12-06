@@ -22,6 +22,19 @@ export class Swarm {
     return Array.from(this._connections.values())
   }
 
+  /**
+   * New connection to a peer is started.
+   */
+  readonly connectionAdded = new Event<Connection>();
+
+  /**
+   * Connection to a peer is dropped.
+   */
+  readonly connectionRemoved = new Event<Connection>();
+
+  /**
+   * Connection is established to a new peer.
+   */
   readonly connected = new Event<PublicKey>();
 
   constructor(
@@ -31,6 +44,10 @@ export class Swarm {
     private readonly _sendOffer: (message: SignalApi.SignalMessage) => Promise<void>,
     private readonly _sendSignal: (message: SignalApi.SignalMessage) => Promise<void>,
   ) {}
+
+  get ownPeerId() {
+    return this._ownPeerId;
+  }
 
   onCandidatesChanged(candidates: PublicKey[]) {
     for(const candidate of candidates) {
@@ -93,6 +110,7 @@ export class Swarm {
       msg => this._sendSignal(msg),
     )
     this._connections.set(remoteId, connection)
+    this.connectionAdded.emit(connection);
     Event.wrap(connection.peer, 'connect').once(() => this.connected.emit(remoteId));
     return connection;
   }
@@ -101,6 +119,7 @@ export class Swarm {
     const connection = this._connections.get(peerId);
     assert(connection);
     this._connections.delete(peerId);
+    this.connectionRemoved.emit(connection);
     await connection.close();
   }
 }

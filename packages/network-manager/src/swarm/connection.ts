@@ -6,6 +6,7 @@ import wrtc from 'wrtc';
 import { Trigger } from "@dxos/util";
 import assert from 'assert'
 import debug from 'debug';
+import { Event } from "@dxos/async";
 
 const log = debug('dxos:network-manager:swarm:connection');
 
@@ -15,6 +16,8 @@ const log = debug('dxos:network-manager:swarm:connection');
 export class Connection {
   private _state: Connection.State;
   private readonly _peer: SimplePeer;
+
+  readonly stateChanged = new Event<Connection.State>();
 
   constructor(
     private readonly _initiator: boolean,
@@ -26,6 +29,7 @@ export class Connection {
     private readonly _sendSignal: (msg: SignalApi.SignalMessage) => Promise<void>
   ) {
     this._state = _initiator ? Connection.State.INITIATING_CONNECTION : Connection.State.WAITING_FOR_CONNECTION;
+    this.stateChanged.emit(this._state);
     this._peer = new SimplePeerConstructor({
       initiator: _initiator,
       wrtc: SimplePeerConstructor.WEBRTC_SUPPORT ? undefined : wrtc,
@@ -47,6 +51,8 @@ export class Connection {
     this._peer.on('connect', () => {
       log(`Connection established ${this._ownId} -> ${this._remoteId}`)
       this._state = Connection.State.CONNECTED;
+      this.stateChanged.emit(this._state);
+
       
       const stream = this._protocol.stream as any as NodeJS.ReadWriteStream;
       stream.pipe(this._peer).pipe(stream);
@@ -59,9 +65,14 @@ export class Connection {
     this._peer.on('close', () => {
       log(`Connection closed ${this._ownId} -> ${this._remoteId}`)
       this._state = Connection.State.CLOSED;
+      this.stateChanged.emit(this._state);
       this._closeStream();
     })
     log(`Created connection ${this._ownId} -> ${this._remoteId} initiator=${this._initiator}`)
+  }
+
+  get remoteId() {
+    return this._remoteId;
   }
 
   get state() {
@@ -88,6 +99,7 @@ export class Connection {
 
   async close() {
     this._state = Connection.State.CLOSED;
+    this.stateChanged.emit(this._state);
     this._closeStream();
     await new Promise(resolve => {
       this._peer.once('close', resolve);
@@ -103,9 +115,9 @@ export class Connection {
 
 export namespace Connection {
   export enum State {
-    INITIATING_CONNECTION,
-    WAITING_FOR_CONNECTION,
-    CONNECTED,
-    CLOSED,
+    INITIATING_CONNECTION = 'INITIATING_CONNECTION',
+    WAITING_FOR_CONNECTION = 'WAITING_FOR_CONNECTION',
+    CONNECTED = 'CONNECTED',
+    CLOSED = 'CLOSED',
   }
 }
