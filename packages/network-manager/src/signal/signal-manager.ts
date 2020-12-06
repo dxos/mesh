@@ -8,6 +8,8 @@ export class SignalManager {
 
   readonly statusChanged = new Event<SignalApi.Status[]>();
 
+  readonly commandTrace = new Event<SignalApi.CommandTrace>();
+
   constructor(
     private readonly _hosts: string[],
   ) {
@@ -32,6 +34,7 @@ export class SignalManager {
       )
       this._servers.set(host, server);
       server.statusChanged.on(() => this.statusChanged.emit(this.getStatus()));
+      server.commandTrace.on(trace => this.commandTrace.emit(trace));
       await server.connect();
     }))
   }

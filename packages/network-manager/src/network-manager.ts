@@ -17,6 +17,7 @@ export class NetworkManager {
     this._signal.onOffer.on(msg => this._swarms.get(msg.topic)?.onOffer(msg))
     this._signal.onSignal.on(msg => this._swarms.get(msg.topic)?.onSignal(msg))
     this._signal.statusChanged.on(console.log);
+    this._signal.commandTrace.on(console.log);
   }
 
   // TODO(marik-d): Remove.

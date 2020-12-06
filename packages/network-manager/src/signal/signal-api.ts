@@ -1,11 +1,12 @@
-import { Event, Lock, Trigger } from '@dxos/async';
-import { throws } from 'assert';
+import { Event, sleep, Trigger } from '@dxos/async';
 import WebSocket from 'isomorphic-ws'
 import nanomessagerpc from 'nanomessage-rpc';
 import assert from 'assert';
 import { promisify } from 'util'
 import { PublicKey } from '@dxos/crypto';
 import { SignalData } from 'simple-peer';
+
+const TIMEOUT = 3_000;
 
 /**
  * Establishes a websocket connection to signal server and provides RPC methods.
@@ -22,6 +23,8 @@ export class SignalApi {
   private readonly _connectTrigger = new Trigger();
 
   readonly statusChanged = new Event<SignalApi.Status>();
+
+  readonly commandTrace = new Event<SignalApi.CommandTrace>();
 
   /**
    * @param _host Signal server websocket URL.
@@ -121,9 +124,33 @@ export class SignalApi {
     }
   }
 
-  async join(topic: PublicKey, peerId: PublicKey): Promise<PublicKey[]> {
+  private async _rpcCall(method: string, payload: any): Promise<any> {
     await this._rpc.open();
-    const peers: Buffer[] = await this._rpc.call('join', {
+    try {
+      const response = await Promise.race([
+        this._rpc.call(method, payload),
+        sleep(TIMEOUT).then(() => Promise.reject(new Error(`Signal RPC call timed out in ${TIMEOUT} ms`))),
+      ])
+      this.commandTrace.emit({
+        host: this._host,
+        method,
+        payload,
+        response,
+      });
+      return response;
+    } catch(err) {
+      this.commandTrace.emit({
+        host: this._host,
+        method,
+        payload,
+        error: err.message,
+      });
+      throw err;
+    }
+  }
+
+  async join(topic: PublicKey, peerId: PublicKey): Promise<PublicKey[]> {
+    const peers: Buffer[] = await this._rpcCall('join', {
       id: peerId.asBuffer(),
       topic: topic.asBuffer(),
     })
@@ -131,16 +158,14 @@ export class SignalApi {
   }
 
   async leave(topic: PublicKey, peerId: PublicKey): Promise<void> {
-    await this._rpc.open();
-    await this._rpc.call('leave', {
+    await this._rpcCall('leave', {
       id: peerId.asBuffer(),
       topic: topic.asBuffer(),
     })
   }
 
   async lookup(topic: PublicKey): Promise<PublicKey[]> {
-    await this._rpc.open();
-    const peers: Buffer[] = await this._rpc.call('lookup', {
+    const peers: Buffer[] = await this._rpcCall('lookup', {
       topic: topic.asBuffer(),
     })
     return peers.map(id => PublicKey.from(id))
@@ -151,8 +176,7 @@ export class SignalApi {
    * @returns Other peer's _onOffer callback return value.
    */
   async offer(payload: SignalApi.SignalMessage): Promise<SignalData> {
-    await this._rpc.open();
-    return this._rpc.call('offer', {
+    return this._rpcCall('offer', {
       id: payload.id.asBuffer(),
       remoteId: payload.remoteId.asBuffer(),
       topic: payload.topic.asBuffer(),
@@ -166,13 +190,19 @@ export class SignalApi {
    */
   async signal(payload: SignalApi.SignalMessage): Promise<void> {
     await this._rpc.open();
-    return this._rpc.emit('signal', {
+    const serializedPayload = {
       id: payload.id.asBuffer(),
       remoteId: payload.remoteId.asBuffer(),
       topic: payload.topic.asBuffer(),
       sessionId: payload.sessionId.asBuffer(),
       data: payload.data,
+    }
+    this.commandTrace.emit({
+      host: this._host,
+      method: 'signal',
+      payload: serializedPayload,
     })
+    return this._rpc.emit('signal', serializedPayload)
   }
 }
 
@@ -189,6 +219,14 @@ export namespace SignalApi {
     host: string,
     state: State,
     error?: Error
+  }
+
+  export interface CommandTrace {
+    host: string
+    method: string
+    payload: any
+    response?: any
+    error?: string
   }
 
   // TODO(marik-d): Define more concrete types for offer/answer.
