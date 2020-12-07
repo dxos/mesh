@@ -65,6 +65,7 @@ const GraphDemo = () => {
       nodes.push({
         id: peer.id.toHex(),
         title: `${peer.id.humanize()} ${peer.state}`,
+        state: peer.state,
       })
       for(const connection of peer.connections) {
         links.push({
