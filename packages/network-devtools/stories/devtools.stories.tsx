@@ -1,11 +1,11 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { FullScreen, SVG, useGrid, Grid } from '@dxos/gem-core';
-import { Markers, createSimulationDrag, ForceLayout, Graph, NodeProjector } from '@dxos/gem-spore';
+import React, { useState, useEffect } from 'react';
+import { FullScreen } from '@dxos/gem-core';
 import useResizeAware from 'react-resize-aware';
 import { NetworkManager, PeerState, SwarmMapper, transportProtocolProvider } from '@dxos/network-manager'
-import { randomBytes, PublicKey } from '@dxos/crypto';
+import { PublicKey } from '@dxos/crypto';
 import { Presence } from '@dxos/protocol-plugin-presence'
 import { makeStyles, colors } from '@material-ui/core';
+import { PeerGraph } from '../src/PeerGraph';
 
 export default {
   title: 'Devtools'
@@ -29,68 +29,14 @@ const GraphDemo = () => {
 
   const [resizeListener, size] = useResizeAware();
   const { width, height } = size;
-  const grid = useGrid({ width, height });
-
-  const [layout] = useState(() => new ForceLayout({
-    // initializer: (node: any, center: any) => {
-    //   // Freeze this peer.
-    //   // if (node.id === controlTopic.toString('hex')) {
-    //   //   return {
-    //   //     fx: center.x,
-    //   //     fy: center.y
-    //   //   };
-    //   // }
-    // }
-  }));
-  const [drag] = useState(() => createSimulationDrag(layout.simulation));
-  const [{ nodeProjector }] = useState({
-    nodeProjector: new NodeProjector({
-      node: {
-        showLabels: true,
-        propertyAdapter: (node: any) => {
-          return {
-            class: node.id === controlTopic.toHex() ? 'blue' :
-                    node.state === 'WAITING_FOR_CONNECTION' ? 'orange' :
-                    node.state === 'CONNECTED' ? 'green' :
-                    'grey',
-
-            // radius: node.id === controlTopic.toHex() ? 20 : 10
-          };
-        }
-      }
-    })
-  });
-
-
-
-  const [data, setData] = useState<any>({ nodes: [], links: [] });
-
-  function buildGraph(peers: PeerState[]) {
-    const nodes: any[] = [], links: any[] = []
-    for(const peer of peers) {
-      nodes.push({
-        id: peer.id.toHex(),
-        title: peer.id.humanize(),
-        state: peer.state,
-      })
-      for(const connection of peer.connections) {
-        links.push({
-          id: `${peer.id.toHex()}-${connection.toHex()}`,
-          source: peer.id.toHex(),
-          target: connection.toHex(),
-        })
-      }
-    }
-    return { nodes, links }
-  }
-
+ 
   useEffect(() => {
     controlPeer?.mapUpdated.on(peers => {
       console.log(peers)
-      setData(buildGraph(peers))
+      setPeerMap(peers)
     })
     console.log(controlPeer?.peers)
-    controlPeer && setData(buildGraph(controlPeer.peers))
+    controlPeer && setPeerMap(controlPeer.peers)
   }, [controlPeer])
 
   const [peers, setPeers] = useState<any[]>([]);
@@ -108,9 +54,7 @@ const GraphDemo = () => {
     peer && peer.leave();
   }
 
-  console.log('data', data)
-
-  const classes = useCustomStyles();
+  const [peerMap, setPeerMap] = useState<PeerState[]>([]);
 
   return (
     <FullScreen>
@@ -123,20 +67,11 @@ const GraphDemo = () => {
         <button onClick={() => killPeer()}>Kill peer</button>
       </div>
 
-      <SVG width={width} height={height}>
-        <Grid grid={grid} />
+      <PeerGraph
+        peers={peerMap}
+        size={{ width, height }}
+      />
 
-        <Graph
-          grid={grid}
-          data={data}
-          layout={layout}
-          nodeProjector={nodeProjector}
-          drag={drag}
-          classes={{
-            nodes: classes.nodes
-          }}
-        />
-      </SVG>
     </FullScreen>
   )
 }
