@@ -7,13 +7,14 @@ import { Presence } from '@dxos/protocol-plugin-presence'
 import { makeStyles, colors } from '@material-ui/core';
 import { PeerGraph } from '../src/PeerGraph';
 import { SignalStatus } from '../src/SignalStatus';
+import { SignalTrace } from '../src/SignalTrace';
 
 export default {
   title: 'Devtools'
 }
 
 const createPeer = async (controlTopic: PublicKey, peerId: PublicKey) => {
-  const networkManager = new NetworkManager(['wss://apollo2.kube.moon.dxos.network/dxos/signal']);
+  const networkManager = new NetworkManager(['wss://apollo1.kube.moon.dxos.network/dxos/signal']);
   const presencePlugin = new Presence(peerId.asBuffer())
   await networkManager.start()
   networkManager.joinProtocolSwarm({
@@ -71,6 +72,13 @@ const GraphDemo = () => {
     })
   }, [controlPeer])
 
+  const [signalTrace, setSignalTrace] = useState<SignalApi.CommandTrace[]>([]);
+  useEffect(() => {
+    return controlPeer?.signal.commandTrace.on(msg => {
+      setSignalTrace(msgs => [...msgs, msg])
+    })
+  }, [controlPeer])
+
   return (
     <div style={{display: 'flex', flexDirection: 'row', width: '100vw', height: '100vw' }}>
       <div style={{ position: 'absolute' }}>
@@ -90,6 +98,7 @@ const GraphDemo = () => {
 
       <div style={{ flex: 0.5 }}>
         <SignalStatus status={signalStatus} />
+        <SignalTrace trace={signalTrace} />
       </div>
     </div>
   )
