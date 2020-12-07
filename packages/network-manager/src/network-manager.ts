@@ -19,13 +19,15 @@ export class NetworkManager {
 
   private readonly _signal: SignalManager;
 
+  get signal() {
+    return this._signal;
+  }
+
   constructor(signal: string[]) {
     this._signal = new SignalManager(signal);
     this._signal.candidatesChanged.on(([topic, candidates]) => this._swarms.get(topic)?.onCandidatesChanged(candidates))
     this._signal.onOffer.on(msg => this._swarms.get(msg.topic)?.onOffer(msg))
     this._signal.onSignal.on(msg => this._swarms.get(msg.topic)?.onSignal(msg))
-    this._signal.statusChanged.on(console.log);
-    this._signal.commandTrace.on(console.log);
   }
 
   // TODO(marik-d): Remove.
