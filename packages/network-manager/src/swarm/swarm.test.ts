@@ -5,6 +5,7 @@ import waitForExpect from 'wait-for-expect';
 import { SignalData } from "simple-peer";
 import { Swarm } from "./swarm";
 import { Protocol } from "@dxos/protocol";
+import { FullyConnectedTopology } from "../topology/fully-connected-topology";
 
 describe('Swarm', () => {
   let topic: PublicKey;
@@ -20,6 +21,7 @@ describe('Swarm', () => {
     swarm1 = new Swarm(
       topic,
       firstPeerId,
+      new FullyConnectedTopology(),
       () => new Protocol(),
       async msg => {
         await sleep(10); // Simulating network delay
@@ -33,6 +35,7 @@ describe('Swarm', () => {
     swarm2 = new Swarm(
       topic,
       secondPeerId,
+      new FullyConnectedTopology(),
       () => new Protocol(),
       async msg => {
         await sleep(10); // Simulating network delay

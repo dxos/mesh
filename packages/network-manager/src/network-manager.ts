@@ -6,6 +6,8 @@ import { SignalManager } from "./signal/signal-manager";
 import { SwarmMapper } from "./swarm-mapper";
 import { Connection } from "./swarm/connection";
 import { Swarm } from "./swarm/swarm";
+import { FullyConnectedTopology } from "./topology/fully-connected-topology";
+import { Topology } from "./topology/topology";
 
 export type ProtocolProvider = (opts: { channel: Buffer }) => Protocol;
 
@@ -35,18 +37,40 @@ export class NetworkManager {
     return this._maps.get(topic);
   }
 
-  joinProtocolSwarm(topic: PublicKey, peerId: PublicKey, protocol: ProtocolProvider, options: SwarmOptions)  {
+  joinProtocolSwarm({ topic, peerId, topology, protocol, presence }: SwarmOptions)  {
     if(this._swarms.has(topic)) {
       throw new Error(`Already connected to swarm ${topic}`);
     }
 
-    const swarm = new Swarm(topic, peerId, protocol, async offer => this._signal.offer(offer), async msg => this._signal.signal(msg))
+    const swarm = new Swarm(topic, peerId, topology, protocol, async offer => this._signal.offer(offer), async msg => this._signal.signal(msg))
     this._swarms.set(topic, swarm);
     this._signal.join(topic, peerId);    
-    this._maps.set(topic, new SwarmMapper(swarm, options.presence));
+    this._maps.set(topic, new SwarmMapper(swarm, presence));
   }
 }
 
 export interface SwarmOptions {
+  /**
+   * Swarm topic.
+   */
+  topic: PublicKey,
+  /**
+   * This node's peer id.
+   */
+  peerId: PublicKey,
+
+  /**
+   * Requested topology. Must be a new instance for every swarm.
+   */
+  topology: Topology,
+
+  /**
+   * Protocol to use for every connection.
+   */
+  protocol: ProtocolProvider,
+
+  /**
+   * Presence plugin for network mapping, if exists.
+   */
   presence?: any /* Presence */ 
 }

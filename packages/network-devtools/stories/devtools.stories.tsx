@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FullScreen } from '@dxos/gem-core';
 import useResizeAware from 'react-resize-aware';
-import { NetworkManager, PeerState, SwarmMapper, transportProtocolProvider } from '@dxos/network-manager'
+import { FullyConnectedTopology, NetworkManager, PeerState, SwarmMapper, transportProtocolProvider } from '@dxos/network-manager'
 import { PublicKey } from '@dxos/crypto';
 import { Presence } from '@dxos/protocol-plugin-presence'
 import { makeStyles, colors } from '@material-ui/core';
@@ -15,7 +15,13 @@ const createPeer = async (controlTopic: PublicKey, peerId: PublicKey) => {
   const networkManager = new NetworkManager(['wss://apollo2.kube.moon.dxos.network/dxos/signal']);
   const presencePlugin = new Presence(peerId.asBuffer())
   await networkManager.start()
-  networkManager.joinProtocolSwarm(controlTopic, peerId, transportProtocolProvider(controlTopic.asBuffer(), peerId.asBuffer(), presencePlugin), { presence: presencePlugin })
+  networkManager.joinProtocolSwarm({
+    topic: controlTopic,
+    peerId,
+    topology: new FullyConnectedTopology(),
+    protocol: transportProtocolProvider(controlTopic.asBuffer(), peerId.asBuffer(), presencePlugin),
+    presence: presencePlugin,
+  })
   return networkManager.getSwarmMap(controlTopic)!;
 }
 
