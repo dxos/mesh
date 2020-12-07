@@ -96,21 +96,3 @@ const GraphDemo = () => {
 }
 
 export const withGraph = () => <GraphDemo />
-
-const nodeColors: (keyof typeof colors)[] = ['red', 'green', 'blue', 'yellow', 'orange', 'grey'];
-const useCustomStyles = makeStyles(() => ({
-  nodes: nodeColors.reduce((map: any, color: string) => {
-    map[`& g.node.${color} circle`] = {
-      fill: (colors as any)[color][400],
-      stroke: (colors as any)[color][700],
-    };
-
-    // map[`& g.node.${color} text`] = {
-    //   fontFamily: 'sans-serif',
-    //   fontSize: 12,
-    //   fill: colors['grey'][700]
-    // };
-
-    return map;
-  }, {})
-}));
