@@ -38,6 +38,11 @@ export class SwarmMapper {
       this._connectionSubscriptions.delete(connection.remoteId);
       this._update()
     }))
+    if(_presence) {
+      this._subscriptions.push(_presence.on('graph-updated', () => {
+        this._update();
+      }))
+    }
     this._update()
   }
 
@@ -70,22 +75,3 @@ export class SwarmMapper {
     this._subscriptions.forEach(cb => cb());
   }
 }
-
-function buildGraph(graph: any) {
-  const nodes: any[] = [], links: any[] = []
-  graph.forEachNode((node: any) => {
-    nodes.push({
-      id: node.id,
-      title: PublicKey.fromHex(node.id).humanize(),
-    })
-  })
-  graph.forEachLink((link: any) => {
-    links.push({
-      id: link.id,
-      source: link.fromId,
-      target: link.toId,
-    })
-  })
-  return { nodes, links }
-}
-
