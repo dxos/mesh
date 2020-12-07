@@ -80,7 +80,7 @@ const GraphDemo = () => {
   }, [controlPeer])
 
   return (
-    <div style={{display: 'flex', flexDirection: 'row', width: '100vw', height: '100vw' }}>
+    <FullScreen>
       <div style={{ position: 'absolute' }}>
         <button onClick={() => addPeers(1)}>Add peer</button>
         <button onClick={() => addPeers(5)}>Add 5 peers</button>
@@ -88,19 +88,18 @@ const GraphDemo = () => {
         <button onClick={() => killPeer()}>Kill peer</button>
       </div>
 
-      <div style={{ flex: 0.5 }}>
-        {resizeListener}
-        <PeerGraph
-          peers={peerMap}
-          size={{ width, height }}
-        />
-      </div>
+    
+      {resizeListener}
+      <PeerGraph
+        peers={peerMap}
+        size={{ width, height }}
+      />
 
-      <div style={{ flex: 0.5 }}>
+      <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 200, background: 'white' }}>
         <SignalStatus status={signalStatus} />
         <SignalTrace trace={signalTrace} />
       </div>
-    </div>
+    </FullScreen>
   )
 }
 
