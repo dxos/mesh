@@ -26,6 +26,8 @@ export class SignalApi {
 
   readonly commandTrace = new Event<SignalApi.CommandTrace>();
 
+  private _messageId = Date.now();
+
   /**
    * @param _host Signal server websocket URL.
    * @param _onOffer See `SignalApi.offer`.
@@ -138,6 +140,7 @@ export class SignalApi {
         sleep(TIMEOUT).then(() => Promise.reject(new Error(`Signal RPC call timed out in ${TIMEOUT} ms`))),
       ])
       this.commandTrace.emit({
+        messageId: `${this._host}-${this._messageId++}`,
         host: this._host,
         time: Date.now() - start,
         method,
@@ -147,6 +150,7 @@ export class SignalApi {
       return response;
     } catch(err) {
       this.commandTrace.emit({
+        messageId: `${this._host}-${this._messageId++}`,
         host: this._host,
         time: Date.now() - start,
         method,
@@ -206,6 +210,7 @@ export class SignalApi {
       data: payload.data,
     }
     this.commandTrace.emit({
+      messageId: `${this._host}-${this._messageId++}`,
       host: this._host,
       time: 0,
       method: 'signal',
@@ -231,6 +236,7 @@ export namespace SignalApi {
   }
 
   export interface CommandTrace {
+    messageId: string
     host: string
     time: number
     method: string

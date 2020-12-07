@@ -52,7 +52,17 @@ export class NetworkManager {
       throw new Error(`Already connected to swarm ${topic}`);
     }
 
-    const swarm = new Swarm(topic, peerId, topology, protocol, async offer => this._signal.offer(offer), async msg => this._signal.signal(msg))
+    const swarm = new Swarm(
+      topic,
+      peerId,
+      topology,
+      protocol,
+      async offer => this._signal.offer(offer),
+      async msg => this._signal.signal(msg),
+      () => {
+        this._signal.lookup(topic);
+      },
+    )
     this._swarms.set(topic, swarm);
     this._signal.join(topic, peerId);    
     this._maps.set(topic, new SwarmMapper(swarm, presence));

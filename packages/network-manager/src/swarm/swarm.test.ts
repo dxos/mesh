@@ -31,6 +31,7 @@ describe('Swarm', () => {
         await sleep(10); // Simulating network delay
         await swarm2.onSignal(msg)
       },
+      () => {},
     )
     swarm2 = new Swarm(
       topic,
@@ -45,6 +46,7 @@ describe('Swarm', () => {
         await sleep(10); // Simulating network delay
         await swarm1.onSignal(msg)
       },
+      () => {},
     )
   })
 

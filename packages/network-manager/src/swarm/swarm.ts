@@ -47,6 +47,7 @@ export class Swarm {
     private readonly _protocol: ProtocolProvider,
     private readonly _sendOffer: (message: SignalApi.SignalMessage) => Promise<void>,
     private readonly _sendSignal: (message: SignalApi.SignalMessage) => Promise<void>,
+    private readonly _lookup: () => void,
   ) {
     _topology.init({
       getState: () => ({
@@ -63,6 +64,9 @@ export class Swarm {
         }
         this._topology.update();
       },
+      lookup: () => {
+        this._lookup();
+      }
     })
   }
 

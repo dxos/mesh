@@ -6,9 +6,15 @@ export class FullyConnectedTopology implements Topology {
 
   private _controller?: SwarmController;
 
+  private _intervalId?: NodeJS.Timeout;
+
   init(controller: SwarmController): void {
     assert(!this._controller, 'Already initialized');
     this._controller = controller;
+
+    this._intervalId = setInterval(() => {
+      controller.lookup();
+    }, 10_000)
   }
 
   update(): void {
@@ -24,6 +30,8 @@ export class FullyConnectedTopology implements Topology {
   }
 
   async destroy(): Promise<void> {
-    
+    if(this._intervalId !== undefined) {
+      clearInterval(this._intervalId);
+    }
   }
 }

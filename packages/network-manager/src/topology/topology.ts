@@ -1,9 +1,27 @@
 import { PublicKey } from "@dxos/crypto";
 
 export interface SwarmController {
+  /**
+   * Get current state.
+   */
   getState(): SwarmState;
+
+  /**
+   * Initiate a connection.
+   */
   connect(peer: PublicKey): void;
+
+  /**
+   * Disconnect from a peer.
+   */
   disconnect(peer: PublicKey): void;
+
+  /**
+   * Trigger a lookup of any other peers swarming on this topic.
+   * 
+   * Updates will be propagated through `update` method.
+   */
+  lookup(): void;
 }
 
 export interface SwarmState {
