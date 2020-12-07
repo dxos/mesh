@@ -5,6 +5,7 @@ import useResizeAware from 'react-resize-aware';
 import { NetworkManager, PeerState, SwarmMapper, transportProtocolProvider } from '@dxos/network-manager'
 import { randomBytes, PublicKey } from '@dxos/crypto';
 import { Presence } from '@dxos/protocol-plugin-presence'
+import { makeStyles, colors } from '@material-ui/core';
 
 export default {
   title: 'Devtools'
@@ -48,7 +49,12 @@ const GraphDemo = () => {
         showLabels: true,
         propertyAdapter: (node: any) => {
           return {
-            radius: node.id === controlTopic.toHex() ? 20 : 10
+            class: node.id === controlTopic.toHex() ? 'blue' :
+                    node.state === 'WAITING_FOR_CONNECTION' ? 'orange' :
+                    node.state === 'WAITING_FOR_CONNECTION' ? 'green' :
+                    'grey',
+
+            // radius: node.id === controlTopic.toHex() ? 20 : 10
           };
         }
       }
@@ -64,7 +70,7 @@ const GraphDemo = () => {
     for(const peer of peers) {
       nodes.push({
         id: peer.id.toHex(),
-        title: `${peer.id.humanize()} ${peer.state}`,
+        title: peer.id.humanize(),
         state: peer.state,
       })
       for(const connection of peer.connections) {
@@ -104,6 +110,8 @@ const GraphDemo = () => {
 
   console.log('data', data)
 
+  const classes = useCustomStyles();
+
   return (
     <FullScreen>
       {resizeListener}
@@ -124,6 +132,9 @@ const GraphDemo = () => {
           layout={layout}
           nodeProjector={nodeProjector}
           drag={drag}
+          classes={{
+            nodes: classes.nodes
+          }}
         />
       </SVG>
     </FullScreen>
@@ -131,3 +142,21 @@ const GraphDemo = () => {
 }
 
 export const withGraph = () => <GraphDemo />
+
+const nodeColors: (keyof typeof colors)[] = ['red', 'green', 'blue', 'yellow', 'orange', 'grey'];
+const useCustomStyles = makeStyles(() => ({
+  nodes: nodeColors.reduce((map: any, color: string) => {
+    map[`& g.node.${color} circle`] = {
+      fill: (colors as any)[color][400],
+      stroke: (colors as any)[color][700],
+    };
+
+    // map[`& g.node.${color} text`] = {
+    //   fontFamily: 'sans-serif',
+    //   fontSize: 12,
+    //   fill: colors['grey'][700]
+    // };
+
+    return map;
+  }, {})
+}));
