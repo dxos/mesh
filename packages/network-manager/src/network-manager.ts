@@ -8,6 +8,7 @@ import { Connection } from "./swarm/connection";
 import { Swarm } from "./swarm/swarm";
 import { FullyConnectedTopology } from "./topology/fully-connected-topology";
 import { Topology } from "./topology/topology";
+import assert from 'assert';
 
 export type ProtocolProvider = (opts: { channel: Buffer }) => Protocol;
 
@@ -37,7 +38,14 @@ export class NetworkManager {
     return this._maps.get(topic);
   }
 
-  joinProtocolSwarm({ topic, peerId, topology, protocol, presence }: SwarmOptions)  {
+  joinProtocolSwarm(options: SwarmOptions)  {
+    assert(typeof options === 'object', 'Incorrect arguments format.')
+    const { topic, peerId, topology, protocol, presence } = options;
+    assert(PublicKey.isPublicKey(topic), 'Incorrect arguments format.')
+    assert(PublicKey.isPublicKey(peerId), 'Incorrect arguments format.')
+    assert(topology, 'Incorrect arguments format.')
+    assert(typeof protocol === 'function', 'Incorrect arguments format.')
+
     if(this._swarms.has(topic)) {
       throw new Error(`Already connected to swarm ${topic}`);
     }
