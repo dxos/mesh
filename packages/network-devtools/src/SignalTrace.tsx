@@ -8,7 +8,7 @@ export interface SignalTraceProps {
 export const SignalTrace = ({ trace }: SignalTraceProps) => (
   <div style={{  overflowY: 'auto' }}>
     {trace.map(msg => (
-      <div>{msg.method} {msg.time} ms</div>
+      <div key={JSON.stringify(msg)}>{msg.method} {msg.time} ms</div>
     ))}
   </div>
 )

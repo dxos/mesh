@@ -116,6 +116,11 @@ export class Swarm {
   }
 
   private _initiateConnection(remoteId: PublicKey) {
+    if(this._connections.has(remoteId)) {
+      // Do nothing if peer is already connected.
+      return;
+    }
+
     const sessionId = PublicKey.random()
 
     this._createConnection(true, remoteId, sessionId);
