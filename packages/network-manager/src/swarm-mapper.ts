@@ -6,7 +6,7 @@ import { Swarm } from "./swarm/swarm";
 
 export interface PeerState {
   id: PublicKey
-  state: Connection.State | 'ONLINE'
+  state: Connection.State | 'INDIRECTLY_CONNECTED'
   connections: PublicKey[]
 }
 
@@ -48,6 +48,11 @@ export class SwarmMapper {
 
   private _update() {
     this._peers.clear();
+    this._peers.set(this._swarm.ownPeerId, {
+      id: this._swarm.ownPeerId,
+      state: Connection.State.CONNECTED,
+      connections: [],
+    });
     for(const connection of this._swarm.connections) {
       this._peers.set(connection.remoteId, {
         id: connection.remoteId,
@@ -58,9 +63,10 @@ export class SwarmMapper {
     if(this._presence) {
       this._presence.graph.forEachNode((node: any) => {
         const id = PublicKey.fromHex(node.id);
+        if(this._peers.has(id)) return;
         this._peers.set(id, {
           id,
-          state: 'ONLINE',
+          state: 'INDIRECTLY_CONNECTED',
           connections: [],
         })
       })

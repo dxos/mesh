@@ -51,7 +51,7 @@ const GraphDemo = () => {
           return {
             class: node.id === controlTopic.toHex() ? 'blue' :
                     node.state === 'WAITING_FOR_CONNECTION' ? 'orange' :
-                    node.state === 'WAITING_FOR_CONNECTION' ? 'green' :
+                    node.state === 'CONNECTED' ? 'green' :
                     'grey',
 
             // radius: node.id === controlTopic.toHex() ? 20 : 10
