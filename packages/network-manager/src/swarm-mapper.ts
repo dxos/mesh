@@ -83,7 +83,7 @@ export class SwarmMapper {
         const from = PublicKey.from(link.fromId);
         const to = PublicKey.from(link.toId);
         // Ignore connections to self, they are already handled.
-        if(!from.equals(this._swarm.ownPeerId) && !to.equals(this._swarm.ownPeerId)) {
+        if (!from.equals(this._swarm.ownPeerId) && !to.equals(this._swarm.ownPeerId)) {
           this._peers.get(from)!.connections.push(to);
         }
       });

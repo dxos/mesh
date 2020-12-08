@@ -13,8 +13,8 @@ export class StarTopology implements Topology {
 
   private _intervalId?: NodeJS.Timeout;
 
-  constructor(
-    private readonly _centralPeer: PublicKey,
+  constructor (
+    private readonly _centralPeer: PublicKey
   ) {}
 
   init (controller: SwarmController): void {
@@ -29,17 +29,17 @@ export class StarTopology implements Topology {
   update (): void {
     assert(this._controller, 'Not initialized');
     const { candidates, connected, ownPeerId } = this._controller.getState();
-    if(!ownPeerId.equals(this._centralPeer)) {
+    if (!ownPeerId.equals(this._centralPeer)) {
       // Drop all connections other than central peer.
-      for(const peer of connected) {
-        if(!peer.equals(this._centralPeer)) {
+      for (const peer of connected) {
+        if (!peer.equals(this._centralPeer)) {
           this._controller.disconnect(peer);
         }
       }
     }
     for (const peer of candidates) {
       // Connect to central peer.
-      if(peer.equals(this._centralPeer)) {
+      if (peer.equals(this._centralPeer)) {
         this._controller.connect(peer);
       }
     }

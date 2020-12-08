@@ -30,7 +30,6 @@ export interface MMSTTopologyOptions {
 }
 
 export class MMSTTopology implements Topology {
-
   private readonly _originateConnections: number;
   private readonly _maxPeers: number;
   private readonly _sampleSize: number;
@@ -41,10 +40,10 @@ export class MMSTTopology implements Topology {
 
   private _sampleCollected = false;
 
-  constructor({
+  constructor ({
     originateConnections = 2,
     maxPeers = 4,
-    sampleSize = 10,
+    sampleSize = 10
   }: MMSTTopologyOptions = {}) {
     this._originateConnections = originateConnections;
     this._maxPeers = maxPeers;

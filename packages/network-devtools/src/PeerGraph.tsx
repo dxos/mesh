@@ -18,17 +18,7 @@ export interface PeerGraphProps {
 export const PeerGraph = ({ peers, size }: PeerGraphProps) => {
   const grid = useGrid(size);
 
-  const [layout] = useState(() => new ForceLayout({
-    // initializer: (node: any, center: any) => {
-    //   // Freeze this peer.
-    //   // if (node.id === controlTopic.toString('hex')) {
-    //   //   return {
-    //   //     fx: center.x,
-    //   //     fy: center.y
-    //   //   };
-    //   // }
-    // }
-  }));
+  const [layout] = useState(() => new ForceLayout());
   const [drag] = useState(() => createSimulationDrag(layout.simulation));
   const [{ nodeProjector }] = useState({
     nodeProjector: new NodeProjector({
@@ -36,12 +26,7 @@ export const PeerGraph = ({ peers, size }: PeerGraphProps) => {
         showLabels: true,
         propertyAdapter: (node: any) => {
           return {
-            class: node.state === 'ME' ? 'blue'
-              : node.state === 'WAITING_FOR_CONNECTION' ? 'orange'
-                : node.state === 'CONNECTED' ? 'green'
-                  : 'grey'
-
-            // radius: node.id === controlTopic.toHex() ? 20 : 10
+            class: classMap[node.state] ?? 'grey',
           };
         }
       }
@@ -92,6 +77,12 @@ export const PeerGraph = ({ peers, size }: PeerGraphProps) => {
     </SVG>
   );
 };
+
+const classMap: Record<string, string> = {
+  ME: 'blue',
+  WAITING_FOR_CONNECTION: 'orange',
+  CONNECTED: 'green',
+}
 
 const nodeColors: (keyof typeof colors)[] = ['red', 'green', 'blue', 'yellow', 'orange', 'grey'];
 const useCustomStyles = makeStyles(() => ({
