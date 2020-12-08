@@ -46,7 +46,7 @@
     "@babel/plugin-proposal-class-properties": "^7.7.4",
     "@babel/plugin-proposal-export-default-from": "^7.5.2",
     "@babel/preset-env": "^7.4.5",
-    "@dxos/crypto": "^1.0.0-beta.1",
+    "@dxos/crypto": "1.0.7-alpha.0",
     "@dxos/feed-store": "^1.2.0-beta.30",
     "@dxos/protocol-network-generator": "^1.1.0-beta.21",
     "babel-eslint": "^10.0.2",
@@ -60,7 +60,7 @@
     "jest": "^26.6.3",
     "pify": "^4.0.1",
     "random-access-memory": "^3.1.1",
-    "wait-for-expect": "^3.0.1"
+    "wait-for-expect": "^3.0.2"
   },
   "publishConfig": {
     "access": "public"

@@ -1145,7 +1145,16 @@
   dependencies:
     protobufjs "^6.10.1"
 
-"@dxos/crypto@^1.0.0-beta.1", "@dxos/crypto@^1.0.0-beta.7":
+"@dxos/crypto@1.0.7-alpha.0":
+  version "1.0.7-alpha.0"
+  resolved "https://registry.npmjs.org/@dxos/crypto/-/crypto-1.0.7-alpha.0.tgz#0999287c5b927252c6e7bd4b20b9ded1109cfbe3"
+  integrity sha512-6E6im8xaYbJttS+FPJTbGyge+wTMiKyP+gkJVd1TC8nOQCyMfBOSnC10Ys4mh+UYQe9jsaU6V1PEE1a1oObBow==
+  dependencies:
+    crypto-js "^3.1.9-1"
+    humanhash "^1.0.4"
+    hypercore-crypto "^1.0.0"
+
+"@dxos/crypto@^1.0.0-beta.7":
   version "1.0.5"
   resolved "https://registry.npmjs.org/@dxos/crypto/-/crypto-1.0.5.tgz#16e884f33a2edff0eee91d6a71ed5e79631353ca"
   integrity sha512-G2csaAHRLZMhHrNU1FP+kzAYfyWOQGq+M2uAsp0fib/k6egIM/S9BIP5hQbdGvIv0xlbkLNDtcYWef96flRJ2g==
@@ -17187,7 +17196,7 @@ typedarray@^0.0.6:
   resolved "https://registry.npmjs.org/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@^4.0.5, typescript@^4.1.2:
+typescript@^4.1.2:
   version "4.1.2"
   resolved "https://registry.npmjs.org/typescript/-/typescript-4.1.2.tgz#6369ef22516fe5e10304aae5a5c4862db55380e9"
   integrity sha512-thGloWsGH3SOxv1SoY7QojKi0tc+8FnOmiarEGMbd/lar7QOEd3hvlx3Fp5y6FlDUGl9L+pd4n2e+oToGMmhRQ==
@@ -17678,7 +17687,7 @@ w3c-xmlserializer@^2.0.0:
   dependencies:
     xml-name-validator "^3.0.0"
 
-wait-for-expect@^3.0.1, wait-for-expect@^3.0.2:
+wait-for-expect@^3.0.2:
   version "3.0.2"
   resolved "https://registry.npmjs.org/wait-for-expect/-/wait-for-expect-3.0.2.tgz#d2f14b2f7b778c9b82144109c8fa89ceaadaa463"
   integrity sha512-cfS1+DZxuav1aBYbaO/kE06EOS8yRw7qOFoD3XtjTkYvCvh3zUvNST8DXK/nPaeqIzIv3P3kL3lRJn8iwOiSag==
