@@ -18,7 +18,7 @@ export class SignalManager {
 
   constructor (
     private readonly _hosts: string[],
-    private readonly _onOffer: (message: SignalApi.SignalMessage) => Promise<SignalApi.Answer>,
+    private readonly _onOffer: (message: SignalApi.SignalMessage) => Promise<SignalApi.Answer>
   ) {
     assert(_hosts.length === 1, 'Only a single signaling server connection is supported');
   }

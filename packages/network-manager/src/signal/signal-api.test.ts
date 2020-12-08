@@ -3,7 +3,6 @@
 //
 
 import { expect, mockFn } from 'earljs';
-import { SignalData } from 'simple-peer';
 import waitForExpect from 'wait-for-expect';
 
 import { PublicKey } from '@dxos/crypto';

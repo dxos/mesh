@@ -99,7 +99,7 @@ export class Swarm {
       accept = true;
     }
     this._topology.update();
-    return { accept }
+    return { accept };
   }
 
   async onSignal (message: SignalApi.SignalMessage): Promise<void> {
@@ -113,16 +113,16 @@ export class Swarm {
     connection.signal(message);
   }
 
-  async setTopology(newTopology: Topology) {
-    if(newTopology === this._topology) {
+  async setTopology (newTopology: Topology) {
+    if (newTopology === this._topology) {
       return;
     }
     await this._topology.destroy();
     this._topology = newTopology;
     this._topology.init(this._getSwarmController());
-  } 
+  }
 
-  private _getSwarmController(): SwarmController {
+  private _getSwarmController (): SwarmController {
     return {
       getState: () => ({
         ownPeerId: this._ownPeerId,
@@ -142,7 +142,7 @@ export class Swarm {
       lookup: () => {
         this._lookup();
       }
-    }
+    };
   }
 
   private _initiateConnection (remoteId: PublicKey) {
@@ -162,15 +162,15 @@ export class Swarm {
       data: {}
     }).then(
       answer => {
-        if(!answer.accept) {
+        if (!answer.accept) {
           // If the peer rejected our connection remove it from the set of candidates.
           this._discoveredPeers.delete(remoteId);
           this._closeConnection(remoteId);
           this._topology.update();
         }
-      }, 
+      },
       err => {
-        console.error('Offer error:')
+        console.error('Offer error:');
         console.error(err);
       }
     );
