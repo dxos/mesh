@@ -11,7 +11,7 @@
     "build:watch": "npm run build -- --watch",
     "lint": "eslint 'src/**/*.{ts,js}'",
     "prepublishOnly": "npm run build && npm run test",
-    "test": "mocha -r ts-node/register/transpile-only -r earljs/mocha 'src/**/*.test.{js,ts}'"
+    "test": "mocha -r ts-node/register/transpile-only -r earljs/mocha --exit 'src/**/*.test.{js,ts}'"
   },
   "files": [
     "dist",
