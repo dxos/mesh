@@ -1,12 +1,17 @@
-import { PublicKey } from "@dxos/crypto";
-import { Protocol } from "@dxos/protocol";
-import { SignalApi } from "../signal/signal-api";
-import SimplePeerConstructor, { Instance as SimplePeer, SignalData } from 'simple-peer';
-import wrtc from 'wrtc';
-import { Trigger } from "@dxos/util";
-import assert from 'assert'
+//
+// Copyright 2020 DXOS.org
+//
+
+import assert from 'assert';
 import debug from 'debug';
-import { Event } from "@dxos/async";
+import SimplePeerConstructor, { Instance as SimplePeer } from 'simple-peer';
+import wrtc from 'wrtc';
+
+import { Event } from '@dxos/async';
+import { PublicKey } from '@dxos/crypto';
+import { Protocol } from '@dxos/protocol';
+
+import { SignalApi } from '../signal/signal-api';
 
 const log = debug('dxos:network-manager:swarm:connection');
 
@@ -19,7 +24,7 @@ export class Connection {
 
   readonly stateChanged = new Event<Connection.State>();
 
-  constructor(
+  constructor (
     private readonly _initiator: boolean,
     private readonly _protocol: Protocol,
     private readonly _ownId: PublicKey,
@@ -32,8 +37,8 @@ export class Connection {
     this.stateChanged.emit(this._state);
     this._peer = new SimplePeerConstructor({
       initiator: _initiator,
-      wrtc: SimplePeerConstructor.WEBRTC_SUPPORT ? undefined : wrtc,
-    })
+      wrtc: SimplePeerConstructor.WEBRTC_SUPPORT ? undefined : wrtc
+    });
     this._peer.on('signal', async data => {
       try {
         await this._sendSignal({
@@ -41,63 +46,62 @@ export class Connection {
           remoteId: this._remoteId,
           sessionId: this._sessionId,
           topic: this._topic,
-          data,
-        })
-      } catch(err) {
+          data
+        });
+      } catch (err) {
         // TODO(marik-d): Error handling.
         console.error(err);
       }
-    })
+    });
     this._peer.on('connect', () => {
-      log(`Connection established ${this._ownId} -> ${this._remoteId}`)
+      log(`Connection established ${this._ownId} -> ${this._remoteId}`);
       this._state = Connection.State.CONNECTED;
       this.stateChanged.emit(this._state);
 
-      
       const stream = this._protocol.stream as any as NodeJS.ReadWriteStream;
       stream.pipe(this._peer).pipe(stream);
-    })
+    });
     this._peer.on('error', err => {
       // TODO(marik-d): Error handling.
-      console.error('peer error')
-      console.error(err)
-    })
+      console.error('peer error');
+      console.error(err);
+    });
     this._peer.on('close', () => {
-      log(`Connection closed ${this._ownId} -> ${this._remoteId}`)
+      log(`Connection closed ${this._ownId} -> ${this._remoteId}`);
       this._state = Connection.State.CLOSED;
       this.stateChanged.emit(this._state);
       this._closeStream();
-    })
-    log(`Created connection ${this._ownId} -> ${this._remoteId} initiator=${this._initiator}`)
+    });
+    log(`Created connection ${this._ownId} -> ${this._remoteId} initiator=${this._initiator}`);
   }
 
-  get remoteId() {
+  get remoteId () {
     return this._remoteId;
   }
 
-  get state() {
+  get state () {
     return this._state;
   }
 
-  get peer() {
+  get peer () {
     return this._peer;
   }
 
-  signal(msg: SignalApi.SignalMessage) {
-    if(!msg.sessionId.equals(this._sessionId)) {
+  signal (msg: SignalApi.SignalMessage) {
+    if (!msg.sessionId.equals(this._sessionId)) {
       log('Dropping signal for incorrect session id.');
       return;
     }
-    if(msg.data.type === 'offer' && this._state === Connection.State.INITIATING_CONNECTION) {
+    if (msg.data.type === 'offer' && this._state === Connection.State.INITIATING_CONNECTION) {
       throw new Error('Invalid state: Cannot send offer to an initiating peer.');
     }
-    assert(msg.id.equals(this._remoteId))
-    assert(msg.remoteId.equals(this._ownId))
-    log(`${this._ownId} received signal from ${this._remoteId}: ${msg.data.type}`)
+    assert(msg.id.equals(this._remoteId));
+    assert(msg.remoteId.equals(this._ownId));
+    log(`${this._ownId} received signal from ${this._remoteId}: ${msg.data.type}`);
     this._peer.signal(msg.data);
   }
 
-  async close() {
+  async close () {
     this._state = Connection.State.CLOSED;
     this.stateChanged.emit(this._state);
     this._closeStream();
@@ -107,7 +111,7 @@ export class Connection {
     });
   }
 
-  private _closeStream() {
+  private _closeStream () {
     const stream = this._protocol.stream as any as NodeJS.ReadWriteStream;
     stream.unpipe(this._peer).unpipe(stream);
   }

@@ -1,11 +1,17 @@
-import { Event, sleep } from "@dxos/async"
-import { discoveryKey, PublicKey } from "@dxos/crypto"
-import { Protocol } from "@dxos/protocol"
-import { expect, mockFn } from "earljs"
-import waitForExpect from "wait-for-expect"
-import { TestProtocolPlugin, testProtocolProvider } from "../testing/test-protocol"
-import { afterTest } from "../testutils"
-import { Connection } from "./connection"
+//
+// Copyright 2020 DXOS.org
+//
+
+import { expect, mockFn } from 'earljs';
+import waitForExpect from 'wait-for-expect';
+
+import { Event, sleep } from '@dxos/async';
+import { discoveryKey, PublicKey } from '@dxos/crypto';
+import { Protocol } from '@dxos/protocol';
+
+import { TestProtocolPlugin, testProtocolProvider } from '../testing/test-protocol';
+import { afterTest } from '../testutils';
+import { Connection } from './connection';
 
 describe('Connection', () => {
   // This doesn't clean up correctly and crashes with SIGSEGV at the end. Probably an issue with wrtc package.
@@ -17,12 +23,12 @@ describe('Connection', () => {
       PublicKey.random(),
       PublicKey.random(),
       PublicKey.random(),
-      async msg => {},
-    )
+      async msg => {}
+    );
 
     expect(connection.state).toEqual(Connection.State.INITIATING_CONNECTION);
 
-    await sleep(10); // Let simple-peer process events 
+    await sleep(10); // Let simple-peer process events
     await connection.close();
 
     expect(connection.state).toEqual(Connection.State.CLOSED);
@@ -44,10 +50,10 @@ describe('Connection', () => {
       sessionId,
       topic,
       async msg => {
-        await sleep(10)
+        await sleep(10);
         await connection2.signal(msg);
       }
-    )
+    );
     afterTest(() => connection1.close());
 
     const plugin2 = new TestProtocolPlugin(peer2Id.asBuffer());
@@ -60,26 +66,26 @@ describe('Connection', () => {
       sessionId,
       topic,
       async msg => {
-        await sleep(10)
+        await sleep(10);
         await connection1.signal(msg);
       }
-    )
+    );
     afterTest(() => connection2.close());
 
     await Promise.all([
       Event.wrap(connection1.peer, 'connect').waitForCount(1),
-      Event.wrap(connection2.peer, 'connect').waitForCount(1),
-    ])
+      Event.wrap(connection2.peer, 'connect').waitForCount(1)
+    ]);
 
     const mockReceive = mockFn<[Protocol, string]>().returns(undefined);
     plugin1.on('receive', mockReceive);
-  
+
     plugin2.on('connect', async (protocol) => {
-      plugin2.send(peer1Id.asBuffer(), 'Foo')
+      plugin2.send(peer1Id.asBuffer(), 'Foo');
     });
 
     await waitForExpect(() => {
       expect(mockReceive).toHaveBeenCalledWith([expect.a(Protocol), 'Foo']);
-    })
-  }).timeout(5_000)
+    });
+  }).timeout(5_000);
 });

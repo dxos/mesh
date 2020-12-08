@@ -1,14 +1,17 @@
-import { PublicKey } from "@dxos/crypto";
-import { Protocol } from "@dxos/protocol";
-import { ComplexMap } from "@dxos/util";
-import { expect } from "earljs";
-import { SignalManager } from "./signal/signal-manager";
-import { SwarmMapper } from "./swarm-mapper";
-import { Connection } from "./swarm/connection";
-import { Swarm } from "./swarm/swarm";
-import { FullyConnectedTopology } from "./topology/fully-connected-topology";
-import { Topology } from "./topology/topology";
+//
+// Copyright 2020 DXOS.org
+//
+
 import assert from 'assert';
+
+import { PublicKey } from '@dxos/crypto';
+import { Protocol } from '@dxos/protocol';
+import { ComplexMap } from '@dxos/util';
+
+import { SignalManager } from './signal/signal-manager';
+import { SwarmMapper } from './swarm-mapper';
+import { Swarm } from './swarm/swarm';
+import { Topology } from './topology/topology';
 
 export type ProtocolProvider = (opts: { channel: Buffer }) => Protocol;
 
@@ -19,36 +22,35 @@ export class NetworkManager {
 
   private readonly _signal: SignalManager;
 
-  get signal() {
+  get signal () {
     return this._signal;
   }
 
-  constructor(signal: string[]) {
+  constructor (signal: string[]) {
     this._signal = new SignalManager(signal);
-    this._signal.candidatesChanged.on(([topic, candidates]) => this._swarms.get(topic)?.onCandidatesChanged(candidates))
-    this._signal.onOffer.on(msg => this._swarms.get(msg.topic)?.onOffer(msg))
-    this._signal.onSignal.on(msg => this._swarms.get(msg.topic)?.onSignal(msg))
+    this._signal.candidatesChanged.on(([topic, candidates]) => this._swarms.get(topic)?.onCandidatesChanged(candidates));
+    this._signal.onOffer.on(msg => this._swarms.get(msg.topic)?.onOffer(msg));
+    this._signal.onSignal.on(msg => this._swarms.get(msg.topic)?.onSignal(msg));
   }
 
   // TODO(marik-d): Remove.
-  async start() {
+  async start () {
     await this._signal.connect();
-    
   }
 
-  getSwarmMap(topic: PublicKey): SwarmMapper | undefined {
+  getSwarmMap (topic: PublicKey): SwarmMapper | undefined {
     return this._maps.get(topic);
   }
 
-  joinProtocolSwarm(options: SwarmOptions)  {
-    assert(typeof options === 'object', 'Incorrect arguments format.')
+  joinProtocolSwarm (options: SwarmOptions) {
+    assert(typeof options === 'object', 'Incorrect arguments format.');
     const { topic, peerId, topology, protocol, presence } = options;
-    assert(PublicKey.isPublicKey(topic), 'Incorrect arguments format.')
-    assert(PublicKey.isPublicKey(peerId), 'Incorrect arguments format.')
-    assert(topology, 'Incorrect arguments format.')
-    assert(typeof protocol === 'function', 'Incorrect arguments format.')
+    assert(PublicKey.isPublicKey(topic), 'Incorrect arguments format.');
+    assert(PublicKey.isPublicKey(peerId), 'Incorrect arguments format.');
+    assert(topology, 'Incorrect arguments format.');
+    assert(typeof protocol === 'function', 'Incorrect arguments format.');
 
-    if(this._swarms.has(topic)) {
+    if (this._swarms.has(topic)) {
       throw new Error(`Already connected to swarm ${topic}`);
     }
 
@@ -61,10 +63,10 @@ export class NetworkManager {
       async msg => this._signal.signal(msg),
       () => {
         this._signal.lookup(topic);
-      },
-    )
+      }
+    );
     this._swarms.set(topic, swarm);
-    this._signal.join(topic, peerId);    
+    this._signal.join(topic, peerId);
     this._maps.set(topic, new SwarmMapper(swarm, presence));
   }
 }
@@ -92,5 +94,5 @@ export interface SwarmOptions {
   /**
    * Presence plugin for network mapping, if exists.
    */
-  presence?: any /* Presence */ 
+  presence?: any /* Presence */
 }

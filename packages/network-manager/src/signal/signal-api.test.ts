@@ -1,9 +1,14 @@
-import { sleep } from "@dxos/async";
-import { PublicKey } from "@dxos/crypto"
-import { expect, mockFn } from "earljs";
-import { SignalApi } from "./signal-api"
+//
+// Copyright 2020 DXOS.org
+//
+
+import { expect, mockFn } from 'earljs';
+import { SignalData } from 'simple-peer';
 import waitForExpect from 'wait-for-expect';
-import { SignalData } from "simple-peer";
+
+import { PublicKey } from '@dxos/crypto';
+
+import { SignalApi } from './signal-api';
 
 describe('SignalApi', () => {
   let topic: PublicKey;
@@ -15,11 +20,11 @@ describe('SignalApi', () => {
     topic = PublicKey.random();
     peer1 = PublicKey.random();
     peer2 = PublicKey.random();
-  })
+  });
 
   afterEach(async () => {
-    await api.close()
-  })
+    await api.close();
+  });
 
   it('join', async () => {
     api = new SignalApi('wss://apollo1.kube.moon.dxos.network/dxos/signal', (async () => {}) as any, async () => {});
@@ -31,12 +36,11 @@ describe('SignalApi', () => {
 
     const join2 = await api.join(topic, peer2);
     expect(join2).toEqual([peer1, peer2]);
-  }).timeout(10_000)
+  }).timeout(10_000);
 
   it('offer', async () => {
-    
     const offerMock = mockFn<(msg: SignalApi.SignalMessage) => Promise<SignalData>>()
-      .resolvesTo({ foo: 'bar' } as any)
+      .resolvesTo({ foo: 'bar' } as any);
     api = new SignalApi('wss://apollo1.kube.moon.dxos.network/dxos/signal', offerMock, async () => {});
 
     api.connect();
@@ -48,16 +52,16 @@ describe('SignalApi', () => {
       id: peer2,
       remoteId: peer1,
       sessionId: PublicKey.random(),
-      topic,
-    }
-    const offerResult = await api.offer(offer)
-    expect(offerResult).toEqual({ foo: 'bar' } as any)
-    expect(offerMock).toHaveBeenCalledWith([offer])
-  }).timeout(5_000)
+      topic
+    };
+    const offerResult = await api.offer(offer);
+    expect(offerResult).toEqual({ foo: 'bar' } as any);
+    expect(offerMock).toHaveBeenCalledWith([offer]);
+  }).timeout(5_000);
 
   it('signal', async () => {
     const signalMock = mockFn<(msg: SignalApi.SignalMessage) => Promise<void>>()
-      .resolvesTo()
+      .resolvesTo();
     api = new SignalApi('wss://apollo1.kube.moon.dxos.network/dxos/signal', (async () => {}) as any, signalMock);
 
     api.connect();
@@ -69,12 +73,12 @@ describe('SignalApi', () => {
       remoteId: peer1,
       sessionId: PublicKey.random(),
       topic,
-      data: { foo: 'bar' } as any,
-    }
-    await api.signal(msg)
+      data: { foo: 'bar' } as any
+    };
+    await api.signal(msg);
 
     await waitForExpect(() => {
       expect(signalMock).toHaveBeenCalledWith([msg]);
-    }, 4_000)
-  }).timeout(5_000)
-})
+    }, 4_000);
+  }).timeout(5_000);
+});

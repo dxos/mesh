@@ -1,13 +1,18 @@
-import { discoveryKey, PublicKey } from "@dxos/crypto";
-import { ComplexMap, ComplexSet } from "@dxos/util";
-import { SignalApi } from '../signal/signal-api'
-import assert from 'assert'
-import { ProtocolProvider } from "../network-manager";
-import { Connection } from "./connection";
+//
+// Copyright 2020 DXOS.org
+//
+
+import assert from 'assert';
 import debug from 'debug';
-import { SignalData } from "simple-peer";
-import { Event } from "@dxos/async";
-import { Topology } from "../topology/topology";
+
+import { Event } from '@dxos/async';
+import { discoveryKey, PublicKey } from '@dxos/crypto';
+import { ComplexMap, ComplexSet } from '@dxos/util';
+
+import { ProtocolProvider } from '../network-manager';
+import { SignalApi } from '../signal/signal-api';
+import { Topology } from '../topology/topology';
+import { Connection } from './connection';
 
 const log = debug('dxos:network-manager:swarm');
 
@@ -21,8 +26,8 @@ export class Swarm {
 
   private readonly _discoveredPeers = new ComplexSet<PublicKey>(x => x.toHex());
 
-  get connections() {
-    return Array.from(this._connections.values())
+  get connections () {
+    return Array.from(this._connections.values());
   }
 
   /**
@@ -40,24 +45,24 @@ export class Swarm {
    */
   readonly connected = new Event<PublicKey>();
 
-  constructor(
+  constructor (
     private readonly _topic: PublicKey,
     private readonly _ownPeerId: PublicKey,
     private readonly _topology: Topology, // TODO(marik-d): Change topology at runtime.
     private readonly _protocol: ProtocolProvider,
     private readonly _sendOffer: (message: SignalApi.SignalMessage) => Promise<void>,
     private readonly _sendSignal: (message: SignalApi.SignalMessage) => Promise<void>,
-    private readonly _lookup: () => void,
+    private readonly _lookup: () => void
   ) {
     _topology.init({
       getState: () => ({
         connected: Array.from(this._connections.keys()),
-        candidates: Array.from(this._discoveredPeers.keys()).filter(key => !this._connections.has(key)),
+        candidates: Array.from(this._discoveredPeers.keys()).filter(key => !this._connections.has(key))
       }),
       connect: peer => this._initiateConnection(peer),
       disconnect: async peer => {
         try {
-          await this._closeConnection(peer)
+          await this._closeConnection(peer);
         } catch (err) {
           console.error('Error closing connection');
           console.error(err);
@@ -67,32 +72,34 @@ export class Swarm {
       lookup: () => {
         this._lookup();
       }
-    })
+    });
   }
 
-  get ownPeerId() {
+  get ownPeerId () {
     return this._ownPeerId;
   }
 
-  onCandidatesChanged(candidates: PublicKey[]) {
+  onCandidatesChanged (candidates: PublicKey[]) {
     this._discoveredPeers.clear();
-    for(const candidate of candidates) {
-      if(candidate.equals(this._ownPeerId)) continue;
+    for (const candidate of candidates) {
+      if (candidate.equals(this._ownPeerId)) {
+        continue;
+      }
       this._discoveredPeers.add(candidate);
     }
     this._topology.update();
   }
 
-  async onOffer(message: SignalApi.SignalMessage): Promise<void> {
+  async onOffer (message: SignalApi.SignalMessage): Promise<void> {
     // Id of the peer offering us the connection.
     const remoteId = message.id;
     assert(message.remoteId.equals(this._ownPeerId));
     assert(message.topic.equals(this._topic));
 
     // Check if we are already trying to connect to that peer.
-    if(this._connections.has(message.id)) {
+    if (this._connections.has(message.id)) {
       // Peer with the highest Id closes it's connection, and accepts remote peer's offer.
-      if(remoteId.toHex() < this._ownPeerId.toHex()) {
+      if (remoteId.toHex() < this._ownPeerId.toHex()) {
         this._closeConnection(message.id).catch(err => {
           console.error(err);
           // TODO(marik-d): Error handling.
@@ -102,30 +109,30 @@ export class Swarm {
       }
     }
 
-    if(await this._topology.onOffer(message.id)) {
+    if (await this._topology.onOffer(message.id)) {
       this._createConnection(false, message.id, message.sessionId);
     }
     this._topology.update();
   }
 
-  async onSignal(message: SignalApi.SignalMessage): Promise<void> {
+  async onSignal (message: SignalApi.SignalMessage): Promise<void> {
     assert(message.remoteId.equals(this._ownPeerId));
     assert(message.topic.equals(this._topic));
     const connection = this._connections.get(message.id);
-    if(!connection) {
+    if (!connection) {
       log(`Dropping signal message for non-existent connection: topic=${this._topic}, peerId=${message.id}`);
       return;
     }
     connection.signal(message);
   }
 
-  private _initiateConnection(remoteId: PublicKey) {
-    if(this._connections.has(remoteId)) {
+  private _initiateConnection (remoteId: PublicKey) {
+    if (this._connections.has(remoteId)) {
       // Do nothing if peer is already connected.
       return;
     }
 
-    const sessionId = PublicKey.random()
+    const sessionId = PublicKey.random();
 
     this._createConnection(true, remoteId, sessionId);
     this._sendOffer({
@@ -133,14 +140,13 @@ export class Swarm {
       remoteId,
       sessionId,
       topic: this._topic,
-      data: {},
-    })
+      data: {}
+    });
     this._topology.update();
   }
 
-  private _createConnection(initiator: boolean, remoteId: PublicKey, sessionId: PublicKey) {
+  private _createConnection (initiator: boolean, remoteId: PublicKey, sessionId: PublicKey) {
     assert(!this._connections.has(remoteId), 'Peer already connected');
-    let signals: SignalData[]
     const connection = new Connection(
       initiator,
       this._protocol({ channel: discoveryKey(this._topic) }),
@@ -148,15 +154,15 @@ export class Swarm {
       remoteId,
       sessionId,
       this._topic,
-      msg => this._sendSignal(msg),
-    )
-    this._connections.set(remoteId, connection)
+      msg => this._sendSignal(msg)
+    );
+    this._connections.set(remoteId, connection);
     this.connectionAdded.emit(connection);
     Event.wrap(connection.peer, 'connect').once(() => this.connected.emit(remoteId));
     return connection;
   }
 
-  private async _closeConnection(peerId: PublicKey) {
+  private async _closeConnection (peerId: PublicKey) {
     const connection = this._connections.get(peerId);
     assert(connection);
     this._connections.delete(peerId);
