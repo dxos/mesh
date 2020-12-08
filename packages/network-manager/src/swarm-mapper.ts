@@ -80,7 +80,12 @@ export class SwarmMapper {
         });
       });
       this._presence.graph.forEachLink((link: any) => {
-        this._peers.get(PublicKey.from(link.fromId))!.connections.push(PublicKey.from(link.toId));
+        const from = PublicKey.from(link.fromId);
+        const to = PublicKey.from(link.toId);
+        // Ignore connections to self, they are already handled.
+        if(!from.equals(this._swarm.ownPeerId) && !to.equals(this._swarm.ownPeerId)) {
+          this._peers.get(from)!.connections.push(to);
+        }
       });
     }
     this.mapUpdated.emit(Array.from(this._peers.values()));
