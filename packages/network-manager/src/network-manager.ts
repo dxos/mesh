@@ -44,6 +44,10 @@ export class NetworkManager {
     return this._maps.get(topic);
   }
 
+  getSwarm (topic: PublicKey): Swarm | undefined {
+    return this._swarms.get(topic);
+  }
+
   joinProtocolSwarm (options: SwarmOptions) {
     assert(typeof options === 'object', 'Incorrect arguments format.');
     const { topic, peerId, topology, protocol, presence } = options;

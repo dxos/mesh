@@ -11,7 +11,7 @@ import { ComplexMap, ComplexSet } from '@dxos/util';
 
 import { ProtocolProvider } from '../network-manager';
 import { SignalApi } from '../signal/signal-api';
-import { Topology } from '../topology/topology';
+import { SwarmController, Topology } from '../topology/topology';
 import { Connection } from './connection';
 
 const log = debug('dxos:network-manager:swarm');
@@ -48,32 +48,13 @@ export class Swarm {
   constructor (
     private readonly _topic: PublicKey,
     private readonly _ownPeerId: PublicKey,
-    private readonly _topology: Topology, // TODO(marik-d): Change topology at runtime.
+    private _topology: Topology, // TODO(marik-d): Change topology at runtime.
     private readonly _protocol: ProtocolProvider,
     private readonly _sendOffer: (message: SignalApi.SignalMessage) => Promise<SignalApi.Answer>,
     private readonly _sendSignal: (message: SignalApi.SignalMessage) => Promise<void>,
     private readonly _lookup: () => void
   ) {
-    _topology.init({
-      getState: () => ({
-        ownPeerId: this._ownPeerId,
-        connected: Array.from(this._connections.keys()),
-        candidates: Array.from(this._discoveredPeers.keys()).filter(key => !this._connections.has(key))
-      }),
-      connect: peer => this._initiateConnection(peer),
-      disconnect: async peer => {
-        try {
-          await this._closeConnection(peer);
-        } catch (err) {
-          console.error('Error closing connection');
-          console.error(err);
-        }
-        this._topology.update();
-      },
-      lookup: () => {
-        this._lookup();
-      }
-    });
+    _topology.init(this._getSwarmController());
   }
 
   get ownPeerId () {
@@ -130,6 +111,38 @@ export class Swarm {
       return;
     }
     connection.signal(message);
+  }
+
+  async setTopology(newTopology: Topology) {
+    if(newTopology === this._topology) {
+      return;
+    }
+    await this._topology.destroy();
+    this._topology = newTopology;
+    this._topology.init(this._getSwarmController());
+  } 
+
+  private _getSwarmController(): SwarmController {
+    return {
+      getState: () => ({
+        ownPeerId: this._ownPeerId,
+        connected: Array.from(this._connections.keys()),
+        candidates: Array.from(this._discoveredPeers.keys()).filter(key => !this._connections.has(key))
+      }),
+      connect: peer => this._initiateConnection(peer),
+      disconnect: async peer => {
+        try {
+          await this._closeConnection(peer);
+        } catch (err) {
+          console.error('Error closing connection');
+          console.error(err);
+        }
+        this._topology.update();
+      },
+      lookup: () => {
+        this._lookup();
+      }
+    }
   }
 
   private _initiateConnection (remoteId: PublicKey) {

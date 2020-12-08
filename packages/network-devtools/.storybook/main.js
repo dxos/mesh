@@ -1,5 +1,3 @@
-const { DefinePlugin } = require('webpack')
-
 //
 // Copyright 2020 DXOS.org
 //
@@ -8,7 +6,7 @@ const { DefinePlugin } = require('webpack')
 
 module.exports = {
   stories: ['../stories/**/*.stories.{js,jsx,ts,tsx}'],
-  addons: [],
+  addons: ['@storybook/addon-knobs'],
   webpackFinal: async config => {
     config.module.rules.push({
       test: /\.(ts|tsx)$/,

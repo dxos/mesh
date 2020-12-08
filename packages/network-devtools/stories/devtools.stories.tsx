@@ -1,59 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import { FullScreen } from '@dxos/gem-core';
 import useResizeAware from 'react-resize-aware';
-import { FullyConnectedTopology, MMSTTopology, NetworkManager, PeerState, SignalApi, SignalManager, SwarmMapper, transportProtocolProvider } from '@dxos/network-manager'
+import { FullyConnectedTopology, Swarm, MMSTTopology, NetworkManager, PeerState, SignalApi, SignalManager, SwarmMapper, transportProtocolProvider } from '@dxos/network-manager'
 import { PublicKey } from '@dxos/crypto';
 import { Presence } from '@dxos/protocol-plugin-presence'
 import { makeStyles, colors } from '@material-ui/core';
 import { PeerGraph } from '../src/PeerGraph';
 import { SignalStatus } from '../src/SignalStatus';
 import { SignalTrace } from '../src/SignalTrace';
+import { select } from '@storybook/addon-knobs';
+import { Topology } from '../../network-manager/dist';
 
 export default {
   title: 'Devtools'
 }
 
-const createPeer = async (controlTopic: PublicKey, peerId: PublicKey) => {
+const createPeer = async (controlTopic: PublicKey, peerId: PublicKey, topologyFactory: () => Topology) => {
   const networkManager = new NetworkManager(['wss://apollo1.kube.moon.dxos.network/dxos/signal']);
   const presencePlugin = new Presence(peerId.asBuffer())
   await networkManager.start()
   networkManager.joinProtocolSwarm({
     topic: controlTopic,
     peerId,
-    topology: new MMSTTopology(),
-    // topology: new FullyConnectedTopology(),
+    topology: topologyFactory(),
     protocol: transportProtocolProvider(controlTopic.asBuffer(), peerId.asBuffer(), presencePlugin),
     presence: presencePlugin,
   })
   return {
+    swarm: networkManager.getSwarm(controlTopic)!,
     map: networkManager.getSwarmMap(controlTopic)!,
     signal: networkManager.signal,
   }
 }
 
-const GraphDemo = () => {
+const GraphDemo = ({ topology }: { topology: () => Topology }) => {
   const [controlTopic] = useState(() => PublicKey.random())
-  const [controlPeer, setControlPeer] = useState<{ map: SwarmMapper, signal: SignalManager }>();
-
+  
+  const [controlPeer, setControlPeer] = useState<{ swarm: Swarm, map: SwarmMapper, signal: SignalManager }>();
   useEffect(() => {
-    createPeer(controlTopic, controlTopic).then(peer => setControlPeer(peer))
+    createPeer(controlTopic, controlTopic, topology).then(peer => setControlPeer(peer))
   }, [])
 
-  const [resizeListener, size] = useResizeAware();
-  const { width, height } = size;
- 
-  useEffect(() => {
-    controlPeer?.map.mapUpdated.on(peers => {
-      setPeerMap(peers)
-    })
-    controlPeer && setPeerMap(controlPeer.map.peers)
-  }, [controlPeer])
-
   const [peers, setPeers] = useState<any[]>([]);
+  useEffect(() => {
+    controlPeer?.swarm.setTopology(topology())
+    for(const peer of peers) {
+      peer.swarm.setTopology(topology());
+    }
+  }, [topology])
 
-  function addPeers(n: number) {
+  async function addPeers(n: number) {
     for(let i = 0; i < n; i++) {
-      const peer = createPeer(controlTopic, PublicKey.random())
+      const peer = await createPeer(controlTopic, PublicKey.random(), topology)
       setPeers(peers => [...peers, peer])
     }
   }
@@ -65,6 +63,12 @@ const GraphDemo = () => {
   }
 
   const [peerMap, setPeerMap] = useState<PeerState[]>([]);
+  useEffect(() => {
+    controlPeer?.map.mapUpdated.on(peers => {
+      setPeerMap(peers)
+    })
+    controlPeer && setPeerMap(controlPeer.map.peers)
+  }, [controlPeer])
 
   const [signalStatus, setSignalStatus] = useState<SignalApi.Status[]>([]);
   useEffect(() => {
@@ -79,6 +83,9 @@ const GraphDemo = () => {
       setSignalTrace(msgs => [...msgs, msg])
     })
   }, [controlPeer])
+
+  const [resizeListener, size] = useResizeAware();
+  const { width, height } = size;
 
   return (
     <FullScreen>
@@ -104,4 +111,22 @@ const GraphDemo = () => {
   )
 }
 
-export const withGraph = () => <GraphDemo />
+export const withGraph = () => {
+  const [topology, setTopology] = useState<() => Topology>(() => () => new FullyConnectedTopology());
+
+  const topologySelect = select('Topology', ['Fully-connected', 'MMST'], 'Fully-connected');
+  useEffect(() => {
+    switch(topologySelect) {
+      case 'Fully-connected': {
+        setTopology(() => () => new FullyConnectedTopology());
+        break;
+      }
+      case 'MMST': {
+        setTopology(() => () => new MMSTTopology());
+        break;
+      }
+    }
+  }, [topologySelect])
+
+  return <GraphDemo topology={topology} />
+}
