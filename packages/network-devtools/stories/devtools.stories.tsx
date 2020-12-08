@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { FullScreen } from '@dxos/gem-core';
 import useResizeAware from 'react-resize-aware';
-import { FullyConnectedTopology, Swarm, MMSTTopology, NetworkManager, PeerState, SignalApi, SignalManager, SwarmMapper, transportProtocolProvider } from '@dxos/network-manager'
+import { FullyConnectedTopology, Swarm, MMSTTopology, StarTopology, NetworkManager, PeerState, SignalApi, SignalManager, SwarmMapper, transportProtocolProvider } from '@dxos/network-manager'
 import { PublicKey } from '@dxos/crypto';
 import { Presence } from '@dxos/protocol-plugin-presence'
-import { makeStyles, colors } from '@material-ui/core';
 import { PeerGraph } from '../src/PeerGraph';
 import { SignalStatus } from '../src/SignalStatus';
 import { SignalTrace } from '../src/SignalTrace';
@@ -33,12 +32,10 @@ const createPeer = async (controlTopic: PublicKey, peerId: PublicKey, topologyFa
   }
 }
 
-const GraphDemo = ({ topology }: { topology: () => Topology }) => {
-  const [controlTopic] = useState(() => PublicKey.random())
-  
+const GraphDemo = ({ topic, topology }: { topic: PublicKey, topology: () => Topology }) => {
   const [controlPeer, setControlPeer] = useState<{ swarm: Swarm, map: SwarmMapper, signal: SignalManager }>();
   useEffect(() => {
-    createPeer(controlTopic, controlTopic, topology).then(peer => setControlPeer(peer))
+    createPeer(topic, topic, topology).then(peer => setControlPeer(peer))
   }, [])
 
   const [peers, setPeers] = useState<any[]>([]);
@@ -51,7 +48,7 @@ const GraphDemo = ({ topology }: { topology: () => Topology }) => {
 
   async function addPeers(n: number) {
     for(let i = 0; i < n; i++) {
-      const peer = await createPeer(controlTopic, PublicKey.random(), topology)
+      const peer = await createPeer(topic, PublicKey.random(), topology)
       setPeers(peers => [...peers, peer])
     }
   }
@@ -112,9 +109,11 @@ const GraphDemo = ({ topology }: { topology: () => Topology }) => {
 }
 
 export const withGraph = () => {
+  const [topic] = useState(() => PublicKey.random())
+
   const [topology, setTopology] = useState<() => Topology>(() => () => new FullyConnectedTopology());
 
-  const topologySelect = select('Topology', ['Fully-connected', 'MMST'], 'Fully-connected');
+  const topologySelect = select('Topology', ['Fully-connected', 'MMST', 'Star'], 'Fully-connected');
   useEffect(() => {
     switch(topologySelect) {
       case 'Fully-connected': {
@@ -125,8 +124,11 @@ export const withGraph = () => {
         setTopology(() => () => new MMSTTopology());
         break;
       }
+      case 'Star': {
+        setTopology(() => () => new StarTopology(topic))
+      }
     }
   }, [topologySelect])
 
-  return <GraphDemo topology={topology} />
+  return <GraphDemo topic={topic} topology={topology} />
 }
