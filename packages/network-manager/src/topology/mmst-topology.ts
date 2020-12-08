@@ -13,10 +13,20 @@ import { SwarmController, Topology } from './topology';
 const log = debug('dxos:network-manager:topology:mmst-topology');
 
 export interface MMSTTopologyOptions {
+  /**
+   * Number of connections the peer will originate by itself.
+   */
   originateConnections?: number
+
+  /**
+   * Maximum number of connections allowed, all other connections will be dropped.
+   */
   maxPeers?: number
+
+  /**
+   * Size of random sample from which peer candidates are selected.
+   */
   sampleSize?: number
-  lookupTimeout?: number
 }
 
 export class MMSTTopology implements Topology {
@@ -24,13 +34,10 @@ export class MMSTTopology implements Topology {
   private readonly _originateConnections: number;
   private readonly _maxPeers: number;
   private readonly _sampleSize: number;
-  private readonly _lookupTimeout: number;
 
   private _controller?: SwarmController;
 
   private _lookupIntervalId?: NodeJS.Timeout;
-
-  private _sampleTimeout?: NodeJS.Timeout;
 
   private _sampleCollected = false;
 
@@ -38,12 +45,10 @@ export class MMSTTopology implements Topology {
     originateConnections = 2,
     maxPeers = 4,
     sampleSize = 10,
-    lookupTimeout = 1_000,
   }: MMSTTopologyOptions = {}) {
     this._originateConnections = originateConnections;
     this._maxPeers = maxPeers;
     this._sampleSize = sampleSize;
-    this._lookupTimeout = lookupTimeout;
   }
 
   init (controller: SwarmController): void {
@@ -53,29 +58,16 @@ export class MMSTTopology implements Topology {
     this._lookupIntervalId = setTimeout(() => {
       controller.lookup();
     }, 10_000);
-
-    // If required sample size is not reached after a certain timeout, run the algorithm on discovered peers.
-    this._sampleTimeout = setTimeout(() => {
-      log(`Running the algorithm after ${this._lookupTimeout} ms timeout.`);
-      this._sampleCollected = true;
-      this._runAlgorithm();
-    }, this._lookupTimeout);
   }
 
   update (): void {
     assert(this._controller, 'Not initialized');
-    if (this._sampleCollected) {
-      // Re-run the algorithm if we already have already ran it before.
-      log('Re-running the algorithm on update.');
+    const { connected, candidates } = this._controller.getState();
+    // Run the algorithms if we have first candidates, ran it before, or have more connections than needed.
+    if (this._sampleCollected || connected.length > this._maxPeers || candidates.length > 0) {
+      log('Running the algorithm.');
+      this._sampleCollected = true;
       this._runAlgorithm();
-    } else {
-      const { connected, candidates } = this._controller.getState();
-      // Run the algorithm if we have reached the required sample size.
-      if (connected.length + candidates.length > this._sampleSize) {
-        log('Sample collected, running the algorithm.');
-        this._sampleCollected = true;
-        this._runAlgorithm();
-      }
     }
   }
 
@@ -88,9 +80,6 @@ export class MMSTTopology implements Topology {
   async destroy (): Promise<void> {
     if (this._lookupIntervalId !== undefined) {
       clearInterval(this._lookupIntervalId);
-    }
-    if (this._sampleTimeout !== undefined) {
-      clearInterval(this._sampleTimeout);
     }
   }
 
