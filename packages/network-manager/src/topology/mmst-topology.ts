@@ -10,17 +10,22 @@ import { PublicKey } from '@dxos/crypto';
 
 import { SwarmController, Topology } from './topology';
 
-const ORIGINATE_CONNECTIONS = 2;
-
-const MAX_PEERS = 4;
-
-const SAMPLE_SIZE = 10;
-
-const LOOKUP_TIMEOUT = 1_000;
-
 const log = debug('dxos:network-manager:topology:mmst-topology');
 
+export interface MMSTTopologyOptions {
+  originateConnections?: number
+  maxPeers?: number
+  sampleSize?: number
+  lookupTimeout?: number
+}
+
 export class MMSTTopology implements Topology {
+
+  private readonly _originateConnections: number;
+  private readonly _maxPeers: number;
+  private readonly _sampleSize: number;
+  private readonly _lookupTimeout: number;
+
   private _controller?: SwarmController;
 
   private _lookupIntervalId?: NodeJS.Timeout;
@@ -28,6 +33,18 @@ export class MMSTTopology implements Topology {
   private _sampleTimeout?: NodeJS.Timeout;
 
   private _sampleCollected = false;
+
+  constructor({
+    originateConnections = 2,
+    maxPeers = 4,
+    sampleSize = 10,
+    lookupTimeout = 1_000,
+  }: MMSTTopologyOptions = {}) {
+    this._originateConnections = originateConnections;
+    this._maxPeers = maxPeers;
+    this._sampleSize = sampleSize;
+    this._lookupTimeout = lookupTimeout;
+  }
 
   init (controller: SwarmController): void {
     assert(!this._controller, 'Already initialized');
@@ -39,10 +56,10 @@ export class MMSTTopology implements Topology {
 
     // If required sample size is not reached after a certain timeout, run the algorithm on discovered peers.
     this._sampleTimeout = setTimeout(() => {
-      log(`Running the algorithm after ${LOOKUP_TIMEOUT} ms timeout.`);
+      log(`Running the algorithm after ${this._lookupTimeout} ms timeout.`);
       this._sampleCollected = true;
       this._runAlgorithm();
-    }, LOOKUP_TIMEOUT);
+    }, this._lookupTimeout);
   }
 
   update (): void {
@@ -54,7 +71,7 @@ export class MMSTTopology implements Topology {
     } else {
       const { connected, candidates } = this._controller.getState();
       // Run the algorithm if we have reached the required sample size.
-      if (connected.length + candidates.length > SAMPLE_SIZE) {
+      if (connected.length + candidates.length > this._sampleSize) {
         log('Sample collected, running the algorithm.');
         this._sampleCollected = true;
         this._runAlgorithm();
@@ -65,7 +82,7 @@ export class MMSTTopology implements Topology {
   async onOffer (peer: PublicKey): Promise<boolean> {
     assert(this._controller, 'Not initialized');
     const { connected } = this._controller.getState();
-    return connected.length < MAX_PEERS;
+    return connected.length < this._maxPeers;
   }
 
   async destroy (): Promise<void> {
@@ -81,17 +98,17 @@ export class MMSTTopology implements Topology {
     assert(this._controller, 'Not initialized');
     const { connected, candidates, ownPeerId } = this._controller.getState();
 
-    if (connected.length > MAX_PEERS) {
+    if (connected.length > this._maxPeers) {
       // Disconnect extra peers.
-      const sorted = sortByXorDistance(connected, ownPeerId).reverse().slice(0, MAX_PEERS - connected.length);
+      const sorted = sortByXorDistance(connected, ownPeerId).reverse().slice(0, this._maxPeers - connected.length);
       for (const peer of sorted) {
         log(`Disconnect ${peer}.`);
         this._controller.disconnect(peer);
       }
-    } else if (connected.length < ORIGINATE_CONNECTIONS) {
+    } else if (connected.length < this._originateConnections) {
       // Connect new peers to reach desired quota.
-      const sample = candidates.sort(() => Math.random() - 0.5).slice(0, SAMPLE_SIZE);
-      const sorted = sortByXorDistance(sample, ownPeerId).slice(0, ORIGINATE_CONNECTIONS - connected.length);
+      const sample = candidates.sort(() => Math.random() - 0.5).slice(0, this._sampleSize);
+      const sorted = sortByXorDistance(sample, ownPeerId).slice(0, this._originateConnections - connected.length);
       for (const peer of sorted) {
         log(`Connect ${peer}.`);
         this._controller.connect(peer);
