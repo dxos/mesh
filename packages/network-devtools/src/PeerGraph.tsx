@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SVG, useGrid, Grid } from '@dxos/gem-core';
 import { createSimulationDrag, ForceLayout, Graph, NodeProjector } from '@dxos/gem-spore';
-import { PeerState } from '@dxos/network-manager'
+import { PeerState } from '@dxos/network-manager';
 import { makeStyles, colors } from '@material-ui/core';
 
 export interface PeerGraphProps {
@@ -30,10 +30,10 @@ export const PeerGraph = ({ peers, size }: PeerGraphProps) => {
         showLabels: true,
         propertyAdapter: (node: any) => {
           return {
-            class: node.state === 'ME' ? 'blue' :
-                    node.state === 'WAITING_FOR_CONNECTION' ? 'orange' :
-                    node.state === 'CONNECTED' ? 'green' :
-                    'grey',
+            class: node.state === 'ME' ? 'blue'
+              : node.state === 'WAITING_FOR_CONNECTION' ? 'orange'
+                : node.state === 'CONNECTED' ? 'green'
+                  : 'grey'
 
             // radius: node.id === controlTopic.toHex() ? 20 : 10
           };
@@ -42,32 +42,30 @@ export const PeerGraph = ({ peers, size }: PeerGraphProps) => {
     })
   });
 
-
-
   const [data, setData] = useState<any>({ nodes: [], links: [] });
 
-  function buildGraph(peers: PeerState[]) {
-    const nodes: any[] = [], links: any[] = []
-    for(const peer of peers) {
+  function buildGraph (peers: PeerState[]) {
+    const nodes: any[] = []; const links: any[] = [];
+    for (const peer of peers) {
       nodes.push({
         id: peer.id.toHex(),
         title: peer.id.humanize(),
-        state: peer.state,
-      })
-      for(const connection of peer.connections) {
+        state: peer.state
+      });
+      for (const connection of peer.connections) {
         links.push({
           id: `${peer.id.toHex()}-${connection.toHex()}`,
           source: peer.id.toHex(),
-          target: connection.toHex(),
-        })
+          target: connection.toHex()
+        });
       }
     }
-    return { nodes, links }
+    return { nodes, links };
   }
 
   useEffect(() => {
-    setData(buildGraph(peers))
-  }, [peers])
+    setData(buildGraph(peers));
+  }, [peers]);
 
   const classes = useCustomStyles();
 
@@ -86,15 +84,15 @@ export const PeerGraph = ({ peers, size }: PeerGraphProps) => {
         }}
       />
     </SVG>
-  )
-}
+  );
+};
 
 const nodeColors: (keyof typeof colors)[] = ['red', 'green', 'blue', 'yellow', 'orange', 'grey'];
 const useCustomStyles = makeStyles(() => ({
   nodes: nodeColors.reduce((map: any, color: string) => {
     map[`& g.node.${color} circle`] = {
       fill: (colors as any)[color][400],
-      stroke: (colors as any)[color][700],
+      stroke: (colors as any)[color][700]
     };
 
     // map[`& g.node.${color} text`] = {
