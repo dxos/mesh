@@ -56,6 +56,7 @@ export class Swarm {
   ) {
     _topology.init({
       getState: () => ({
+        ownPeerId: this._ownPeerId,
         connected: Array.from(this._connections.keys()),
         candidates: Array.from(this._discoveredPeers.keys()).filter(key => !this._connections.has(key))
       }),

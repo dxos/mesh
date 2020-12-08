@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FullScreen } from '@dxos/gem-core';
 import useResizeAware from 'react-resize-aware';
-import { FullyConnectedTopology, NetworkManager, PeerState, SignalApi, SignalManager, SwarmMapper, transportProtocolProvider } from '@dxos/network-manager'
+import { FullyConnectedTopology, MMSTTopology, NetworkManager, PeerState, SignalApi, SignalManager, SwarmMapper, transportProtocolProvider } from '@dxos/network-manager'
 import { PublicKey } from '@dxos/crypto';
 import { Presence } from '@dxos/protocol-plugin-presence'
 import { makeStyles, colors } from '@material-ui/core';
@@ -20,7 +20,8 @@ const createPeer = async (controlTopic: PublicKey, peerId: PublicKey) => {
   networkManager.joinProtocolSwarm({
     topic: controlTopic,
     peerId,
-    topology: new FullyConnectedTopology(),
+    topology: new MMSTTopology(),
+    // topology: new FullyConnectedTopology(),
     protocol: transportProtocolProvider(controlTopic.asBuffer(), peerId.asBuffer(), presencePlugin),
     presence: presencePlugin,
   })

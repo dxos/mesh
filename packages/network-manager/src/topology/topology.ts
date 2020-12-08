@@ -30,6 +30,11 @@ export interface SwarmController {
 
 export interface SwarmState {
   /**
+   * This node's peer Id.
+   */
+  ownPeerId: PublicKey
+
+  /**
    * Peers with established connections.
    */
   connected: PublicKey[]
