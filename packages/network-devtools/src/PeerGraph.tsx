@@ -1,8 +1,14 @@
+//
+// Copyright 2020 DXOS.org
+//
+
 import React, { useState, useEffect } from 'react';
+
+import { makeStyles, colors } from '@material-ui/core';
+
 import { SVG, useGrid, Grid } from '@dxos/gem-core';
 import { createSimulationDrag, ForceLayout, Graph, NodeProjector } from '@dxos/gem-spore';
 import { PeerState } from '@dxos/network-manager';
-import { makeStyles, colors } from '@material-ui/core';
 
 export interface PeerGraphProps {
   peers: PeerState[]

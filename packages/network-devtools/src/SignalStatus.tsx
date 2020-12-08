@@ -1,4 +1,9 @@
+//
+// Copyright 2020 DXOS.org
+//
+
 import React from 'react';
+
 import { SignalApi } from '@dxos/network-manager/dist/signal/signal-api';
 
 export interface SignalStatusProps {

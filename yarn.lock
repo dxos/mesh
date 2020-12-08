@@ -1163,10 +1163,10 @@
     humanhash "^1.0.4"
     hypercore-crypto "^1.0.0"
 
-"@dxos/eslint-plugin@1.0.9":
-  version "1.0.9"
-  resolved "https://registry.npmjs.org/@dxos/eslint-plugin/-/eslint-plugin-1.0.9.tgz#36e32ee0b22a50e85cb5e334f7732186eb0aa9d6"
-  integrity sha512-Smk3kLXAeSxCL035Q5YkORY8wlvKkG8BOZIqUyAaD/cdifBzjwkQApK4NFokgPWf12YX/7E0PcALJxuu9p1XSQ==
+"@dxos/eslint-plugin@1.0.10":
+  version "1.0.10"
+  resolved "https://registry.npmjs.org/@dxos/eslint-plugin/-/eslint-plugin-1.0.10.tgz#165105a271996c1feb47db87e81ac84d8d03b655"
+  integrity sha512-SRWuN1uOojfZbhSqV+ViQLgZuONxHGLsSObmLJU+HtjX7x2XLg0DiCsSbbOKLd7tO6r9uHIK4PcmhbLYlNGh9Q==
   dependencies:
     "@rushstack/eslint-patch" "^1.0.6"
     "@typescript-eslint/eslint-plugin" "^3.10.1"
