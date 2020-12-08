@@ -27,9 +27,11 @@ export class NetworkManager {
   }
 
   constructor (signal: string[]) {
-    this._signal = new SignalManager(signal);
+    this._signal = new SignalManager(
+      signal,
+      async msg => (await this._swarms.get(msg.topic)?.onOffer(msg)) ?? { accept: false }
+    );
     this._signal.candidatesChanged.on(([topic, candidates]) => this._swarms.get(topic)?.onCandidatesChanged(candidates));
-    this._signal.onOffer.on(msg => this._swarms.get(msg.topic)?.onOffer(msg));
     this._signal.onSignal.on(msg => this._swarms.get(msg.topic)?.onSignal(msg));
   }
 

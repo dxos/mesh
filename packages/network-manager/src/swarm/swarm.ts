@@ -50,7 +50,7 @@ export class Swarm {
     private readonly _ownPeerId: PublicKey,
     private readonly _topology: Topology, // TODO(marik-d): Change topology at runtime.
     private readonly _protocol: ProtocolProvider,
-    private readonly _sendOffer: (message: SignalApi.SignalMessage) => Promise<void>,
+    private readonly _sendOffer: (message: SignalApi.SignalMessage) => Promise<SignalApi.Answer>,
     private readonly _sendSignal: (message: SignalApi.SignalMessage) => Promise<void>,
     private readonly _lookup: () => void
   ) {
@@ -91,7 +91,7 @@ export class Swarm {
     this._topology.update();
   }
 
-  async onOffer (message: SignalApi.SignalMessage): Promise<void> {
+  async onOffer (message: SignalApi.SignalMessage): Promise<SignalApi.Answer> {
     // Id of the peer offering us the connection.
     const remoteId = message.id;
     assert(message.remoteId.equals(this._ownPeerId));
@@ -101,19 +101,24 @@ export class Swarm {
     if (this._connections.has(message.id)) {
       // Peer with the highest Id closes it's connection, and accepts remote peer's offer.
       if (remoteId.toHex() < this._ownPeerId.toHex()) {
+        // Close our connection and accept remote peer's connection.
         this._closeConnection(message.id).catch(err => {
           console.error(err);
           // TODO(marik-d): Error handling.
         });
       } else {
-        return;
+        // Continue with our origination attempt, the remote peer will close it's connection and accept ours.
+        return { accept: true };
       }
     }
 
+    let accept = false;
     if (await this._topology.onOffer(message.id)) {
       this._createConnection(false, message.id, message.sessionId);
+      accept = true;
     }
     this._topology.update();
+    return { accept }
   }
 
   async onSignal (message: SignalApi.SignalMessage): Promise<void> {
@@ -142,7 +147,20 @@ export class Swarm {
       sessionId,
       topic: this._topic,
       data: {}
-    });
+    }).then(
+      answer => {
+        if(!answer.accept) {
+          // If the peer rejected our connection remove it from the set of candidates.
+          this._discoveredPeers.delete(remoteId);
+          this._closeConnection(remoteId);
+          this._topology.update();
+        }
+      }, 
+      err => {
+        console.error('Offer error:')
+        console.error(err);
+      }
+    );
     this._topology.update();
   }
 

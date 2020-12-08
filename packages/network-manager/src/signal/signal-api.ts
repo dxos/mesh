@@ -40,7 +40,7 @@ export class SignalApi {
    */
   constructor (
     private readonly _host: string,
-    private readonly _onOffer: (message: SignalApi.SignalMessage) => Promise<SignalData>,
+    private readonly _onOffer: (message: SignalApi.SignalMessage) => Promise<SignalApi.Answer>,
     private readonly _onSignal: (message: SignalApi.SignalMessage) => Promise<void>
   ) {
     this._rpc = nanomessagerpc({
@@ -192,7 +192,7 @@ export class SignalApi {
    * Routes an offer to the other peer's _onOffer callback.
    * @returns Other peer's _onOffer callback return value.
    */
-  async offer (payload: SignalApi.SignalMessage): Promise<SignalData> {
+  async offer (payload: SignalApi.SignalMessage): Promise<SignalApi.Answer> {
     return this._rpcCall('offer', {
       id: payload.id.asBuffer(),
       remoteId: payload.remoteId.asBuffer(),
@@ -257,5 +257,9 @@ export namespace SignalApi {
     topic: PublicKey,
     sessionId: PublicKey,
     data: SignalData,
+  }
+
+  export interface Answer {
+    accept: boolean
   }
 }

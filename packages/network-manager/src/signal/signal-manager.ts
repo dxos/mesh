@@ -17,7 +17,8 @@ export class SignalManager {
   readonly commandTrace = new Event<SignalApi.CommandTrace>();
 
   constructor (
-    private readonly _hosts: string[]
+    private readonly _hosts: string[],
+    private readonly _onOffer: (message: SignalApi.SignalMessage) => Promise<SignalApi.Answer>,
   ) {
     assert(_hosts.length === 1, 'Only a single signaling server connection is supported');
   }
@@ -30,10 +31,7 @@ export class SignalManager {
     await Promise.all(this._hosts.map(async host => {
       const server = new SignalApi(
         host,
-        async (msg) => {
-          this.onOffer.emit(msg);
-          return {} as any; // TODO(marik-d): Figure out how to do answers or remove the entirely.
-        },
+        async (msg) => this._onOffer(msg),
         async msg => {
           this.onSignal.emit(msg);
         }
@@ -70,10 +68,8 @@ export class SignalManager {
   }
 
   offer (msg: SignalApi.SignalMessage) {
-    for (const server of this._servers.values()) {
-      server.offer(msg);
-      // TODO(marik-d): Return value & error handling.
-    }
+    // TODO(marik-d): Broadcast to all signal servers.
+    return Array.from(this._servers.values())[0].offer(msg);
   }
 
   signal (msg: SignalApi.SignalMessage) {
@@ -85,6 +81,5 @@ export class SignalManager {
 
   candidatesChanged = new Event<[topic: PublicKey, candidates: PublicKey[]]>()
 
-  onOffer = new Event<SignalApi.SignalMessage>();
   onSignal = new Event<SignalApi.SignalMessage>();
 }

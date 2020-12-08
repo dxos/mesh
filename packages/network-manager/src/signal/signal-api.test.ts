@@ -39,8 +39,8 @@ describe('SignalApi', () => {
   }).timeout(10_000);
 
   it('offer', async () => {
-    const offerMock = mockFn<(msg: SignalApi.SignalMessage) => Promise<SignalData>>()
-      .resolvesTo({ foo: 'bar' } as any);
+    const offerMock = mockFn<(msg: SignalApi.SignalMessage) => Promise<SignalApi.Answer>>()
+      .resolvesTo({ accept: true });
     api = new SignalApi('wss://apollo1.kube.moon.dxos.network/dxos/signal', offerMock, async () => {});
 
     api.connect();
@@ -55,7 +55,7 @@ describe('SignalApi', () => {
       topic
     };
     const offerResult = await api.offer(offer);
-    expect(offerResult).toEqual({ foo: 'bar' } as any);
+    expect(offerResult).toEqual({ accept: true });
     expect(offerMock).toHaveBeenCalledWith([offer]);
   }).timeout(5_000);
 

@@ -30,7 +30,7 @@ describe('Swarm', () => {
       () => new Protocol(),
       async msg => {
         await sleep(10); // Simulating network delay
-        await swarm2.onOffer(msg);
+        return swarm2.onOffer(msg);
       },
       async msg => {
         await sleep(10); // Simulating network delay
@@ -45,7 +45,7 @@ describe('Swarm', () => {
       () => new Protocol(),
       async msg => {
         await sleep(10); // Simulating network delay
-        await swarm1.onOffer(msg);
+        return swarm1.onOffer(msg);
       },
       async msg => {
         await sleep(10); // Simulating network delay
