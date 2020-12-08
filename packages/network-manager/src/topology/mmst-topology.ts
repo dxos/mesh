@@ -10,7 +10,7 @@ import { PublicKey } from '@dxos/crypto';
 
 import { SwarmController, Topology } from './topology';
 
-const ORIGINATE_CONNECTIONS = 1;
+const ORIGINATE_CONNECTIONS = 2;
 
 const MAX_PEERS = 4;
 
@@ -90,7 +90,8 @@ export class MMSTTopology implements Topology {
       }
     } else if(connected.length < ORIGINATE_CONNECTIONS) {
       // Connect new peers to reach desired quota.
-      const sorted = sortByXorDistance(candidates, ownPeerId).slice(0, ORIGINATE_CONNECTIONS - connected.length);
+      const sample = candidates.sort(() => Math.random() - 0.5).slice(0, SAMPLE_SIZE);
+      const sorted = sortByXorDistance(sample, ownPeerId).slice(0, ORIGINATE_CONNECTIONS - connected.length);
       for(const peer of sorted) {
         log(`Connect ${peer}.`)
         this._controller.connect(peer);
