@@ -42,6 +42,7 @@
   "devDependencies": {
     "@dxos/eslint-plugin": "1.0.9",
     "@dxos/feed-store": "^1.2.0-beta.30",
+    "@types/mocha": "^8.0.4",
     "earljs": "^0.1.5",
     "eslint": "^7.13.0",
     "mocha": "^8.2.1",
@@ -56,7 +57,12 @@
     "rules": {
       "import/export": "off",
       "@typescript-eslint/no-namespace": "off",
-      "@typescript-eslint/no-unused-vars": ["error", { "args": "none" }]
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          "args": "none"
+        }
+      ]
     }
   },
   "publishConfig": {
