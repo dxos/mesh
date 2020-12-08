@@ -26,7 +26,7 @@ export const PeerGraph = ({ peers, size }: PeerGraphProps) => {
         showLabels: true,
         propertyAdapter: (node: any) => {
           return {
-            class: classMap[node.state] ?? 'grey',
+            class: classMap[node.state] ?? 'grey'
           };
         }
       }
@@ -81,8 +81,8 @@ export const PeerGraph = ({ peers, size }: PeerGraphProps) => {
 const classMap: Record<string, string> = {
   ME: 'blue',
   WAITING_FOR_CONNECTION: 'orange',
-  CONNECTED: 'green',
-}
+  CONNECTED: 'green'
+};
 
 const nodeColors: (keyof typeof colors)[] = ['red', 'green', 'blue', 'yellow', 'orange', 'grey'];
 const useCustomStyles = makeStyles(() => ({
