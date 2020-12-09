@@ -7,8 +7,8 @@ import assert from 'assert';
 import { Event } from '@dxos/async';
 import { PublicKey } from '@dxos/crypto';
 
-import { SignalApi } from './signal-api';
 import { SignalManager } from './interface';
+import { SignalApi } from './signal-api';
 
 export class WebsocketSignalManager implements SignalManager {
   private readonly _servers = new Map<string, SignalApi>();

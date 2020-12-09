@@ -6,13 +6,13 @@ import { expect, mockFn } from 'earljs';
 import { describe, it } from 'mocha';
 import waitForExpect from 'wait-for-expect';
 
+import { Event } from '@dxos/async';
 import { PublicKey } from '@dxos/crypto';
 import { Protocol } from '@dxos/protocol';
 
 import { NetworkManager } from './network-manager';
 import { TestProtocolPlugin, testProtocolProvider } from './testing/test-protocol';
 import { FullyConnectedTopology } from './topology/fully-connected-topology';
-import { Event } from '@dxos/async';
 
 describe('Network manager', () => {
   const createPeer = async (topic: PublicKey, peerId: PublicKey) => {
@@ -26,8 +26,8 @@ describe('Network manager', () => {
     return {
       networkManager,
       plugin
-    }
-  }
+    };
+  };
 
   it('two peers connect to each other', async () => {
     const topic = PublicKey.random();
@@ -59,8 +59,8 @@ describe('Network manager', () => {
 
     await Promise.all([
       Event.wrap(plugin1, 'connect').waitForCount(1),
-      Event.wrap(plugin2, 'connect').waitForCount(1),
-    ])
+      Event.wrap(plugin2, 'connect').waitForCount(1)
+    ]);
 
     const promise = Event.wrap(plugin2, 'disconnect').waitForCount(1);
     await networkManager1.leaveProtocolSwarm(topic);

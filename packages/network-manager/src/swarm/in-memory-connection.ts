@@ -1,13 +1,17 @@
-import { Event } from "@dxos/async";
-import { PublicKey } from "@dxos/crypto";
-import { Protocol } from "@dxos/protocol";
-import { ComplexMap } from "@dxos/util";
-import { SignalApi } from "../signal/signal-api";
-import { Connection } from "./connection";
-import { WebrtcConnection } from "./webrtc-connection";
+//
+// Copyright 2020 DXOS.org
+//
+
+import { Event } from '@dxos/async';
+import { PublicKey } from '@dxos/crypto';
+import { Protocol } from '@dxos/protocol';
+import { ComplexMap } from '@dxos/util';
+
+import { SignalApi } from '../signal/signal-api';
+import { Connection } from './connection';
+import { WebrtcConnection } from './webrtc-connection';
 
 export class InMemoryConnection implements Connection {
-
   stateChanged = new Event<WebrtcConnection.State>();
   closed = new Event<void>();
 
@@ -15,15 +19,15 @@ export class InMemoryConnection implements Connection {
 
   _remoteConnection?: InMemoryConnection;
 
-  constructor(
+  constructor (
     private readonly _ownId: PublicKey,
     private readonly _remoteId: PublicKey,
     private readonly _sessionId: PublicKey,
     private readonly _topic: PublicKey,
-    private readonly _protocol: Protocol,
+    private readonly _protocol: Protocol
   ) {
     this._remoteConnection = connections.get([_topic, _remoteId, _ownId]);
-    if(this._remoteConnection) {
+    if (this._remoteConnection) {
       const stream = _protocol.stream as any;
       stream.pipe(this._remoteConnection._protocol.stream).pipe(stream);
       this.state = WebrtcConnection.State.CONNECTED;
@@ -35,20 +39,20 @@ export class InMemoryConnection implements Connection {
     }
   }
 
-  get remoteId(): PublicKey {
+  get remoteId (): PublicKey {
     return this._remoteId;
   }
 
-  get sessionId(): PublicKey {
+  get sessionId (): PublicKey {
     return this._sessionId;
   }
 
-  signal(msg: SignalApi.SignalMessage): void {
+  signal (msg: SignalApi.SignalMessage): void {
     // Does nothing.
   }
 
-  async close(): Promise<void> {
-    if(this._remoteConnection) {
+  async close (): Promise<void> {
+    if (this._remoteConnection) {
       const stream = this._protocol.stream as any;
       stream.unpipe(this._remoteConnection._protocol.stream).unpipe(stream);
       this.state = WebrtcConnection.State.CLOSED;

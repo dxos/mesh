@@ -1,15 +1,21 @@
-import { Event } from "@dxos/async";
-import { PublicKey } from "@dxos/crypto";
-import { ComplexMap, ComplexSet } from "@dxos/util";
-import { SignalManager } from "./interface";
-import { SignalApi } from "./signal-api";
-import assert from 'assert'
+//
+// Copyright 2020 DXOS.org
+//
+
+import assert from 'assert';
+
+import { Event } from '@dxos/async';
+import { PublicKey } from '@dxos/crypto';
+import { ComplexMap, ComplexSet } from '@dxos/util';
+
+import { SignalManager } from './interface';
+import { SignalApi } from './signal-api';
 
 export class InMemorySignalManager implements SignalManager {
   readonly statusChanged = new Event<SignalApi.Status[]>();
 
   readonly commandTrace = new Event<SignalApi.CommandTrace>();
-  
+
   readonly candidatesChanged = new Event<[topic: PublicKey, candidates: PublicKey[]]>()
 
   readonly onSignal = new Event<SignalApi.SignalMessage>();
@@ -19,20 +25,20 @@ export class InMemorySignalManager implements SignalManager {
   ) {}
 
   getStatus (): SignalApi.Status[] {
-    return []
+    return [];
   }
 
   join (topic: PublicKey, peerId: PublicKey) {
-    if(!state.swarms.has(topic)) {
+    if (!state.swarms.has(topic)) {
       state.swarms.set(topic, new ComplexSet(x => x.toHex()));
     }
     state.swarms.get(topic)!.add(peerId);
-    
+
     setTimeout(() => this.candidatesChanged.emit([topic, Array.from(state.swarms.get(topic)!.values())]), 0);
   }
 
   leave (topic: PublicKey, peerId: PublicKey) {
-    if(!state.swarms.has(topic)) {
+    if (!state.swarms.has(topic)) {
       state.swarms.set(topic, new ComplexSet(x => x.toHex()));
     }
     state.swarms.get(topic)!.delete(peerId);
@@ -58,5 +64,5 @@ const state = {
   // Mapping from topic to set of peers.
   swarms: new ComplexMap<PublicKey, ComplexSet<PublicKey>>(x => x.toHex()),
   // Map of connections for each peer for signaling.
-  connections: new ComplexMap<PublicKey, InMemorySignalManager>(x => x.toHex()),
-}
+  connections: new ComplexMap<PublicKey, InMemorySignalManager>(x => x.toHex())
+};

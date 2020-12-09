@@ -8,13 +8,13 @@ import { PublicKey } from '@dxos/crypto';
 import { Protocol } from '@dxos/protocol';
 import { ComplexMap } from '@dxos/util';
 
+import { InMemorySignalManager } from './signal/in-memory-signal-manager';
+import { SignalManager } from './signal/interface';
+import { SignalApi } from './signal/signal-api';
 import { WebsocketSignalManager } from './signal/websocket-signal-manager';
 import { SwarmMapper } from './swarm-mapper';
 import { Swarm } from './swarm/swarm';
 import { Topology } from './topology/topology';
-import { SignalManager } from './signal/interface';
-import { SignalApi } from './signal/signal-api';
-import { InMemorySignalManager } from './signal/in-memory-signal-manager';
 
 export type ProtocolProvider = (opts: { channel: Buffer }) => Protocol;
 
@@ -34,7 +34,7 @@ export class NetworkManager {
   }
 
   constructor (options: NetworkManagerOptions = {}) {
-    const onOffer = async (msg: SignalApi.SignalMessage) => (await this._swarms.get(msg.topic)?.onOffer(msg)) ?? { accept: false }
+    const onOffer = async (msg: SignalApi.SignalMessage) => (await this._swarms.get(msg.topic)?.onOffer(msg)) ?? { accept: false };
 
     this._signal = options.signal
       ? new WebsocketSignalManager(options.signal, onOffer)
@@ -46,7 +46,7 @@ export class NetworkManager {
 
   // TODO(marik-d): Remove.
   async start () {
-    if(this._signal instanceof WebsocketSignalManager) {
+    if (this._signal instanceof WebsocketSignalManager) {
       await this._signal.connect();
     }
   }
@@ -81,7 +81,7 @@ export class NetworkManager {
       () => {
         this._signal.lookup(topic);
       },
-      this._signal instanceof InMemorySignalManager,
+      this._signal instanceof InMemorySignalManager
     );
     this._swarms.set(topic, swarm);
     this._signal.join(topic, peerId);
@@ -90,14 +90,14 @@ export class NetworkManager {
     return () => this.leaveProtocolSwarm(topic);
   }
 
-  async leaveProtocolSwarm(topic: PublicKey) {
+  async leaveProtocolSwarm (topic: PublicKey) {
     assert(this._swarms.has(topic), `Cannot leave swarm: not swarming on topic: ${topic}`);
-    
+
     const map = this._maps.get(topic)!;
     const swarm = this._swarms.get(topic)!;
 
     this._signal.leave(topic, swarm.ownPeerId);
-    
+
     map.destroy();
     this._maps.delete(topic);
 

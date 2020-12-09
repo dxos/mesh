@@ -1,6 +1,11 @@
-import { Event } from "@dxos/async";
-import { PublicKey } from "@dxos/crypto";
-import { SignalApi } from "./signal-api";
+//
+// Copyright 2020 DXOS.org
+//
+
+import { Event } from '@dxos/async';
+import { PublicKey } from '@dxos/crypto';
+
+import { SignalApi } from './signal-api';
 
 export interface SignalManager {
   statusChanged: Event<SignalApi.Status[]>;

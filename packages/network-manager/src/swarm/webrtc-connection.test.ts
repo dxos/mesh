@@ -5,7 +5,7 @@
 import { expect, mockFn } from 'earljs';
 import waitForExpect from 'wait-for-expect';
 
-import { Event, sleep } from '@dxos/async';
+import { sleep } from '@dxos/async';
 import { discoveryKey, PublicKey } from '@dxos/crypto';
 import { Protocol } from '@dxos/protocol';
 

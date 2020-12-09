@@ -6,10 +6,10 @@ import React, { useState, useEffect } from 'react';
 
 import { makeStyles, colors } from '@material-ui/core';
 
+import { PublicKey } from '@dxos/crypto';
 import { SVG, useGrid, Grid } from '@dxos/gem-core';
 import { createSimulationDrag, ForceLayout, Graph, NodeProjector } from '@dxos/gem-spore';
 import { PeerState } from '@dxos/network-manager';
-import { PublicKey } from '@dxos/crypto'
 
 export interface PeerGraphProps {
   peers: PeerState[]
@@ -61,15 +61,15 @@ export const PeerGraph = ({ peers, size, onClick }: PeerGraphProps) => {
   }, [peers]);
 
   useEffect(() => {
-    if(onClick) {
-      function handle({ source }: any) {
-        onClick!(PublicKey.from(source.id))
-      }
+    if (onClick) {
+      const handle = ({ source }: any) => {
+        onClick!(PublicKey.from(source.id));
+      };
 
       drag.on('click', handle);
-      return () => drag.off('click', handle)
+      return () => drag.off('click', handle);
     }
-  }, [onClick])
+  }, [onClick]);
 
   const classes = useCustomStyles();
 
@@ -95,7 +95,7 @@ const classMap: Record<string, string> = {
   ME: 'blue',
   WAITING_FOR_CONNECTION: 'orange',
   CONNECTED: 'green',
-  CLOSED: 'red',
+  CLOSED: 'red'
 };
 
 const nodeColors: (keyof typeof colors)[] = ['red', 'green', 'blue', 'yellow', 'orange', 'grey'];

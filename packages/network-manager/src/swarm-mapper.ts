@@ -6,8 +6,8 @@ import { Event } from '@dxos/async';
 import { PublicKey } from '@dxos/crypto';
 import { ComplexMap } from '@dxos/util';
 
-import { WebrtcConnection } from './swarm/webrtc-connection';
 import { Swarm } from './swarm/swarm';
+import { WebrtcConnection } from './swarm/webrtc-connection';
 
 export interface PeerState {
   id: PublicKey
@@ -48,7 +48,7 @@ export class SwarmMapper {
     if (_presence) {
       const cb = () => {
         this._update();
-      }
+      };
       _presence.on('graph-updated', cb);
       this._subscriptions.push(() => this._presence.off('graph-updated', cb));
     }

@@ -38,7 +38,7 @@ describe('Swarm', () => {
         await swarm2.onSignal(msg);
       },
       () => {},
-      false,
+      false
     );
     swarm2 = new Swarm(
       topic,
@@ -54,15 +54,15 @@ describe('Swarm', () => {
         await swarm1.onSignal(msg);
       },
       () => {},
-      false,
+      false
     );
   });
 
   afterEach(async () => {
     await Promise.all([
       swarm1.destroy(),
-      swarm2.destroy(),
-    ])
+      swarm2.destroy()
+    ]);
   });
 
   it('connects two peers in a swarm', async () => {
