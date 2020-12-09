@@ -33,6 +33,7 @@ export class InMemorySignalManager implements SignalManager {
       state.swarms.set(topic, new ComplexSet(x => x.toHex()));
     }
     state.swarms.get(topic)!.add(peerId);
+    state.connections.set(peerId, this);
 
     setTimeout(() => this.candidatesChanged.emit([topic, Array.from(state.swarms.get(topic)!.values())]), 0);
   }
@@ -49,7 +50,7 @@ export class InMemorySignalManager implements SignalManager {
   }
 
   offer (msg: SignalApi.SignalMessage) {
-    assert(state.connections.get(msg.remoteId), 'Peer not connected');
+    assert(state.connections.has(msg.remoteId), 'Peer not connected');
     return state.connections.get(msg.remoteId)!._onOffer(msg);
   }
 
