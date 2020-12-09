@@ -24,6 +24,8 @@ export class Connection {
 
   readonly stateChanged = new Event<Connection.State>();
 
+  readonly closed = new Event();
+
   constructor (
     private readonly _initiator: boolean,
     private readonly _protocol: Protocol,
@@ -71,6 +73,7 @@ export class Connection {
       this._state = Connection.State.CLOSED;
       this.stateChanged.emit(this._state);
       this._closeStream();
+      this.closed.emit();
     });
     log(`Created connection ${this._ownId} -> ${this._remoteId} initiator=${this._initiator}`);
   }
@@ -104,17 +107,18 @@ export class Connection {
   async close () {
     this._state = Connection.State.CLOSED;
     this.stateChanged.emit(this._state);
-    this._closeStream();
+    await this._closeStream();
     await new Promise(resolve => {
       this._peer.once('close', resolve);
       this._peer.destroy();
     });
+    this.closed.emit();
   }
 
-  private _closeStream () {
+  private async _closeStream () {
     const stream = this._protocol.stream as any as NodeJS.ReadWriteStream;
     stream.unpipe(this._peer).unpipe(stream);
-    (this._protocol as any).close();
+    await (this._protocol as any).close();
   }
 }
 

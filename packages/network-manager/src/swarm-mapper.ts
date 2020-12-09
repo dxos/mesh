@@ -46,9 +46,11 @@ export class SwarmMapper {
       this._update();
     }));
     if (_presence) {
-      this._subscriptions.push(_presence.on('graph-updated', () => {
+      const cb = () => {
         this._update();
-      }));
+      }
+      _presence.on('graph-updated', cb);
+      this._subscriptions.push(() => this._presence.off('graph-updated', cb));
     }
     this._update();
   }
@@ -92,6 +94,7 @@ export class SwarmMapper {
   }
 
   destroy () {
+    Array.from(this._connectionSubscriptions.values()).forEach(cb => cb());
     this._subscriptions.forEach(cb => cb());
   }
 }

@@ -196,6 +196,10 @@ export class Swarm {
     this._connections.set(remoteId, connection);
     this.connectionAdded.emit(connection);
     Event.wrap(connection.peer, 'connect').once(() => this.connected.emit(remoteId));
+    connection.closed.once(() => {
+      this._connections.delete(remoteId);
+      this.connectionRemoved.emit(connection);
+    });
     return connection;
   }
 

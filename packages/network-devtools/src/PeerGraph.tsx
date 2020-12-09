@@ -94,7 +94,8 @@ export const PeerGraph = ({ peers, size, onClick }: PeerGraphProps) => {
 const classMap: Record<string, string> = {
   ME: 'blue',
   WAITING_FOR_CONNECTION: 'orange',
-  CONNECTED: 'green'
+  CONNECTED: 'green',
+  CLOSED: 'red',
 };
 
 const nodeColors: (keyof typeof colors)[] = ['red', 'green', 'blue', 'yellow', 'orange', 'grey'];
