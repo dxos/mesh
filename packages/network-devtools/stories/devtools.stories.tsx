@@ -98,6 +98,7 @@ const GraphDemo = ({ topic, topology }: { topic: PublicKey, topology: () => Topo
       <PeerGraph
         peers={peerMap}
         size={{ width, height }}
+        onClick={id => {}}
       />
 
       <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 200, background: 'white' }}>

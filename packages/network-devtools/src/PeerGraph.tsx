@@ -9,13 +9,15 @@ import { makeStyles, colors } from '@material-ui/core';
 import { SVG, useGrid, Grid } from '@dxos/gem-core';
 import { createSimulationDrag, ForceLayout, Graph, NodeProjector } from '@dxos/gem-spore';
 import { PeerState } from '@dxos/network-manager';
+import { PublicKey } from '@dxos/crypto'
 
 export interface PeerGraphProps {
   peers: PeerState[]
   size: { width: number | null, height: number | null }
+  onClick?: (id: PublicKey) => void
 }
 
-export const PeerGraph = ({ peers, size }: PeerGraphProps) => {
+export const PeerGraph = ({ peers, size, onClick }: PeerGraphProps) => {
   const grid = useGrid(size);
 
   const [layout] = useState(() => new ForceLayout());
@@ -57,6 +59,17 @@ export const PeerGraph = ({ peers, size }: PeerGraphProps) => {
   useEffect(() => {
     setData(buildGraph(peers));
   }, [peers]);
+
+  useEffect(() => {
+    if(onClick) {
+      function handle({ source }: any) {
+        onClick!(PublicKey.from(source.id))
+      }
+
+      drag.on('click', handle);
+      return () => drag.off('click', handle)
+    }
+  }, [onClick])
 
   const classes = useCustomStyles();
 
