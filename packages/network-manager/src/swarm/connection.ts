@@ -116,9 +116,10 @@ export class Connection {
   }
 
   private async _closeStream () {
+    await (this._protocol as any).close();
+    
     const stream = this._protocol.stream as any as NodeJS.ReadWriteStream;
     stream.unpipe(this._peer).unpipe(stream);
-    await (this._protocol as any).close();
   }
 }
 

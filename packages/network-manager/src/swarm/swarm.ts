@@ -120,6 +120,7 @@ export class Swarm {
     await this._topology.destroy();
     this._topology = newTopology;
     this._topology.init(this._getSwarmController());
+    this._topology.update();
   }
 
   async destroy() {
