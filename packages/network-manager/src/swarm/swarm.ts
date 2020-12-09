@@ -122,6 +122,11 @@ export class Swarm {
     this._topology.init(this._getSwarmController());
   }
 
+  async destroy() {
+    await this._topology.destroy();
+    await Promise.all(Array.from(this._connections.keys()).map(key => this._closeConnection(key)));
+  }
+
   private _getSwarmController (): SwarmController {
     return {
       getState: () => ({

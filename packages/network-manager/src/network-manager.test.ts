@@ -12,26 +12,30 @@ import { Protocol } from '@dxos/protocol';
 import { NetworkManager } from './network-manager';
 import { TestProtocolPlugin, testProtocolProvider } from './testing/test-protocol';
 import { FullyConnectedTopology } from './topology/fully-connected-topology';
+import { Event } from '@dxos/async';
 
 describe('Network manager', () => {
+  const createPeer = async (topic: PublicKey, peerId: PublicKey) => {
+    const networkManager = new NetworkManager(['wss://apollo1.kube.moon.dxos.network/dxos/signal']);
+    await networkManager.start();
+
+    const plugin = new TestProtocolPlugin(peerId.asBuffer());
+    const protocolProvider = testProtocolProvider(topic.asBuffer(), peerId.asBuffer(), plugin);
+    networkManager.joinProtocolSwarm({ topic, peerId, protocol: protocolProvider, topology: new FullyConnectedTopology() });
+
+    return {
+      networkManager,
+      plugin
+    }
+  }
+
   it('two peers connect to each other', async () => {
-    const networkManager1 = new NetworkManager(['wss://apollo1.kube.moon.dxos.network/dxos/signal']);
-    const networkManager2 = new NetworkManager(['wss://apollo1.kube.moon.dxos.network/dxos/signal']);
-
-    await networkManager1.start();
-    await networkManager2.start();
-
     const topic = PublicKey.random();
     const peer1Id = PublicKey.random();
     const peer2Id = PublicKey.random();
 
-    const plugin1 = new TestProtocolPlugin(peer1Id.asBuffer());
-    const protocolProvider1 = testProtocolProvider(topic.asBuffer(), peer1Id.asBuffer(), plugin1);
-    networkManager1.joinProtocolSwarm({ topic, peerId: peer1Id, protocol: protocolProvider1, topology: new FullyConnectedTopology() });
-
-    const plugin2 = new TestProtocolPlugin(peer2Id.asBuffer());
-    const protocolProvider2 = testProtocolProvider(topic.asBuffer(), peer2Id.asBuffer(), plugin2);
-    networkManager2.joinProtocolSwarm({ topic, peerId: peer2Id, protocol: protocolProvider2, topology: new FullyConnectedTopology() });
+    const { plugin: plugin1 } = await createPeer(topic, peer1Id);
+    const { plugin: plugin2 } = await createPeer(topic, peer2Id);
 
     const mockReceive = mockFn<[Protocol, string]>().returns(undefined);
     plugin1.on('receive', mockReceive);
@@ -43,5 +47,23 @@ describe('Network manager', () => {
     await waitForExpect(() => {
       expect(mockReceive).toHaveBeenCalledWith([expect.a(Protocol), 'Foo']);
     });
+  }).timeout(10_000);
+
+  it('join an leave swarm', async () => {
+    const topic = PublicKey.random();
+    const peer1Id = PublicKey.random();
+    const peer2Id = PublicKey.random();
+
+    const { networkManager: networkManager1, plugin: plugin1 } = await createPeer(topic, peer1Id);
+    const { plugin: plugin2 } = await createPeer(topic, peer2Id);
+
+    await Promise.all([
+      Event.wrap(plugin1, 'connect').waitForCount(1),
+      Event.wrap(plugin2, 'connect').waitForCount(1),
+    ])
+
+    const promise = Event.wrap(plugin2, 'disconnect').waitForCount(1);
+    await networkManager1.leaveProtocolSwarm(topic);
+    await promise;
   }).timeout(10_000);
 });

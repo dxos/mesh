@@ -26,6 +26,7 @@ const createPeer = async (controlTopic: PublicKey, peerId: PublicKey, topologyFa
     presence: presencePlugin,
   })
   return {
+    networkManager,
     swarm: networkManager.getSwarm(controlTopic)!,
     map: networkManager.getSwarmMap(controlTopic)!,
     signal: networkManager.signal,
@@ -53,10 +54,10 @@ const GraphDemo = ({ topic, topology }: { topic: PublicKey, topology: () => Topo
     }
   }
 
-  const killPeer = () => {
-    const peer = peers[Math.floor(Math.random() * peers.length)];
-    console.log('leave', peer)
-    peer && peer.leave();
+  const killPeer = (id: PublicKey) => {
+    const peer = peers.find(peer => peer.swarm.ownPeerId.equals(id));
+    console.log('leave', peer);
+    peer && peer.networkManager.leaveProtocolSwarm(topic);
   }
 
   const [peerMap, setPeerMap] = useState<PeerState[]>([]);
@@ -90,7 +91,6 @@ const GraphDemo = ({ topic, topology }: { topic: PublicKey, topology: () => Topo
         <button onClick={() => addPeers(1)}>Add peer</button>
         <button onClick={() => addPeers(5)}>Add 5 peers</button>
         <button onClick={() => addPeers(10)}>Add 10 peers</button>
-        <button onClick={() => killPeer()}>Kill peer</button>
       </div>
 
     
@@ -98,7 +98,7 @@ const GraphDemo = ({ topic, topology }: { topic: PublicKey, topology: () => Topo
       <PeerGraph
         peers={peerMap}
         size={{ width, height }}
-        onClick={id => {}}
+        onClick={killPeer}
       />
 
       <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 200, background: 'white' }}>

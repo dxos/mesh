@@ -114,6 +114,7 @@ export class Connection {
   private _closeStream () {
     const stream = this._protocol.stream as any as NodeJS.ReadWriteStream;
     stream.unpipe(this._peer).unpipe(stream);
+    (this._protocol as any).close();
   }
 }
 

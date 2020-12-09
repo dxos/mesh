@@ -74,6 +74,23 @@ export class NetworkManager {
     this._swarms.set(topic, swarm);
     this._signal.join(topic, peerId);
     this._maps.set(topic, new SwarmMapper(swarm, presence));
+
+    return () => this.leaveProtocolSwarm(topic);
+  }
+
+  async leaveProtocolSwarm(topic: PublicKey) {
+    assert(this._swarms.has(topic), `Cannot leave swarm: not swarming on topic: ${topic}`);
+    
+    const map = this._maps.get(topic)!;
+    const swarm = this._swarms.get(topic)!;
+
+    this._signal.leave(topic, swarm.ownPeerId);
+    
+    map.destroy();
+    this._maps.delete(topic);
+
+    await swarm.destroy();
+    this._swarms.delete(topic);
   }
 }
 
