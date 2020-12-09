@@ -48,7 +48,7 @@ export class Swarm {
   constructor (
     private readonly _topic: PublicKey,
     private readonly _ownPeerId: PublicKey,
-    private _topology: Topology, // TODO(marik-d): Change topology at runtime.
+    private _topology: Topology,
     private readonly _protocol: ProtocolProvider,
     private readonly _sendOffer: (message: SignalApi.SignalMessage) => Promise<SignalApi.Answer>,
     private readonly _sendSignal: (message: SignalApi.SignalMessage) => Promise<void>,
