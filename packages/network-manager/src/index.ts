@@ -11,5 +11,5 @@ export * from './topology/topology';
 export * from './topology/fully-connected-topology';
 export * from './topology/star-topology';
 export * from './topology/mmst-topology';
-export * from './signal/signal-manager';
+export * from './signal/websocket-signal-manager';
 export * from './signal/signal-api';

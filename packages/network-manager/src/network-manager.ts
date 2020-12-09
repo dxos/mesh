@@ -8,11 +8,13 @@ import { PublicKey } from '@dxos/crypto';
 import { Protocol } from '@dxos/protocol';
 import { ComplexMap } from '@dxos/util';
 
-import { WebsocketSignalManager } from './signal/signal-manager';
+import { WebsocketSignalManager } from './signal/websocket-signal-manager';
 import { SwarmMapper } from './swarm-mapper';
 import { Swarm } from './swarm/swarm';
 import { Topology } from './topology/topology';
 import { SignalManager } from './signal/interface';
+import { SignalApi } from './signal/signal-api';
+import { InMemorySignalManager } from './signal/in-memory-signal-manager';
 
 export type ProtocolProvider = (opts: { channel: Buffer }) => Protocol;
 
@@ -32,11 +34,12 @@ export class NetworkManager {
   }
 
   constructor (options: NetworkManagerOptions = {}) {
-    assert(options.signal);
-    this._signal = new WebsocketSignalManager(
-      options.signal,
-      async msg => (await this._swarms.get(msg.topic)?.onOffer(msg)) ?? { accept: false }
-    );
+    const onOffer = async (msg: SignalApi.SignalMessage) => (await this._swarms.get(msg.topic)?.onOffer(msg)) ?? { accept: false }
+
+    this._signal = options.signal
+      ? new WebsocketSignalManager(options.signal, onOffer)
+      : new InMemorySignalManager(onOffer);
+      
     this._signal.candidatesChanged.on(([topic, candidates]) => this._swarms.get(topic)?.onCandidatesChanged(candidates));
     this._signal.onSignal.on(msg => this._swarms.get(msg.topic)?.onSignal(msg));
   }
