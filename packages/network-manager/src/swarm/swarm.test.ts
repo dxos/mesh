@@ -11,6 +11,7 @@ import { Protocol } from '@dxos/protocol';
 
 import { FullyConnectedTopology } from '../topology/fully-connected-topology';
 import { Swarm } from './swarm';
+import { WebrtcConnection } from './webrtc-connection';
 
 describe('Swarm', () => {
   let topic: PublicKey;
@@ -36,7 +37,8 @@ describe('Swarm', () => {
         await sleep(10); // Simulating network delay
         await swarm2.onSignal(msg);
       },
-      () => {}
+      () => {},
+      false,
     );
     swarm2 = new Swarm(
       topic,
@@ -51,15 +53,16 @@ describe('Swarm', () => {
         await sleep(10); // Simulating network delay
         await swarm1.onSignal(msg);
       },
-      () => {}
+      () => {},
+      false,
     );
   });
 
   afterEach(async () => {
-    // await Promise.all([
-    //   swarm1.destroy(),
-    //   swarm2.destroy(),
-    // ])
+    await Promise.all([
+      swarm1.destroy(),
+      swarm2.destroy(),
+    ])
   });
 
   it('connects two peers in a swarm', async () => {
@@ -76,10 +79,10 @@ describe('Swarm', () => {
     const swarm1Connection = swarm1.connections[0];
     const swarm2Connection = swarm2.connections[0];
     const onData = mockFn<(data: Buffer) => void>().returns(undefined);
-    swarm2Connection.peer.on('data', onData);
+    (swarm2Connection as WebrtcConnection).peer.on('data', onData);
 
     const data = Buffer.from('1234');
-    swarm1Connection.peer.send(data);
+    (swarm1Connection as WebrtcConnection).peer.send(data);
     await waitForExpect(() => {
       expect(onData).toHaveBeenCalledWith([data]);
     });

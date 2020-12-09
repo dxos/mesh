@@ -39,7 +39,7 @@ export class NetworkManager {
     this._signal = options.signal
       ? new WebsocketSignalManager(options.signal, onOffer)
       : new InMemorySignalManager(onOffer);
-      
+
     this._signal.candidatesChanged.on(([topic, candidates]) => this._swarms.get(topic)?.onCandidatesChanged(candidates));
     this._signal.onSignal.on(msg => this._swarms.get(msg.topic)?.onSignal(msg));
   }
@@ -80,7 +80,8 @@ export class NetworkManager {
       async msg => this._signal.signal(msg),
       () => {
         this._signal.lookup(topic);
-      }
+      },
+      this._signal instanceof InMemorySignalManager,
     );
     this._swarms.set(topic, swarm);
     this._signal.join(topic, peerId);

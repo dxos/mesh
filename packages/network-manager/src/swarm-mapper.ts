@@ -6,12 +6,12 @@ import { Event } from '@dxos/async';
 import { PublicKey } from '@dxos/crypto';
 import { ComplexMap } from '@dxos/util';
 
-import { Connection } from './swarm/connection';
+import { WebrtcConnection } from './swarm/webrtc-connection';
 import { Swarm } from './swarm/swarm';
 
 export interface PeerState {
   id: PublicKey
-  state: Connection.State | 'INDIRECTLY_CONNECTED' | 'ME'
+  state: WebrtcConnection.State | 'INDIRECTLY_CONNECTED' | 'ME'
   connections: PublicKey[]
 }
 

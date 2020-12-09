@@ -12,6 +12,8 @@ import { ComplexMap, ComplexSet } from '@dxos/util';
 import { ProtocolProvider } from '../network-manager';
 import { SignalApi } from '../signal/signal-api';
 import { SwarmController, Topology } from '../topology/topology';
+import { WebrtcConnection } from './webrtc-connection';
+import { InMemoryConnection } from './in-memory-connection';
 import { Connection } from './connection';
 
 const log = debug('dxos:network-manager:swarm');
@@ -52,7 +54,8 @@ export class Swarm {
     private readonly _protocol: ProtocolProvider,
     private readonly _sendOffer: (message: SignalApi.SignalMessage) => Promise<SignalApi.Answer>,
     private readonly _sendSignal: (message: SignalApi.SignalMessage) => Promise<void>,
-    private readonly _lookup: () => void
+    private readonly _lookup: () => void,
+    private readonly _inMemory: boolean,
   ) {
     _topology.init(this._getSwarmController());
   }
@@ -185,18 +188,26 @@ export class Swarm {
 
   private _createConnection (initiator: boolean, remoteId: PublicKey, sessionId: PublicKey) {
     assert(!this._connections.has(remoteId), 'Peer already connected');
-    const connection = new Connection(
-      initiator,
-      this._protocol({ channel: discoveryKey(this._topic) }),
-      this._ownPeerId,
-      remoteId,
-      sessionId,
-      this._topic,
-      msg => this._sendSignal(msg)
-    );
+    const connection: Connection = this._inMemory
+      ? new InMemoryConnection(this._ownPeerId, remoteId, this._topic, this._protocol({ channel: discoveryKey(this._topic) }))
+      : new WebrtcConnection(
+        initiator,
+        this._protocol({ channel: discoveryKey(this._topic) }),
+        this._ownPeerId,
+        remoteId,
+        sessionId,
+        this._topic,
+        msg => this._sendSignal(msg)
+      );
     this._connections.set(remoteId, connection);
     this.connectionAdded.emit(connection);
-    Event.wrap(connection.peer, 'connect').once(() => this.connected.emit(remoteId));
+
+    if(connection.state === WebrtcConnection.State.CONNECTED) {
+      this.connected.emit(remoteId);
+    } else {
+      connection.stateChanged.waitFor(s => s === WebrtcConnection.State.CONNECTED).then(() => this.connected.emit(remoteId));
+    }
+    
     connection.closed.once(() => {
       this._connections.delete(remoteId);
       this.connectionRemoved.emit(connection);
