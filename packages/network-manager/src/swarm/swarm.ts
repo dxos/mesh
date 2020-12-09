@@ -189,7 +189,13 @@ export class Swarm {
   private _createConnection (initiator: boolean, remoteId: PublicKey, sessionId: PublicKey) {
     assert(!this._connections.has(remoteId), 'Peer already connected');
     const connection: Connection = this._inMemory
-      ? new InMemoryConnection(this._ownPeerId, remoteId, this._topic, this._protocol({ channel: discoveryKey(this._topic) }))
+      ? new InMemoryConnection(
+          this._ownPeerId,
+          remoteId,
+          sessionId,
+          this._topic,
+          this._protocol({ channel: discoveryKey(this._topic) })
+        )
       : new WebrtcConnection(
         initiator,
         this._protocol({ channel: discoveryKey(this._topic) }),
@@ -207,10 +213,13 @@ export class Swarm {
     } else {
       connection.stateChanged.waitFor(s => s === WebrtcConnection.State.CONNECTED).then(() => this.connected.emit(remoteId));
     }
-    
+
     connection.closed.once(() => {
-      this._connections.delete(remoteId);
-      this.connectionRemoved.emit(connection);
+      // Connection might have been already closed or replace by a different one. Only remove the connection if it has the same session id.
+      if(this._connections.get(remoteId)?.sessionId.equals(sessionId)) {
+        this._connections.delete(remoteId);
+        this.connectionRemoved.emit(connection);
+      }
     });
     return connection;
   }

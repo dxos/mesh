@@ -10,6 +10,8 @@ export interface Connection {
   
   remoteId: PublicKey
 
+  sessionId: PublicKey
+
   state: WebrtcConnection.State;
 
   signal (msg: SignalApi.SignalMessage): void;

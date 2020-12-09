@@ -83,6 +83,10 @@ export class WebrtcConnection implements Connection {
     return this._remoteId;
   }
 
+  get sessionId () {
+    return this._sessionId;
+  }
+
   get state () {
     return this._state;
   }

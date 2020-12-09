@@ -18,6 +18,7 @@ export class InMemoryConnection implements Connection {
   constructor(
     private readonly _ownId: PublicKey,
     private readonly _remoteId: PublicKey,
+    private readonly _sessionId: PublicKey,
     private readonly _topic: PublicKey,
     private readonly _protocol: Protocol,
   ) {
@@ -36,6 +37,10 @@ export class InMemoryConnection implements Connection {
 
   get remoteId(): PublicKey {
     return this._remoteId;
+  }
+
+  get sessionId(): PublicKey {
+    return this._sessionId;
   }
 
   signal(msg: SignalApi.SignalMessage): void {
