@@ -8,8 +8,9 @@ import { Event } from '@dxos/async';
 import { PublicKey } from '@dxos/crypto';
 
 import { SignalApi } from './signal-api';
+import { SignalManager } from './interface';
 
-export class SignalManager {
+export class WebsocketSignalManager implements SignalManager {
   private readonly _servers = new Map<string, SignalApi>();
 
   readonly statusChanged = new Event<SignalApi.Status[]>();

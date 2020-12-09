@@ -8,12 +8,17 @@ import { PublicKey } from '@dxos/crypto';
 import { Protocol } from '@dxos/protocol';
 import { ComplexMap } from '@dxos/util';
 
-import { SignalManager } from './signal/signal-manager';
+import { WebsocketSignalManager } from './signal/signal-manager';
 import { SwarmMapper } from './swarm-mapper';
 import { Swarm } from './swarm/swarm';
 import { Topology } from './topology/topology';
+import { SignalManager } from './signal/interface';
 
 export type ProtocolProvider = (opts: { channel: Buffer }) => Protocol;
+
+export interface NetworkManagerOptions {
+  signal?: string[],
+}
 
 export class NetworkManager {
   private readonly _swarms = new ComplexMap<PublicKey, Swarm>(x => x.toHex());
@@ -26,9 +31,10 @@ export class NetworkManager {
     return this._signal;
   }
 
-  constructor (signal: string[]) {
-    this._signal = new SignalManager(
-      signal,
+  constructor (options: NetworkManagerOptions = {}) {
+    assert(options.signal);
+    this._signal = new WebsocketSignalManager(
+      options.signal,
       async msg => (await this._swarms.get(msg.topic)?.onOffer(msg)) ?? { accept: false }
     );
     this._signal.candidatesChanged.on(([topic, candidates]) => this._swarms.get(topic)?.onCandidatesChanged(candidates));
@@ -37,7 +43,9 @@ export class NetworkManager {
 
   // TODO(marik-d): Remove.
   async start () {
-    await this._signal.connect();
+    if(this._signal instanceof WebsocketSignalManager) {
+      await this._signal.connect();
+    }
   }
 
   getSwarmMap (topic: PublicKey): SwarmMapper | undefined {

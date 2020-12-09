@@ -16,7 +16,7 @@ import { Event } from '@dxos/async';
 
 describe('Network manager', () => {
   const createPeer = async (topic: PublicKey, peerId: PublicKey) => {
-    const networkManager = new NetworkManager(['wss://apollo1.kube.moon.dxos.network/dxos/signal']);
+    const networkManager = new NetworkManager({ signal: ['wss://apollo1.kube.moon.dxos.network/dxos/signal'] });
     await networkManager.start();
 
     const plugin = new TestProtocolPlugin(peerId.asBuffer());
