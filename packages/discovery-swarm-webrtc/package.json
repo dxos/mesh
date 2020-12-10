@@ -36,7 +36,7 @@
     "minimist": "^1.2.0",
     "mostly-minimal-spanning-tree": "^1.0.2",
     "nanocustomassert": "^1.0.0",
-    "nanoerror": "^1.1.0",
+    "nanoerror": "^1.2.1",
     "pump": "^3.0.0",
     "socket-signal-websocket": "^9.0.0"
   },
