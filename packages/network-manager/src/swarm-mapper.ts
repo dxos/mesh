@@ -2,6 +2,8 @@
 // Copyright 2020 DXOS.org
 //
 
+import debug from 'debug';
+
 import { Event } from '@dxos/async';
 import { PublicKey } from '@dxos/crypto';
 import { ComplexMap } from '@dxos/util';
@@ -16,6 +18,8 @@ export interface PeerState {
 }
 
 type Unsubscribe = () => void;
+
+const log = debug('dxos:network-manager:swarm-mapper');
 
 export class SwarmMapper {
   private readonly _subscriptions: (() => void)[] = [];
@@ -90,6 +94,7 @@ export class SwarmMapper {
         }
       });
     }
+    log(`Graph changed directConnections=${this._swarm.connections.length} totalPeersInSwarm=${this._peers.size}`);
     this.mapUpdated.emit(Array.from(this._peers.values()));
   }
 

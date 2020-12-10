@@ -48,10 +48,10 @@ export class WebsocketSignalManager implements SignalManager {
   }
 
   join (topic: PublicKey, peerId: PublicKey) {
-    log(`Join ${topic} ${peerId}`)
+    log(`Join ${topic} ${peerId}`);
     for (const server of this._servers.values()) {
       server.join(topic, peerId).then(peers => {
-        log(`Peer candidates changed ${topic} ${peers}`)
+        log(`Peer candidates changed ${topic} ${peers}`);
         // TODO(marik-d): Deduplicate peers.
         this.peerCandidatesChanged.emit([topic, peers]);
       });
@@ -59,17 +59,17 @@ export class WebsocketSignalManager implements SignalManager {
   }
 
   leave (topic: PublicKey, peerId: PublicKey) {
-    log(`Leave ${topic} ${peerId}`)
+    log(`Leave ${topic} ${peerId}`);
     for (const server of this._servers.values()) {
       server.leave(topic, peerId);
     }
   }
 
   lookup (topic: PublicKey) {
-    log(`Lookup ${topic}`)
+    log(`Lookup ${topic}`);
     for (const server of this._servers.values()) {
       server.lookup(topic).then(peers => {
-        log(`Peer candidates changed ${topic} ${peers}`)
+        log(`Peer candidates changed ${topic} ${peers}`);
         // TODO(marik-d): Deduplicate peers.
         this.peerCandidatesChanged.emit([topic, peers]);
       });

@@ -64,7 +64,8 @@ export class Swarm {
     return this._ownPeerId;
   }
 
-  onCandidatesChanged (candidates: PublicKey[]) {
+  onPeerCandidatesChanged (candidates: PublicKey[]) {
+    log(`New peers for ${this._topic} ${candidates}`);
     this._discoveredPeers.clear();
     for (const candidate of candidates) {
       if (candidate.equals(this._ownPeerId)) {
@@ -76,6 +77,7 @@ export class Swarm {
   }
 
   async onOffer (message: SignalApi.SignalMessage): Promise<SignalApi.Answer> {
+    log(`Offer from ${message.id} topic=${this._topic}`);
     // Id of the peer offering us the connection.
     const remoteId = message.id;
     assert(message.remoteId.equals(this._ownPeerId));
@@ -106,6 +108,7 @@ export class Swarm {
   }
 
   async onSignal (message: SignalApi.SignalMessage): Promise<void> {
+    log(`Signal ${this._topic} ${JSON.stringify(message)}`);
     assert(message.remoteId.equals(this._ownPeerId));
     assert(message.topic.equals(this._topic));
     const connection = this._connections.get(message.id);
@@ -117,6 +120,7 @@ export class Swarm {
   }
 
   async setTopology (newTopology: Topology) {
+    log(`Set topology for ${this._topic} ${Object.getPrototypeOf(this._topology).constructor.name} ${Object.getPrototypeOf(newTopology).constructor.name}`);
     if (newTopology === this._topology) {
       return;
     }
@@ -127,6 +131,7 @@ export class Swarm {
   }
 
   async destroy () {
+    log(`Destroy swarm ${this._topic}`);
     await this._topology.destroy();
     await Promise.all(Array.from(this._connections.keys()).map(key => this._closeConnection(key)));
   }
@@ -187,6 +192,7 @@ export class Swarm {
   }
 
   private _createConnection (initiator: boolean, remoteId: PublicKey, sessionId: PublicKey) {
+    log(`Create connection topic=${this._topic} remoteId=${remoteId} initiator=${initiator}`);
     assert(!this._connections.has(remoteId), 'Peer already connected');
     const connection: Connection = this._inMemory
       ? new InMemoryConnection(
@@ -225,6 +231,7 @@ export class Swarm {
   }
 
   private async _closeConnection (peerId: PublicKey) {
+    log(`Close connection topic=${this._topic} remoteId=${peerId}`);
     const connection = this._connections.get(peerId);
     assert(connection);
     this._connections.delete(peerId);

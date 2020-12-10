@@ -69,7 +69,7 @@ describe('Swarm', () => {
     expect(swarm1.connections.length).toEqual(0);
     expect(swarm2.connections.length).toEqual(0);
 
-    swarm1.onCandidatesChanged([secondPeerId]);
+    swarm1.onPeerCandidatesChanged([secondPeerId]);
 
     await Promise.all([
       swarm1.connected.waitForCount(1),
@@ -92,8 +92,8 @@ describe('Swarm', () => {
     expect(swarm1.connections.length).toEqual(0);
     expect(swarm2.connections.length).toEqual(0);
 
-    swarm1.onCandidatesChanged([secondPeerId]);
-    swarm2.onCandidatesChanged([firstPeerId]);
+    swarm1.onPeerCandidatesChanged([secondPeerId]);
+    swarm2.onPeerCandidatesChanged([firstPeerId]);
 
     await Promise.all([
       swarm1.connected.waitForCount(1),

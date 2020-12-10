@@ -73,7 +73,9 @@ export class MMSTTopology implements Topology {
   async onOffer (peer: PublicKey): Promise<boolean> {
     assert(this._controller, 'Not initialized');
     const { connected } = this._controller.getState();
-    return connected.length < this._maxPeers;
+    const accept = connected.length < this._maxPeers;
+    log(`Offer ${peer} accept=${accept}`);
+    return accept;
   }
 
   async destroy (): Promise<void> {

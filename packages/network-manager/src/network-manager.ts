@@ -40,7 +40,7 @@ export class NetworkManager {
       ? new WebsocketSignalManager(options.signal, onOffer)
       : new InMemorySignalManager(onOffer);
 
-    this._signal.peerCandidatesChanged.on(([topic, candidates]) => this._swarms.get(topic)?.onCandidatesChanged(candidates));
+    this._signal.peerCandidatesChanged.on(([topic, candidates]) => this._swarms.get(topic)?.onPeerCandidatesChanged(candidates));
     this._signal.onSignal.on(msg => this._swarms.get(msg.topic)?.onSignal(msg));
   }
 

@@ -3,10 +3,13 @@
 //
 
 import assert from 'assert';
+import debug from 'debug';
 
 import { PublicKey } from '@dxos/crypto';
 
 import { SwarmController, Topology } from './topology';
+
+const log = debug('dxos:network-manager:topology:star');
 
 export class StarTopology implements Topology {
   private _controller?: SwarmController;
@@ -32,6 +35,7 @@ export class StarTopology implements Topology {
     if (!ownPeerId.equals(this._centralPeer)) {
       // Drop all connections other than central peer.
       for (const peer of connected) {
+        log(`Dropping extra connection ${peer}`);
         if (!peer.equals(this._centralPeer)) {
           this._controller.disconnect(peer);
         }
@@ -40,6 +44,7 @@ export class StarTopology implements Topology {
     for (const peer of candidates) {
       // Connect to central peer.
       if (peer.equals(this._centralPeer)) {
+        log(`Connecting to central peer ${peer}`);
         this._controller.connect(peer);
       }
     }

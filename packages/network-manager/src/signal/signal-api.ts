@@ -3,11 +3,11 @@
 //
 
 import assert from 'assert';
+import debug from 'debug';
 import WebSocket from 'isomorphic-ws';
 import nanomessagerpc from 'nanomessage-rpc';
 import { SignalData } from 'simple-peer';
 import { promisify } from 'util';
-import debug from 'debug';
 
 import { Event, sleep, Trigger } from '@dxos/async';
 import { PublicKey } from '@dxos/crypto';
