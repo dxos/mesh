@@ -12,7 +12,7 @@ export interface SignalManager {
 
   commandTrace: Event<SignalApi.CommandTrace>;
 
-  candidatesChanged: Event<[topic: PublicKey, candidates: PublicKey[]]>;
+  peerCandidatesChanged: Event<[topic: PublicKey, candidates: PublicKey[]]>;
 
   onSignal: Event<SignalApi.SignalMessage>;
 

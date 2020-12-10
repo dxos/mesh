@@ -16,7 +16,7 @@ export class InMemorySignalManager implements SignalManager {
 
   readonly commandTrace = new Event<SignalApi.CommandTrace>();
 
-  readonly candidatesChanged = new Event<[topic: PublicKey, candidates: PublicKey[]]>()
+  readonly peerCandidatesChanged = new Event<[topic: PublicKey, candidates: PublicKey[]]>()
 
   readonly onSignal = new Event<SignalApi.SignalMessage>();
 
@@ -35,7 +35,7 @@ export class InMemorySignalManager implements SignalManager {
     state.swarms.get(topic)!.add(peerId);
     state.connections.set(peerId, this);
 
-    setTimeout(() => this.candidatesChanged.emit([topic, Array.from(state.swarms.get(topic)!.values())]), 0);
+    setTimeout(() => this.peerCandidatesChanged.emit([topic, Array.from(state.swarms.get(topic)!.values())]), 0);
   }
 
   leave (topic: PublicKey, peerId: PublicKey) {
@@ -46,7 +46,7 @@ export class InMemorySignalManager implements SignalManager {
   }
 
   lookup (topic: PublicKey) {
-    setTimeout(() => this.candidatesChanged.emit([topic, Array.from(state.swarms.get(topic)!.values())]), 0);
+    setTimeout(() => this.peerCandidatesChanged.emit([topic, Array.from(state.swarms.get(topic)!.values())]), 0);
   }
 
   offer (msg: SignalApi.SignalMessage) {

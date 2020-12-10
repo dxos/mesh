@@ -3,12 +3,15 @@
 //
 
 import assert from 'assert';
+import debug from 'debug';
 
 import { Event } from '@dxos/async';
 import { PublicKey } from '@dxos/crypto';
 
 import { SignalManager } from './interface';
 import { SignalApi } from './signal-api';
+
+const log = debug('dxos:network-manager:websocket-signal-manager');
 
 export class WebsocketSignalManager implements SignalManager {
   private readonly _servers = new Map<string, SignalApi>();
@@ -45,42 +48,49 @@ export class WebsocketSignalManager implements SignalManager {
   }
 
   join (topic: PublicKey, peerId: PublicKey) {
+    log(`Join ${topic} ${peerId}`)
     for (const server of this._servers.values()) {
       server.join(topic, peerId).then(peers => {
+        log(`Peer candidates changed ${topic} ${peers}`)
         // TODO(marik-d): Deduplicate peers.
-        this.candidatesChanged.emit([topic, peers]);
+        this.peerCandidatesChanged.emit([topic, peers]);
       });
     }
   }
 
   leave (topic: PublicKey, peerId: PublicKey) {
+    log(`Leave ${topic} ${peerId}`)
     for (const server of this._servers.values()) {
       server.leave(topic, peerId);
     }
   }
 
   lookup (topic: PublicKey) {
+    log(`Lookup ${topic}`)
     for (const server of this._servers.values()) {
       server.lookup(topic).then(peers => {
+        log(`Peer candidates changed ${topic} ${peers}`)
         // TODO(marik-d): Deduplicate peers.
-        this.candidatesChanged.emit([topic, peers]);
+        this.peerCandidatesChanged.emit([topic, peers]);
       });
     }
   }
 
   offer (msg: SignalApi.SignalMessage) {
+    log(`Offer ${msg.remoteId}`);
     // TODO(marik-d): Broadcast to all signal servers.
     return Array.from(this._servers.values())[0].offer(msg);
   }
 
   signal (msg: SignalApi.SignalMessage) {
+    log(`Signal ${msg.remoteId}`);
     for (const server of this._servers.values()) {
       server.signal(msg);
       // TODO(marik-d): Error handling.
     }
   }
 
-  candidatesChanged = new Event<[topic: PublicKey, candidates: PublicKey[]]>()
+  peerCandidatesChanged = new Event<[topic: PublicKey, candidates: PublicKey[]]>()
 
   onSignal = new Event<SignalApi.SignalMessage>();
 }
