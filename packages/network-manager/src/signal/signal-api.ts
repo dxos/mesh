@@ -7,11 +7,14 @@ import WebSocket from 'isomorphic-ws';
 import nanomessagerpc from 'nanomessage-rpc';
 import { SignalData } from 'simple-peer';
 import { promisify } from 'util';
+import debug from 'debug';
 
 import { Event, sleep, Trigger } from '@dxos/async';
 import { PublicKey } from '@dxos/crypto';
 
 const TIMEOUT = 3_000;
+
+const log = debug('dxos:network-manager:signal-api');
 
 /**
  * Establishes a websocket connection to signal server and provides RPC methods.
@@ -104,16 +107,19 @@ export class SignalApi {
 
     this._socket = new WebSocket(this._host);
     this._socket.onopen = () => {
+      log(`Connected ${this._host}`);
       this._state = SignalApi.State.CONNECTED;
       this.statusChanged.emit(this.getStatus());
       this._connectTrigger.wake();
     };
     this._socket.onclose = () => {
+      log(`Disconnected ${this._host}`);
       this._state = SignalApi.State.DISCONNECTED;
       this.statusChanged.emit(this.getStatus());
       // TODO(marik-d): Reconnect.
     };
     this._socket.onerror = e => {
+      log(`Signal socket error ${this._host} ${e.message}`);
       this._state = SignalApi.State.ERROR;
       this._lastError = e.error;
       this.statusChanged.emit(this.getStatus());
@@ -152,8 +158,10 @@ export class SignalApi {
         payload,
         response
       });
+      log(`Signal RPC ${this._host}: ${method} ${JSON.stringify(payload)} ${JSON.stringify(response)}`);
       return response;
     } catch (err) {
+      log(`Signal RPC error ${this._host}: ${method} ${JSON.stringify(payload)} ${err.message}`);
       this.commandTrace.emit({
         messageId: `${this._host}-${this._messageId++}`,
         host: this._host,
