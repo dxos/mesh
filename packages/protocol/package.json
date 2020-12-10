@@ -66,5 +66,6 @@
   },
   "eslintConfig": {
     "extends": "plugin:@dxos/recomended"
-  }
+  },
+  "gitHead": "7e81301054ee0f7d0adf3c0710d1c3d60a5d93f8"
 }
