@@ -23,7 +23,7 @@
   ],
   "dependencies": {
     "@dxos/async": "^1.0.2-alpha.0",
-    "@dxos/crypto": "1.0.7-alpha.0",
+    "@dxos/crypto": "1.0.7",
     "@dxos/metrics": "^1.0.0-beta.6",
     "@dxos/protocol": "^1.0.0-beta.116",
     "@dxos/util": "^2.4.0",

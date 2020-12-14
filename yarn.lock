@@ -1154,15 +1154,6 @@
     humanhash "^1.0.4"
     hypercore-crypto "^1.0.0"
 
-"@dxos/crypto@1.0.7-alpha.0":
-  version "1.0.7-alpha.0"
-  resolved "https://registry.npmjs.org/@dxos/crypto/-/crypto-1.0.7-alpha.0.tgz#0999287c5b927252c6e7bd4b20b9ded1109cfbe3"
-  integrity sha512-6E6im8xaYbJttS+FPJTbGyge+wTMiKyP+gkJVd1TC8nOQCyMfBOSnC10Ys4mh+UYQe9jsaU6V1PEE1a1oObBow==
-  dependencies:
-    crypto-js "^3.1.9-1"
-    humanhash "^1.0.4"
-    hypercore-crypto "^1.0.0"
-
 "@dxos/crypto@^1.0.0-beta.7":
   version "1.0.5"
   resolved "https://registry.npmjs.org/@dxos/crypto/-/crypto-1.0.5.tgz#16e884f33a2edff0eee91d6a71ed5e79631353ca"
