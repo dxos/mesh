@@ -2,6 +2,8 @@
 // Copyright 2020 DXOS.org
 //
 
+import debug from 'debug';
+
 import { Event } from '@dxos/async';
 import { PublicKey } from '@dxos/crypto';
 import { Protocol } from '@dxos/protocol';
@@ -10,6 +12,8 @@ import { ComplexMap } from '@dxos/util';
 import { SignalApi } from '../signal/signal-api';
 import { Connection } from './connection';
 import { WebrtcConnection } from './webrtc-connection';
+
+const log = debug('dxos:network-manager:swarm:in-memory-connection');
 
 export class InMemoryConnection implements Connection {
   stateChanged = new Event<WebrtcConnection.State>();
@@ -28,6 +32,7 @@ export class InMemoryConnection implements Connection {
   ) {
     this._remoteConnection = connections.get([_topic, _remoteId, _ownId]);
     if (this._remoteConnection) {
+      log(`Connecting to existing connection topic=${_topic} peerId=${_ownId} remoteId=${_remoteId}`);
       const stream = _protocol.stream as any;
       stream.pipe(this._remoteConnection._protocol.stream).pipe(stream);
       this.state = WebrtcConnection.State.CONNECTED;
@@ -35,6 +40,7 @@ export class InMemoryConnection implements Connection {
       this._remoteConnection.state = WebrtcConnection.State.CONNECTED;
       this._remoteConnection.stateChanged.emit(this._remoteConnection.state);
     } else {
+      log(`Registering connection topic=${_topic} peerId=${_ownId} remoteId=${_remoteId}`);
       connections.set([_topic, _ownId, _remoteId], this);
     }
   }

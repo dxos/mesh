@@ -87,5 +87,36 @@ describe('Network manager', () => {
         expect(mockReceive).toHaveBeenCalledWith([expect.a(Protocol), 'Foo']);
       });
     }).timeout(10_000);
+
+    it('two swarms at the same time', async () => {
+      const topicA = PublicKey.random();
+      const topicB = PublicKey.random();
+      const peerA1Id = PublicKey.random();
+      const peerA2Id = PublicKey.random();
+      const peerB1Id = PublicKey.random();
+      const peerB2Id = PublicKey.random();
+
+      const { plugin: pluginA1 } = await createPeer(topicA, peerA1Id, true);
+      const { plugin: pluginA2 } = await createPeer(topicA, peerA2Id, true);
+      const { plugin: pluginB1 } = await createPeer(topicB, peerB1Id, true);
+      const { plugin: pluginB2 } = await createPeer(topicB, peerB2Id, true);
+
+      const mockReceiveA = mockFn<[Protocol, string]>().returns(undefined);
+      pluginA1.on('receive', mockReceiveA);
+      const mockReceiveB = mockFn<[Protocol, string]>().returns(undefined);
+      pluginB1.on('receive', mockReceiveB);
+
+      pluginA2.on('connect', async () => {
+        pluginA2.send(peerA1Id.asBuffer(), 'Foo A');
+      });
+      pluginB2.on('connect', async () => {
+        pluginB2.send(peerB1Id.asBuffer(), 'Foo B');
+      });
+
+      await waitForExpect(() => {
+        expect(mockReceiveA).toHaveBeenCalledWith([expect.a(Protocol), 'Foo A']);
+        expect(mockReceiveB).toHaveBeenCalledWith([expect.a(Protocol), 'Foo B']);
+      });
+    });
   });
 });
