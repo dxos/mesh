@@ -1,6 +1,6 @@
 {
   "name": "@dxos/discovery-swarm-webrtc",
-  "version": "1.0.0-beta.116",
+  "version": "1.0.0-beta.117",
   "description": "discovery-swarm for WebRTC.",
   "main": "index.js",
   "files": [
