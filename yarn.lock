@@ -1145,6 +1145,15 @@
   dependencies:
     protobufjs "^6.10.1"
 
+"@dxos/crypto@1.0.7":
+  version "1.0.7"
+  resolved "https://registry.npmjs.org/@dxos/crypto/-/crypto-1.0.7.tgz#7f80f2712302037e0a29bb1f6d023fdab899c14b"
+  integrity sha512-ED+AChA9N8hIMgTcuopNhe81xICykEAP0dKILiTJpBCqiEXyzRClLBkdIY4n6UJUpBmVvrnBLRxw8IU/+jVijg==
+  dependencies:
+    crypto-js "^3.1.9-1"
+    humanhash "^1.0.4"
+    hypercore-crypto "^1.0.0"
+
 "@dxos/crypto@1.0.7-alpha.0":
   version "1.0.7-alpha.0"
   resolved "https://registry.npmjs.org/@dxos/crypto/-/crypto-1.0.7-alpha.0.tgz#0999287c5b927252c6e7bd4b20b9ded1109cfbe3"
@@ -1162,6 +1171,13 @@
     crypto-js "^3.1.9-1"
     humanhash "^1.0.4"
     hypercore-crypto "^1.0.0"
+
+"@dxos/debug@1.0.0-beta.73":
+  version "1.0.0-beta.73"
+  resolved "https://registry.npmjs.org/@dxos/debug/-/debug-1.0.0-beta.73.tgz#0bbc4d4a5f48bde79394c78d323d62255ec2fb26"
+  integrity sha512-wiDCYA+stgNyhXZUNj5xGxWxyKFbJw3pwrzU9PGnmYh0J0DXrJwvJ8dkBITxDXQRLESKFW1SW5ixb/7kmTl77w==
+  dependencies:
+    debug "^4.1.1"
 
 "@dxos/eslint-plugin@1.0.10":
   version "1.0.10"
@@ -1261,6 +1277,20 @@
     ngraph.generators "^18.0.1"
     ngraph.graph "^19.0.3"
     source-map-support "^0.5.12"
+
+"@dxos/react-ux@2.7.38-alpha.0":
+  version "2.7.38-alpha.0"
+  resolved "https://registry.npmjs.org/@dxos/react-ux/-/react-ux-2.7.38-alpha.0.tgz#c4a0f2176a399bb89002613c686c3eaf0333493d"
+  integrity sha512-OWZrlE77drOQwYk8hspkJ2mpEsEJ9AtjJw5ARBy8N022jIzRtRzAMEuIxj48ETk0FLWiPFPf/9xLWhNEf8ILAA==
+  dependencies:
+    "@dxos/crypto" "1.0.7"
+    "@dxos/debug" "1.0.0-beta.73"
+    "@material-ui/core" "^4.9.0"
+    "@material-ui/icons" "^4.5.1"
+    "@material-ui/lab" "^4.0.0-alpha.42"
+    clsx "^1.0.4"
+    lodash.isplainobject "^4.0.6"
+    uuid "^3.3.3"
 
 "@dxos/util@^2.4.0":
   version "2.4.0"
@@ -2504,7 +2534,7 @@
     npmlog "^4.1.2"
     write-file-atomic "^2.3.0"
 
-"@material-ui/core@^4.11.2", "@material-ui/core@^4.9.10":
+"@material-ui/core@^4.11.2", "@material-ui/core@^4.9.0", "@material-ui/core@^4.9.10":
   version "4.11.2"
   resolved "https://registry.npmjs.org/@material-ui/core/-/core-4.11.2.tgz#f8276dfa40d88304e6ceb98962af73803d27d42d"
   integrity sha512-/D1+AQQeYX/WhT/FUk78UCRj8ch/RCglsQLYujYTIqPSJlwZHKcvHidNeVhODXeApojeXjkl0tWdk5C9ofwOkQ==
@@ -2521,6 +2551,24 @@
     prop-types "^15.7.2"
     react-is "^16.8.0 || ^17.0.0"
     react-transition-group "^4.4.0"
+
+"@material-ui/icons@^4.5.1":
+  version "4.11.2"
+  resolved "https://registry.npmjs.org/@material-ui/icons/-/icons-4.11.2.tgz#b3a7353266519cd743b6461ae9fdfcb1b25eb4c5"
+  integrity sha512-fQNsKX2TxBmqIGJCSi3tGTO/gZ+eJgWmMJkgDiOfyNaunNaxcklJQFaFogYcFl0qFuaEz1qaXYXboa/bUXVSOQ==
+  dependencies:
+    "@babel/runtime" "^7.4.4"
+
+"@material-ui/lab@^4.0.0-alpha.42":
+  version "4.0.0-alpha.57"
+  resolved "https://registry.npmjs.org/@material-ui/lab/-/lab-4.0.0-alpha.57.tgz#e8961bcf6449e8a8dabe84f2700daacfcafbf83a"
+  integrity sha512-qo/IuIQOmEKtzmRD2E4Aa6DB4A87kmY6h0uYhjUmrrgmEAgbbw9etXpWPVXuRK6AGIQCjFzV6WO2i21m1R4FCw==
+  dependencies:
+    "@babel/runtime" "^7.4.4"
+    "@material-ui/utils" "^4.11.2"
+    clsx "^1.0.4"
+    prop-types "^15.7.2"
+    react-is "^16.8.0 || ^17.0.0"
 
 "@material-ui/styles@^4.11.2":
   version "4.11.2"
@@ -11901,6 +11949,11 @@ lodash.ismatch@^4.4.0:
   resolved "https://registry.npmjs.org/lodash.ismatch/-/lodash.ismatch-4.4.0.tgz#756cb5150ca3ba6f11085a78849645f188f85f37"
   integrity sha1-dWy1FQyjum8RCFp4hJZF8Yj4Xzc=
 
+lodash.isplainobject@^4.0.6:
+  version "4.0.6"
+  resolved "https://registry.npmjs.org/lodash.isplainobject/-/lodash.isplainobject-4.0.6.tgz#7c526a52d89b45c45cc690b88163be0497f550cb"
+  integrity sha1-fFJqUtibRcRcxpC4gWO+BJf1UMs=
+
 lodash.matches@^4.6.0:
   version "4.6.0"
   resolved "https://registry.npmjs.org/lodash.matches/-/lodash.matches-4.6.0.tgz#ae1affba8047f02368905fe585376bd2c10aaf5e"
@@ -17697,7 +17750,7 @@ uuid-parse@^1.1.0:
   resolved "https://registry.npmjs.org/uuid-parse/-/uuid-parse-1.1.0.tgz#7061c5a1384ae0e1f943c538094597e1b5f3a65b"
   integrity sha512-OdmXxA8rDsQ7YpNVbKSJkNzTw2I+S5WsbMDnCtIWSQaosNAcWtFuI/YK1TjzUI6nbkgiqEyh8gWngfcv8Asd9A==
 
-uuid@^3.0.1, uuid@^3.1.0, uuid@^3.3.2, uuid@^3.4.0:
+uuid@^3.0.1, uuid@^3.1.0, uuid@^3.3.2, uuid@^3.3.3, uuid@^3.4.0:
   version "3.4.0"
   resolved "https://registry.npmjs.org/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
   integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==

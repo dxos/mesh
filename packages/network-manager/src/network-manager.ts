@@ -91,7 +91,9 @@ export class NetworkManager {
   }
 
   async leaveProtocolSwarm (topic: PublicKey) {
-    assert(this._swarms.has(topic), `Cannot leave swarm: not swarming on topic: ${topic}`);
+    if (!this._swarms.has(topic)) {
+      return;
+    }
 
     const map = this._maps.get(topic)!;
     const swarm = this._swarms.get(topic)!;
