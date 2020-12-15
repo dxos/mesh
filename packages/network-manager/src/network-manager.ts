@@ -3,6 +3,7 @@
 //
 
 import assert from 'assert';
+import debug from 'debug';
 
 import { PublicKey } from '@dxos/crypto';
 import { Protocol } from '@dxos/protocol';
@@ -21,6 +22,8 @@ export type ProtocolProvider = (opts: { channel: Buffer }) => Protocol;
 export interface NetworkManagerOptions {
   signal?: string[],
 }
+
+const log = debug('dxos:network-manager');
 
 export class NetworkManager {
   private readonly _swarms = new ComplexMap<PublicKey, Swarm>(x => x.toHex());
@@ -66,6 +69,7 @@ export class NetworkManager {
     assert(PublicKey.isPublicKey(peerId), 'Incorrect arguments format.');
     assert(topology, 'Incorrect arguments format.');
     assert(typeof protocol === 'function', 'Incorrect arguments format.');
+    log(`Join ${options.topic} as ${options.peerId} with ${options.topology.toString()} topology.`);
 
     if (this._swarms.has(topic)) {
       throw new Error(`Already connected to swarm ${topic}`);
@@ -91,6 +95,8 @@ export class NetworkManager {
   }
 
   async leaveProtocolSwarm (topic: PublicKey) {
+    log(`Join ${topic}`);
+
     if (!this._swarms.has(topic)) {
       return;
     }

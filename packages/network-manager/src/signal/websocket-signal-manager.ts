@@ -50,11 +50,17 @@ export class WebsocketSignalManager implements SignalManager {
   join (topic: PublicKey, peerId: PublicKey) {
     log(`Join ${topic} ${peerId}`);
     for (const server of this._servers.values()) {
-      server.join(topic, peerId).then(peers => {
-        log(`Peer candidates changed ${topic} ${peers}`);
-        // TODO(marik-d): Deduplicate peers.
-        this.peerCandidatesChanged.emit([topic, peers]);
-      });
+      server.join(topic, peerId).then(
+        peers => {
+          log(`Peer candidates changed ${topic} ${peers}`);
+          // TODO(marik-d): Deduplicate peers.
+          this.peerCandidatesChanged.emit([topic, peers]);
+        },
+        err => {
+          console.error('Signal server error:');
+          console.error(err);
+        }
+      );
     }
   }
 
@@ -68,11 +74,17 @@ export class WebsocketSignalManager implements SignalManager {
   lookup (topic: PublicKey) {
     log(`Lookup ${topic}`);
     for (const server of this._servers.values()) {
-      server.lookup(topic).then(peers => {
-        log(`Peer candidates changed ${topic} ${peers}`);
-        // TODO(marik-d): Deduplicate peers.
-        this.peerCandidatesChanged.emit([topic, peers]);
-      });
+      server.lookup(topic).then(
+        peers => {
+          log(`Peer candidates changed ${topic} ${peers}`);
+          // TODO(marik-d): Deduplicate peers.
+          this.peerCandidatesChanged.emit([topic, peers]);
+        },
+        err => {
+          console.error('Signal server error:');
+          console.error(err);
+        }
+      );
     }
   }
 

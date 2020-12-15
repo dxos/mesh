@@ -105,6 +105,10 @@ export class MMSTTopology implements Topology {
       }
     }
   }
+
+  toString () {
+    return 'MMSTTopology';
+  }
 }
 
 function sortByXorDistance (keys: PublicKey[], reference: PublicKey): PublicKey[] {

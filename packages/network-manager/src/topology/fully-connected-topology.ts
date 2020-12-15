@@ -39,4 +39,8 @@ export class FullyConnectedTopology implements Topology {
       clearInterval(this._intervalId);
     }
   }
+
+  toString () {
+    return 'FullyConnectedTopology';
+  }
 }

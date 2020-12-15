@@ -61,4 +61,8 @@ export class StarTopology implements Topology {
       clearInterval(this._intervalId);
     }
   }
+
+  toString () {
+    return `StarTopology(${this._centralPeer})`;
+  }
 }
