@@ -13,15 +13,24 @@ import { Protocol } from '@dxos/protocol';
 import { NetworkManager } from './network-manager';
 import { TestProtocolPlugin, testProtocolProvider } from './testing/test-protocol';
 import { FullyConnectedTopology } from './topology/fully-connected-topology';
+import { StarTopology } from './topology/star-topology';
+import { Topology } from './topology/topology';
+
+interface CreatePeerOptions {
+  topic: PublicKey
+  peerId: PublicKey
+  inMemory?: boolean
+  topology?: Topology
+}
 
 describe('Network manager', () => {
-  const createPeer = async (topic: PublicKey, peerId: PublicKey, inMemory = false) => {
+  const createPeer = async ({ topic, peerId, inMemory, topology = new FullyConnectedTopology() }: CreatePeerOptions) => {
     const networkManager = new NetworkManager({ signal: !inMemory ? ['wss://apollo1.kube.moon.dxos.network/dxos/signal'] : undefined });
     await networkManager.start();
 
     const plugin = new TestProtocolPlugin(peerId.asBuffer());
     const protocolProvider = testProtocolProvider(topic.asBuffer(), peerId.asBuffer(), plugin);
-    networkManager.joinProtocolSwarm({ topic, peerId, protocol: protocolProvider, topology: new FullyConnectedTopology() });
+    networkManager.joinProtocolSwarm({ topic, peerId, protocol: protocolProvider, topology });
 
     return {
       networkManager,
@@ -34,8 +43,8 @@ describe('Network manager', () => {
     const peer1Id = PublicKey.random();
     const peer2Id = PublicKey.random();
 
-    const { plugin: plugin1 } = await createPeer(topic, peer1Id);
-    const { plugin: plugin2 } = await createPeer(topic, peer2Id);
+    const { plugin: plugin1 } = await createPeer({ topic, peerId: peer1Id });
+    const { plugin: plugin2 } = await createPeer({ topic, peerId: peer2Id });
 
     const mockReceive = mockFn<[Protocol, string]>().returns(undefined);
     plugin1.on('receive', mockReceive);
@@ -54,8 +63,8 @@ describe('Network manager', () => {
     const peer1Id = PublicKey.random();
     const peer2Id = PublicKey.random();
 
-    const { networkManager: networkManager1, plugin: plugin1 } = await createPeer(topic, peer1Id);
-    const { plugin: plugin2 } = await createPeer(topic, peer2Id);
+    const { networkManager: networkManager1, plugin: plugin1 } = await createPeer({ topic, peerId: peer1Id });
+    const { plugin: plugin2 } = await createPeer({ topic, peerId: peer2Id });
 
     await Promise.all([
       Event.wrap(plugin1, 'connect').waitForCount(1),
@@ -67,14 +76,36 @@ describe('Network manager', () => {
     await promise;
   }).timeout(10_000);
 
+  describe('StarTopology', () => {
+    it('two peers connect to each other', async () => {
+      const topic = PublicKey.random();
+      const peer1Id = PublicKey.random();
+      const peer2Id = PublicKey.random();
+
+      const { plugin: plugin1 } = await createPeer({ topic, peerId: peer1Id, topology: new StarTopology(peer1Id) });
+      const { plugin: plugin2 } = await createPeer({ topic, peerId: peer2Id, topology: new StarTopology(peer1Id) });
+
+      const mockReceive = mockFn<[Protocol, string]>().returns(undefined);
+      plugin1.on('receive', mockReceive);
+
+      plugin2.on('connect', async () => {
+        plugin2.send(peer1Id.asBuffer(), 'Foo');
+      });
+
+      await waitForExpect(() => {
+        expect(mockReceive).toHaveBeenCalledWith([expect.a(Protocol), 'Foo']);
+      });
+    }).timeout(10_000);
+  });
+
   describe('in-memory', () => {
     it('two peers connect to each other', async () => {
       const topic = PublicKey.random();
       const peer1Id = PublicKey.random();
       const peer2Id = PublicKey.random();
 
-      const { plugin: plugin1 } = await createPeer(topic, peer1Id, true);
-      const { plugin: plugin2 } = await createPeer(topic, peer2Id, true);
+      const { plugin: plugin1 } = await createPeer({ topic, peerId: peer1Id, inMemory: true });
+      const { plugin: plugin2 } = await createPeer({ topic, peerId: peer2Id, inMemory: true });
 
       const mockReceive = mockFn<[Protocol, string]>().returns(undefined);
       plugin1.on('receive', mockReceive);
@@ -96,10 +127,10 @@ describe('Network manager', () => {
       const peerB1Id = PublicKey.random();
       const peerB2Id = PublicKey.random();
 
-      const { plugin: pluginA1 } = await createPeer(topicA, peerA1Id, true);
-      const { plugin: pluginA2 } = await createPeer(topicA, peerA2Id, true);
-      const { plugin: pluginB1 } = await createPeer(topicB, peerB1Id, true);
-      const { plugin: pluginB2 } = await createPeer(topicB, peerB2Id, true);
+      const { plugin: pluginA1 } = await createPeer({ topic: topicA, peerId: peerA1Id, inMemory: true });
+      const { plugin: pluginA2 } = await createPeer({ topic: topicA, peerId: peerA2Id, inMemory: true });
+      const { plugin: pluginB1 } = await createPeer({ topic: topicB, peerId: peerB1Id, inMemory: true });
+      const { plugin: pluginB2 } = await createPeer({ topic: topicB, peerId: peerB2Id, inMemory: true });
 
       const mockReceiveA = mockFn<[Protocol, string]>().returns(undefined);
       pluginA1.on('receive', mockReceiveA);
