@@ -55,7 +55,8 @@ export class Swarm {
     private readonly _sendOffer: (message: SignalApi.SignalMessage) => Promise<SignalApi.Answer>,
     private readonly _sendSignal: (message: SignalApi.SignalMessage) => Promise<void>,
     private readonly _lookup: () => void,
-    private readonly _inMemory: boolean
+    private readonly _inMemory: boolean,
+    private readonly _webrtcConfig?: any
   ) {
     _topology.init(this._getSwarmController());
   }
@@ -209,7 +210,8 @@ export class Swarm {
         remoteId,
         sessionId,
         this._topic,
-        msg => this._sendSignal(msg)
+        msg => this._sendSignal(msg),
+        this._webrtcConfig
       );
     this._connections.set(remoteId, connection);
     this.connectionAdded.emit(connection);

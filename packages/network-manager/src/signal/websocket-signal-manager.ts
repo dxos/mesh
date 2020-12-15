@@ -24,6 +24,7 @@ export class WebsocketSignalManager implements SignalManager {
     private readonly _hosts: string[],
     private readonly _onOffer: (message: SignalApi.SignalMessage) => Promise<SignalApi.Answer>
   ) {
+    log(`Created WebsocketSignalManager with signal servers: ${_hosts}`);
     assert(_hosts.length === 1, 'Only a single signaling server connection is supported');
   }
 
@@ -50,11 +51,17 @@ export class WebsocketSignalManager implements SignalManager {
   join (topic: PublicKey, peerId: PublicKey) {
     log(`Join ${topic} ${peerId}`);
     for (const server of this._servers.values()) {
-      server.join(topic, peerId).then(peers => {
-        log(`Peer candidates changed ${topic} ${peers}`);
-        // TODO(marik-d): Deduplicate peers.
-        this.peerCandidatesChanged.emit([topic, peers]);
-      });
+      server.join(topic, peerId).then(
+        peers => {
+          log(`Peer candidates changed ${topic} ${peers}`);
+          // TODO(marik-d): Deduplicate peers.
+          this.peerCandidatesChanged.emit([topic, peers]);
+        },
+        err => {
+          console.error('Signal server error:');
+          console.error(err);
+        }
+      );
     }
   }
 
@@ -68,11 +75,17 @@ export class WebsocketSignalManager implements SignalManager {
   lookup (topic: PublicKey) {
     log(`Lookup ${topic}`);
     for (const server of this._servers.values()) {
-      server.lookup(topic).then(peers => {
-        log(`Peer candidates changed ${topic} ${peers}`);
-        // TODO(marik-d): Deduplicate peers.
-        this.peerCandidatesChanged.emit([topic, peers]);
-      });
+      server.lookup(topic).then(
+        peers => {
+          log(`Peer candidates changed ${topic} ${peers}`);
+          // TODO(marik-d): Deduplicate peers.
+          this.peerCandidatesChanged.emit([topic, peers]);
+        },
+        err => {
+          console.error('Signal server error:');
+          console.error(err);
+        }
+      );
     }
   }
 

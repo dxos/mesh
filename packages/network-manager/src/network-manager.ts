@@ -3,6 +3,7 @@
 //
 
 import assert from 'assert';
+import debug from 'debug';
 
 import { PublicKey } from '@dxos/crypto';
 import { Protocol } from '@dxos/protocol';
@@ -20,9 +21,14 @@ export type ProtocolProvider = (opts: { channel: Buffer }) => Protocol;
 
 export interface NetworkManagerOptions {
   signal?: string[],
+  ice?: any[],
 }
 
+const log = debug('dxos:network-manager');
+
 export class NetworkManager {
+  private readonly _ice?: any[];
+
   private readonly _swarms = new ComplexMap<PublicKey, Swarm>(x => x.toHex());
 
   private readonly _maps = new ComplexMap<PublicKey, SwarmMapper>(x => x.toHex());
@@ -34,6 +40,8 @@ export class NetworkManager {
   }
 
   constructor (options: NetworkManagerOptions = {}) {
+    this._ice = options.ice;
+
     const onOffer = async (msg: SignalApi.SignalMessage) => (await this._swarms.get(msg.topic)?.onOffer(msg)) ?? { accept: false };
 
     this._signal = options.signal
@@ -66,6 +74,7 @@ export class NetworkManager {
     assert(PublicKey.isPublicKey(peerId), 'Incorrect arguments format.');
     assert(topology, 'Incorrect arguments format.');
     assert(typeof protocol === 'function', 'Incorrect arguments format.');
+    log(`Join ${options.topic} as ${options.peerId} with ${options.topology.toString()} topology.`);
 
     if (this._swarms.has(topic)) {
       throw new Error(`Already connected to swarm ${topic}`);
@@ -81,7 +90,8 @@ export class NetworkManager {
       () => {
         this._signal.lookup(topic);
       },
-      this._signal instanceof InMemorySignalManager
+      this._signal instanceof InMemorySignalManager,
+      { iceServers: this._ice }
     );
     this._swarms.set(topic, swarm);
     this._signal.join(topic, peerId);
@@ -91,6 +101,8 @@ export class NetworkManager {
   }
 
   async leaveProtocolSwarm (topic: PublicKey) {
+    log(`Join ${topic}`);
+
     if (!this._swarms.has(topic)) {
       return;
     }
