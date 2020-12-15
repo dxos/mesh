@@ -34,13 +34,16 @@ export class WebrtcConnection implements Connection {
     private readonly _remoteId: PublicKey,
     private readonly _sessionId: PublicKey,
     private readonly _topic: PublicKey,
-    private readonly _sendSignal: (msg: SignalApi.SignalMessage) => Promise<void>
+    private readonly _sendSignal: (msg: SignalApi.SignalMessage) => Promise<void>,
+    webrtcConfig?: any
   ) {
     this._state = _initiator ? WebrtcConnection.State.INITIATING_CONNECTION : WebrtcConnection.State.WAITING_FOR_CONNECTION;
     this.stateChanged.emit(this._state);
+    log(`Creating webrtc connection topic=${_topic} ownId=${_ownId} remoteId=${_remoteId} initiator=${_initiator} webrtcConfig=${JSON.stringify(webrtcConfig)}`);
     this._peer = new SimplePeerConstructor({
       initiator: _initiator,
-      wrtc: SimplePeerConstructor.WEBRTC_SUPPORT ? undefined : wrtc
+      wrtc: SimplePeerConstructor.WEBRTC_SUPPORT ? undefined : wrtc,
+      config: webrtcConfig
     });
     this._peer.on('signal', async data => {
       try {

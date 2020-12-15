@@ -21,11 +21,14 @@ export type ProtocolProvider = (opts: { channel: Buffer }) => Protocol;
 
 export interface NetworkManagerOptions {
   signal?: string[],
+  ice?: any[],
 }
 
 const log = debug('dxos:network-manager');
 
 export class NetworkManager {
+  private readonly _ice?: any[];
+
   private readonly _swarms = new ComplexMap<PublicKey, Swarm>(x => x.toHex());
 
   private readonly _maps = new ComplexMap<PublicKey, SwarmMapper>(x => x.toHex());
@@ -37,6 +40,8 @@ export class NetworkManager {
   }
 
   constructor (options: NetworkManagerOptions = {}) {
+    this._ice = options.ice;
+
     const onOffer = async (msg: SignalApi.SignalMessage) => (await this._swarms.get(msg.topic)?.onOffer(msg)) ?? { accept: false };
 
     this._signal = options.signal
@@ -85,7 +90,8 @@ export class NetworkManager {
       () => {
         this._signal.lookup(topic);
       },
-      this._signal instanceof InMemorySignalManager
+      this._signal instanceof InMemorySignalManager,
+      { iceServers: this._ice }
     );
     this._swarms.set(topic, swarm);
     this._signal.join(topic, peerId);
