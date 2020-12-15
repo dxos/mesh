@@ -24,6 +24,7 @@ export class WebsocketSignalManager implements SignalManager {
     private readonly _hosts: string[],
     private readonly _onOffer: (message: SignalApi.SignalMessage) => Promise<SignalApi.Answer>
   ) {
+    log(`Created WebsocketSignalManager with signal servers: ${_hosts}`);
     assert(_hosts.length === 1, 'Only a single signaling server connection is supported');
   }
 
