@@ -8,6 +8,7 @@ import waitForExpect from 'wait-for-expect';
 import { PublicKey } from '@dxos/crypto';
 
 import { SignalApi } from './signal-api';
+import { afterTest } from '../testutils';
 
 describe('SignalApi', () => {
   let topic: PublicKey;
@@ -80,4 +81,27 @@ describe('SignalApi', () => {
       expect(signalMock).toHaveBeenCalledWith([msg]);
     }, 4_000);
   }).timeout(5_000);
+
+  it('join across multiple signal servers', async () => {
+    api = new SignalApi('wss://apollo1.kube.moon.dxos.network/dxos/signal', (async () => {}) as any, async () => {});
+    const api2 = new SignalApi('wss://apollo2.kube.moon.dxos.network/dxos/signal', (async () => {}) as any, async () => {});
+    afterTest(() => api.close());
+
+    api.connect();
+    api2.connect();
+
+    await api.join(topic, peer1);
+    await api2.join(topic, peer2);
+
+    await waitForExpect(async () => {
+      const peers = await api2.lookup(topic);
+      expect(peers.length).toEqual(2)
+    }, 40_000)
+
+    await waitForExpect(async () => {
+      const peers = await api.lookup(topic);
+      expect(peers.length).toEqual(2)
+    }, 40_000)
+
+  }).timeout(50_000);
 });
