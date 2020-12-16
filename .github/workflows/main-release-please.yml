@@ -13,7 +13,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: node
-          package-name: '@dxos/echo'
+          package-name: '@dxos/mesh'
           bump-minor-on-breaking: true
       # The logic below handles the npm publication:
       - uses: actions/checkout@v2
