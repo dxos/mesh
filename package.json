@@ -18,14 +18,17 @@
     ]
   },
   "scripts": {
-    "build": "lerna run build",
-    "clean": "lerna run clean",
-    "lint": "lerna run lint",
-    "lint:fix": "lerna run lint -- --fix",
-    "test": "lerna run test"
+    "build": "wsrun -t build",
+    "lint": "wsrun lint",
+    "test": "wsrun -s test",
+    "lint:lockfile": "lockfile-lint --path yarn.lock --allowed-hosts yarn npm codeload.github.com --validate-https",
+    "lint:version": "version-check"
   },
   "devDependencies": {
+    "@dxos/version-check": "^0.1.13",
     "babel-eslint": "^10.0.2",
-    "lerna": "^3.19.0"
+    "lerna": "^3.19.0",
+    "lockfile-lint": "^4.3.7",
+    "wsrun": "^5.2.4"
   }
 }
