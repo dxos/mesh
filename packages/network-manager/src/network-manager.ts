@@ -52,13 +52,6 @@ export class NetworkManager {
     this._signal.onSignal.on(msg => this._swarms.get(msg.topic)?.onSignal(msg));
   }
 
-  // TODO(marik-d): Remove.
-  async start () {
-    if (this._signal instanceof WebsocketSignalManager) {
-      await this._signal.connect();
-    }
-  }
-
   getSwarmMap (topic: PublicKey): SwarmMapper | undefined {
     return this._maps.get(topic);
   }
@@ -118,6 +111,14 @@ export class NetworkManager {
 
     await swarm.destroy();
     this._swarms.delete(topic);
+  }
+
+  // TODO(marik-d): Remove.
+  /**
+   * @default
+   */
+  async start () {
+    console.warn('NetworkManger.start is deprecated.');
   }
 }
 

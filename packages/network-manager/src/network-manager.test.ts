@@ -26,7 +26,6 @@ interface CreatePeerOptions {
 describe('Network manager', () => {
   const createPeer = async ({ topic, peerId, inMemory, topology = new FullyConnectedTopology() }: CreatePeerOptions) => {
     const networkManager = new NetworkManager({ signal: !inMemory ? ['wss://apollo1.kube.moon.dxos.network/dxos/signal'] : undefined });
-    await networkManager.start();
 
     const plugin = new TestProtocolPlugin(peerId.asBuffer());
     const protocolProvider = testProtocolProvider(topic.asBuffer(), peerId.asBuffer(), plugin);

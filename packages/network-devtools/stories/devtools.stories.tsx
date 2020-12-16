@@ -19,7 +19,6 @@ const createPeer = async (controlTopic: PublicKey, peerId: PublicKey, topologyFa
     signal: ['wss://apollo1.kube.moon.dxos.network/dxos/signal'],
   });
   const presencePlugin = new Presence(peerId.asBuffer())
-  await networkManager.start()
   networkManager.joinProtocolSwarm({
     topic: controlTopic,
     peerId,

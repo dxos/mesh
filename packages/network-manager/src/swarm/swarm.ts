@@ -69,7 +69,7 @@ export class Swarm {
   /**
    * Custom label assigned to this swarm. Used in devtools to display human-readable names for swarms.
    */
-  get label(): string | undefined {
+  get label (): string | undefined {
     return this._label;
   }
 

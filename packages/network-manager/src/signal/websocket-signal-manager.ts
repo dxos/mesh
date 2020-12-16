@@ -26,14 +26,7 @@ export class WebsocketSignalManager implements SignalManager {
   ) {
     log(`Created WebsocketSignalManager with signal servers: ${_hosts}`);
     assert(_hosts.length === 1, 'Only a single signaling server connection is supported');
-  }
-
-  getStatus (): SignalApi.Status[] {
-    return Array.from(this._servers.values()).map(server => server.getStatus());
-  }
-
-  async connect () {
-    await Promise.all(this._hosts.map(async host => {
+    for (const host of this._hosts) {
       const server = new SignalApi(
         host,
         async (msg) => this._onOffer(msg),
@@ -44,8 +37,11 @@ export class WebsocketSignalManager implements SignalManager {
       this._servers.set(host, server);
       server.statusChanged.on(() => this.statusChanged.emit(this.getStatus()));
       server.commandTrace.on(trace => this.commandTrace.emit(trace));
-      await server.connect();
-    }));
+    }
+  }
+
+  getStatus (): SignalApi.Status[] {
+    return Array.from(this._servers.values()).map(server => server.getStatus());
   }
 
   join (topic: PublicKey, peerId: PublicKey) {
