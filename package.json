@@ -18,9 +18,9 @@
     ]
   },
   "scripts": {
-    "build": "wsrun -t build",
-    "lint": "wsrun lint",
-    "test": "wsrun -s test",
+    "build": "wsrun -tm build",
+    "lint": "wsrun -m lint",
+    "test": "wsrun -sm test",
     "lint:lockfile": "lockfile-lint --path yarn.lock --allowed-hosts yarn npm codeload.github.com --validate-https",
     "lint:version": "version-check"
   },
