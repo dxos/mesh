@@ -1085,14 +1085,14 @@
   resolved "https://registry.npmjs.org/@dxos/async/-/async-1.0.0.tgz#691f5b6908e09942c62e603c7a6abc0e9010c92a"
   integrity sha512-8yoPxp86GvPBTWBSnbOYwcPouml2G2V3tyFNZXqhPaZ7EfDFKUSWdoN4wzqJ/FdGWbc/vaMBPdx9ufGXgqeh/A==
 
-"@dxos/async@^1.0.2-alpha.0":
+"@dxos/async@~1.0.2-alpha.0":
   version "1.0.2-alpha.0"
-  resolved "https://registry.npmjs.org/@dxos/async/-/async-1.0.2-alpha.0.tgz#cb46d597567a178225e8a67b71cf5e3e5e257a68"
+  resolved "https://registry.yarnpkg.com/@dxos/async/-/async-1.0.2-alpha.0.tgz#cb46d597567a178225e8a67b71cf5e3e5e257a68"
   integrity sha512-d9UgIaLbmuYHP24WASQX8OI1GJbJVy2021VqczIuDF0m3C5tHIqC7yr75L5eC4BAalEQoPGYcpWnzgD6ZpjiBw==
 
-"@dxos/broadcast@^1.0.0-beta.6":
+"@dxos/broadcast@~1.0.0-beta.11":
   version "1.0.0-beta.11"
-  resolved "https://registry.npmjs.org/@dxos/broadcast/-/broadcast-1.0.0-beta.11.tgz#531a1e709332ab64b14b29b859343a8a09a9e0ba"
+  resolved "https://registry.yarnpkg.com/@dxos/broadcast/-/broadcast-1.0.0-beta.11.tgz#531a1e709332ab64b14b29b859343a8a09a9e0ba"
   integrity sha512-3EYET2GxFdl2/s3OqNmL27wMPLDoyt9hasdBuwpGCytGNud8XHtfbXI03UJsNSVMZqPkBH1H2HGs4IDO5iig2w==
   dependencies:
     "@dxos/codec-protobuf" "1.1.0-beta.11"
@@ -1170,9 +1170,9 @@
     eslint-plugin-promise "^4.2.1"
     eslint-plugin-standard "^4.0.1"
 
-"@dxos/feed-store@^1.2.0-beta.30":
+"@dxos/feed-store@~1.2.0-beta.30":
   version "1.2.0-beta.30"
-  resolved "https://registry.npmjs.org/@dxos/feed-store/-/feed-store-1.2.0-beta.30.tgz#6a6f4d233496679e5e24405a6bfaa0bd6c4363cc"
+  resolved "https://registry.yarnpkg.com/@dxos/feed-store/-/feed-store-1.2.0-beta.30.tgz#6a6f4d233496679e5e24405a6bfaa0bd6c4363cc"
   integrity sha512-o7xH0ddhVT0shzpx37V9jGHr68/aD+8AcDmhNLuiGSvlncVnBpv8r2NDKTcOJv1u0eVZBo6A2jemAfe56TCyiQ==
   dependencies:
     buffer-json-encoding "^1.0.2"
@@ -1229,9 +1229,9 @@
     react-hotkeys "^2.0.0"
     react-resize-aware "^3.0.0"
 
-"@dxos/metrics@^1.0.0-beta.6":
+"@dxos/metrics@~1.0.0-beta.9":
   version "1.0.0-beta.9"
-  resolved "https://registry.npmjs.org/@dxos/metrics/-/metrics-1.0.0-beta.9.tgz#1ed14a0c2b9890a71ba4f1091b80d9cac9c6d080"
+  resolved "https://registry.yarnpkg.com/@dxos/metrics/-/metrics-1.0.0-beta.9.tgz#1ed14a0c2b9890a71ba4f1091b80d9cac9c6d080"
   integrity sha512-ZVLAYJHPKgjJFh3pn52MC90MhkUGnbADFtFT5bQwondI5c5Dv9TVelfL5PoJ/WN5jPNRzxxXCa/tMdwjI2b5xw==
   dependencies:
     "@babel/runtime" "^7.8.7"
@@ -1242,9 +1242,9 @@
     lodash.set "^4.3.2"
     lodash.unset "^4.5.2"
 
-"@dxos/network-generator@^1.0.0-beta.1":
+"@dxos/network-generator@~1.0.0-beta.3":
   version "1.0.0-beta.3"
-  resolved "https://registry.npmjs.org/@dxos/network-generator/-/network-generator-1.0.0-beta.3.tgz#cf3fba79e1c6aa35924fd308f3b13abe3be5948d"
+  resolved "https://registry.yarnpkg.com/@dxos/network-generator/-/network-generator-1.0.0-beta.3.tgz#cf3fba79e1c6aa35924fd308f3b13abe3be5948d"
   integrity sha512-1LLLa1mCuXOd4+Lg38vucE7S6s7cl/ToELWfo9Ql1r+gucxFxHFsDNiz68b/LmqVApr1Nk0/srOyXKQP42hBOw==
   dependencies:
     debug "^4.1.1"
@@ -1253,10 +1253,10 @@
     ngraph.graph "^19.0.3"
     source-map-support "^0.5.12"
 
-"@dxos/react-ux@2.7.38-alpha.0":
-  version "2.7.38-alpha.0"
-  resolved "https://registry.npmjs.org/@dxos/react-ux/-/react-ux-2.7.38-alpha.0.tgz#c4a0f2176a399bb89002613c686c3eaf0333493d"
-  integrity sha512-OWZrlE77drOQwYk8hspkJ2mpEsEJ9AtjJw5ARBy8N022jIzRtRzAMEuIxj48ETk0FLWiPFPf/9xLWhNEf8ILAA==
+"@dxos/react-ux@~2.7.41-alpha.0":
+  version "2.7.41-alpha.0"
+  resolved "https://registry.yarnpkg.com/@dxos/react-ux/-/react-ux-2.7.41-alpha.0.tgz#499d6fc4a735799a97277dfc221fb4243238d282"
+  integrity sha512-LsMoaMPGJWmH1kCy5+pvblnqxlh665bBXgceE7aBA2IQZwSHQhorz4r0WPjqONmzW8mmHWc3OoMTAI/PSr3c3A==
   dependencies:
     "@dxos/crypto" "1.0.7"
     "@dxos/debug" "1.0.0-beta.73"
@@ -1267,9 +1267,9 @@
     lodash.isplainobject "^4.0.6"
     uuid "^3.3.3"
 
-"@dxos/util@^2.4.0":
+"@dxos/util@~2.4.0":
   version "2.4.0"
-  resolved "https://registry.npmjs.org/@dxos/util/-/util-2.4.0.tgz#4b71e34ca8bf17a1a0b904718f732c4fdbc7e4b7"
+  resolved "https://registry.yarnpkg.com/@dxos/util/-/util-2.4.0.tgz#4b71e34ca8bf17a1a0b904718f732c4fdbc7e4b7"
   integrity sha512-lXYAUoFFsFQhyWdoQfLQVl1rKXzs3q/EJqIti7KadaBQfyL7VvxRM7ecXBFMX2GsMfq2lASUSdvQmIHqyKQMGA==
   dependencies:
     "@dxos/async" "^1.0.0-beta.8"
