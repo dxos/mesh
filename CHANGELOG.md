@@ -1,5 +1,13 @@
 # Changelog
 
+### [1.0.4](https://www.github.com/dxos/mesh/compare/v1.0.3...v1.0.4) (2020-12-17)
+
+
+### Bug Fixes
+
+* Add topics updated event ([#47](https://www.github.com/dxos/mesh/issues/47)) ([433acf5](https://www.github.com/dxos/mesh/commit/433acf5688e588c0c1140c8a5c8796932598636a))
+* Export components ([#48](https://www.github.com/dxos/mesh/issues/48)) ([44363c3](https://www.github.com/dxos/mesh/commit/44363c3525ea1f871dacd67c26f332312963a221))
+
 ### [1.0.3](https://www.github.com/dxos/mesh/compare/v1.0.2...v1.0.3) (2020-12-17)
 
 
