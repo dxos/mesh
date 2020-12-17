@@ -1,8 +1,8 @@
 {
   "name": "@dxos/network-devtools",
-  "private": false,
-  "main": "dist/src/index.js",
   "version": "1.0.3",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "scripts": {
     "storybook": "start-storybook -s ./stories/static -p 9001 -c .storybook",
     "lint": "eslint '{src, stories}/**/*.{ts,js,tsx}'",
