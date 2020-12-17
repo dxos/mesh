@@ -9,10 +9,7 @@ import { PublicKey } from '@dxos/crypto';
 import { Protocol } from '@dxos/protocol';
 import { ComplexMap } from '@dxos/util';
 
-import { InMemorySignalManager } from './signal/in-memory-signal-manager';
-import { SignalManager } from './signal/interface';
-import { SignalApi } from './signal/signal-api';
-import { WebsocketSignalManager } from './signal/websocket-signal-manager';
+import { InMemorySignalManager, SignalManager, SignalApi, WebsocketSignalManager } from './signal';
 import { SwarmMapper } from './swarm-mapper';
 import { Swarm } from './swarm/swarm';
 import { Topology } from './topology/topology';

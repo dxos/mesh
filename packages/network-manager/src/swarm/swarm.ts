@@ -10,7 +10,7 @@ import { discoveryKey, PublicKey } from '@dxos/crypto';
 import { ComplexMap, ComplexSet } from '@dxos/util';
 
 import { ProtocolProvider } from '../network-manager';
-import { SignalApi } from '../signal/signal-api';
+import { SignalApi } from '../signal';
 import { SwarmController, Topology } from '../topology/topology';
 import { Connection } from './connection';
 import { InMemoryConnection } from './in-memory-connection';

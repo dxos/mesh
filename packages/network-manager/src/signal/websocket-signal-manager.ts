@@ -78,8 +78,7 @@ export class WebsocketSignalManager implements SignalManager {
           this.peerCandidatesChanged.emit([topic, peers]);
         },
         err => {
-          console.error('Signal server error:');
-          console.error(err);
+          // Error will already be reported in devtools. No need to do anything here.
         }
       );
     }
