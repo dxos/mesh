@@ -1,6 +1,6 @@
 {
   "name": "@dxos/network-devtools",
-  "private": true,
+  "private": false,
   "version": "1.0.0",
   "scripts": {
     "storybook": "start-storybook -s ./stories/static -p 9001 -c .storybook",
