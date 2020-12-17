@@ -2,6 +2,7 @@
 // Copyright 2020 DXOS.org
 //
 
+import { select } from '@storybook/addon-knobs';
 import React, { useState, useEffect } from 'react';
 import { FullScreen } from '@dxos/gem-core';
 import useResizeAware from 'react-resize-aware';
@@ -11,52 +12,51 @@ import { Presence } from '@dxos/protocol-plugin-presence'
 import { PeerGraph } from '../src/PeerGraph';
 import { SignalStatus } from '../src/SignalStatus';
 import { SignalTrace } from '../src/SignalTrace';
-import { select } from '@storybook/addon-knobs';
 import { Topology } from '../../network-manager/dist';
 
 export default {
   title: 'Devtools'
-}
+};
 
 const createPeer = async (controlTopic: PublicKey, peerId: PublicKey, topologyFactory: () => Topology) => {
   const networkManager = new NetworkManager({
-    signal: ['wss://apollo1.kube.moon.dxos.network/dxos/signal'],
+    signal: ['wss://apollo1.kube.moon.dxos.network/dxos/signal']
   });
-  const presencePlugin = new Presence(peerId.asBuffer())
-  await networkManager.start()
+  const presencePlugin = new Presence(peerId.asBuffer());
+  await networkManager.start();
   networkManager.joinProtocolSwarm({
     topic: controlTopic,
     peerId,
     topology: topologyFactory(),
     protocol: transportProtocolProvider(controlTopic.asBuffer(), peerId.asBuffer(), presencePlugin),
-    presence: presencePlugin,
-  })
+    presence: presencePlugin
+  });
   return {
     networkManager,
     swarm: networkManager.getSwarm(controlTopic)!,
     map: networkManager.getSwarmMap(controlTopic)!,
-    signal: networkManager.signal,
-  }
-}
+    signal: networkManager.signal
+  };
+};
 
 const GraphDemo = ({ topic, topology }: { topic: PublicKey, topology: () => Topology }) => {
   const [controlPeer, setControlPeer] = useState<{ swarm: Swarm, map: SwarmMapper, signal: SignalManager }>();
   useEffect(() => {
-    createPeer(topic, topic, topology).then(peer => setControlPeer(peer))
-  }, [])
+    createPeer(topic, topic, topology).then(peer => setControlPeer(peer));
+  }, []);
 
   const [peers, setPeers] = useState<any[]>([]);
   useEffect(() => {
-    controlPeer?.swarm.setTopology(topology())
-    for(const peer of peers) {
+    controlPeer?.swarm.setTopology(topology());
+    for (const peer of peers) {
       peer.swarm.setTopology(topology());
     }
-  }, [topology])
+  }, [topology]);
 
-  async function addPeers(n: number) {
-    for(let i = 0; i < n; i++) {
-      const peer = await createPeer(topic, PublicKey.random(), topology)
-      setPeers(peers => [...peers, peer])
+  async function addPeers (n: number) {
+    for (let i = 0; i < n; i++) {
+      const peer = await createPeer(topic, PublicKey.random(), topology);
+      setPeers(peers => [...peers, peer]);
     }
   }
 
@@ -64,29 +64,29 @@ const GraphDemo = ({ topic, topology }: { topic: PublicKey, topology: () => Topo
     const peer = peers.find(peer => peer.swarm.ownPeerId.equals(id));
     console.log('leave', peer);
     peer && peer.networkManager.leaveProtocolSwarm(topic);
-  }
+  };
 
   const [peerMap, setPeerMap] = useState<PeerState[]>([]);
   useEffect(() => {
     controlPeer?.map.mapUpdated.on(peers => {
-      setPeerMap(peers)
-    })
-    controlPeer && setPeerMap(controlPeer.map.peers)
-  }, [controlPeer])
+      setPeerMap(peers);
+    });
+    controlPeer && setPeerMap(controlPeer.map.peers);
+  }, [controlPeer]);
 
   const [signalStatus, setSignalStatus] = useState<SignalApi.Status[]>([]);
   useEffect(() => {
     return controlPeer?.signal.statusChanged.on(status => {
-      setSignalStatus(status)
-    })
-  }, [controlPeer])
+      setSignalStatus(status);
+    });
+  }, [controlPeer]);
 
   const [signalTrace, setSignalTrace] = useState<SignalApi.CommandTrace[]>([]);
   useEffect(() => {
     return controlPeer?.signal.commandTrace.on(msg => {
-      setSignalTrace(msgs => [...msgs, msg])
-    })
-  }, [controlPeer])
+      setSignalTrace(msgs => [...msgs, msg]);
+    });
+  }, [controlPeer]);
 
   const [resizeListener, size] = useResizeAware();
   const { width, height } = size;
@@ -99,7 +99,6 @@ const GraphDemo = ({ topic, topology }: { topic: PublicKey, topology: () => Topo
         <button onClick={() => addPeers(10)}>Add 10 peers</button>
       </div>
 
-    
       {resizeListener}
       <PeerGraph
         peers={peerMap}
@@ -112,17 +111,17 @@ const GraphDemo = ({ topic, topology }: { topic: PublicKey, topology: () => Topo
         <SignalTrace trace={signalTrace} />
       </div>
     </FullScreen>
-  )
-}
+  );
+};
 
 export const withGraph = () => {
-  const [topic] = useState(() => PublicKey.random())
+  const [topic] = useState(() => PublicKey.random());
 
   const [topology, setTopology] = useState<() => Topology>(() => () => new FullyConnectedTopology());
 
   const topologySelect = select('Topology', ['Fully-connected', 'MMST', 'Star'], 'Fully-connected');
   useEffect(() => {
-    switch(topologySelect) {
+    switch (topologySelect) {
       case 'Fully-connected': {
         setTopology(() => () => new FullyConnectedTopology());
         break;
@@ -132,10 +131,10 @@ export const withGraph = () => {
         break;
       }
       case 'Star': {
-        setTopology(() => () => new StarTopology(topic))
+        setTopology(() => () => new StarTopology(topic));
       }
     }
-  }, [topologySelect])
+  }, [topologySelect]);
 
-  return <GraphDemo topic={topic} topology={topology} />
-}
+  return <GraphDemo topic={topic} topology={topology} />;
+};
