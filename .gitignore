@@ -42,3 +42,4 @@ version.json
 
 .cache
 public
+storybook-static

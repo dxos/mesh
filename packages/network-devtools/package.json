@@ -5,7 +5,7 @@
   "scripts": {
     "storybook": "start-storybook -s ./stories/static -p 9001 -c .storybook",
     "lint": "eslint '{src, stories}/**/*.{ts,js,tsx}'",
-    "build": "tsc -b && build-storybook"
+    "build": "tsc -b"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.12.1",
