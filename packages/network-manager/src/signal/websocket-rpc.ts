@@ -127,6 +127,7 @@ export class WebsocketRpc {
       this.commandTrace.emit({
         messageId: `${this._host}-${this._messageId++}`,
         host: this._host,
+        incoming: false,
         time: Date.now() - start,
         method,
         payload,
@@ -139,6 +140,7 @@ export class WebsocketRpc {
       this.commandTrace.emit({
         messageId: `${this._host}-${this._messageId++}`,
         host: this._host,
+        incoming: false,
         time: Date.now() - start,
         method,
         payload,
@@ -152,6 +154,7 @@ export class WebsocketRpc {
     this.commandTrace.emit({
       messageId: `${this._host}-${this._messageId++}`,
       host: this._host,
+      incoming: false,
       time: 0,
       method,
       payload: data
@@ -161,11 +164,47 @@ export class WebsocketRpc {
 
   async addHandler (method: string, handler: (data: any) => Promise<any>) {
     this._rpc.actions({
-      [method]: handler
+      [method]: async (data: any) => {
+        const begin = Date.now();
+        try {
+          const response = await handler(data);
+          this.commandTrace.emit({
+            messageId: `${this._host}-${this._messageId++}`,
+            host: this._host,
+            incoming: true,
+            time: Date.now() - begin,
+            method,
+            payload: data,
+            response,
+          })
+          return response;
+        } catch(error) {
+          this.commandTrace.emit({
+            messageId: `${this._host}-${this._messageId++}`,
+            host: this._host,
+            incoming: true,
+            time: Date.now() - begin,
+            method,
+            payload: data,
+            error: error.message,
+          })
+          throw error;
+        }
+      }
     });
   }
 
   async subscribe (method: string, handler: (data: any) => void) {
-    this._rpc.on(method, handler);
+    this._rpc.on(method, (data: any) => {
+      this.commandTrace.emit({
+        messageId: `${this._host}-${this._messageId++}`,
+        host: this._host,
+        incoming: true,
+        time: 0,
+        method,
+        payload: data
+      });
+      handler(data);
+    });
   }
 }

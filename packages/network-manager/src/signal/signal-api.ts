@@ -132,6 +132,7 @@ export class SignalApi {
 
       this._reconnect();
     }));
+    this._clientCleanup.push(this._client.commandTrace.on(trace => this.commandTrace.emit(trace)));
   }
 
   private _reconnect() {
@@ -258,6 +259,7 @@ export namespace SignalApi {
   export interface CommandTrace {
     messageId: string
     host: string
+    incoming: boolean
     time: number
     method: string
     payload: any
