@@ -1,6 +1,7 @@
 {
   "name": "@dxos/network-devtools",
   "private": false,
+  "main": "dist/src/index.js",
   "version": "1.0.3",
   "scripts": {
     "storybook": "start-storybook -s ./stories/static -p 9001 -c .storybook",
