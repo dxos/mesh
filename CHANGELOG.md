@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.0.2](https://www.github.com/dxos/mesh/compare/v1.0.1...v1.0.2) (2020-12-17)
+
+
+### Bug Fixes
+
+* Expose network devtools for devtools ([#44](https://www.github.com/dxos/mesh/issues/44)) ([e4f4443](https://www.github.com/dxos/mesh/commit/e4f4443b7d68ef09a59e1ec272e740ec72cd32ba))
+
 ### [1.0.1](https://www.github.com/dxos/mesh/compare/v1.0.0...v1.0.1) (2020-12-17)
 
 
