@@ -1,3 +1,7 @@
+//
+// Copyright 2020 DXOS.org
+//
+
 import React, { useState, useEffect } from 'react';
 import { FullScreen } from '@dxos/gem-core';
 import useResizeAware from 'react-resize-aware';
