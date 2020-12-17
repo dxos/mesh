@@ -56,9 +56,8 @@ export class SignalApi {
     private readonly _onOffer: (message: SignalApi.SignalMessage) => Promise<SignalApi.Answer>,
     private readonly _onSignal: (message: SignalApi.SignalMessage) => Promise<void>
   ) {
-    this._createClient();
-
     this._setState(SignalApi.State.CONNECTING);
+    this._createClient();
   }
 
   private _setState (newState: SignalApi.State) {
@@ -70,7 +69,18 @@ export class SignalApi {
 
   private _createClient() {
     this._connectionStarted = Date.now();
-    this._client = new WebsocketRpc(this._host);
+    try {
+      this._client = new WebsocketRpc(this._host);
+    } catch(error) {
+      if(this._state === SignalApi.State.RE_CONNECTING) {
+        this._reconnectAfter *= 2;
+      }
+
+      this._lastError = error;
+      this._setState(SignalApi.State.DISCONNECTED);
+
+      this._reconnect();
+    }
     this._client.addHandler('offer', (message: any) => this._onOffer({
       id: PublicKey.from(message.id),
       remoteId: PublicKey.from(message.remoteId),
@@ -87,11 +97,13 @@ export class SignalApi {
     }));
 
     this._clientCleanup.push(this._client.connected.on(() => {
+      log(`Socket connected`);
       this._lastError = undefined;
       this._reconnectAfter = DEFAULT_RECONNECT_TIMEOUT;
       this._setState(SignalApi.State.CONNECTED)
     }));
     this._clientCleanup.push(this._client.error.on(error => {
+      log(`Socket error: ${error.message}`);
       if(this._state === SignalApi.State.CLOSED) {
         return;
       }
@@ -106,6 +118,7 @@ export class SignalApi {
       this._reconnect();
     }));
     this._clientCleanup.push(this._client.disconnected.on(() => {
+      log(`Socket disconnected`);
       // This is also called in case of error, but we already have disconnected the socket on error, so no need to do anything here.
       if(this._state !== SignalApi.State.CONNECTING && this._state !== SignalApi.State.RE_CONNECTING) {
         return;
@@ -136,9 +149,9 @@ export class SignalApi {
       // Close client if it wasn't already closed.
       this._client.close().catch(() => {});
 
+      this._setState(SignalApi.State.RE_CONNECTING);
       this._createClient();
 
-      this._setState(SignalApi.State.RE_CONNECTING);
     }, this._reconnectAfter);
   }
 
@@ -147,7 +160,7 @@ export class SignalApi {
     this._clientCleanup = [];
 
     if(this._reconnectIntervalId !== undefined) {
-      clearInterval(this._reconnectIntervalId);
+      clearTimeout(this._reconnectIntervalId);
     }
 
     await this._client.close();
@@ -158,7 +171,7 @@ export class SignalApi {
     return {
       host: this._host,
       state: this._state,
-      error: this._lastError,
+      error: this._lastError?.message,
       reconnectIn: this._reconnectAfter,
       connectionStarted: this._connectionStarted,
       lastStateChange: this._lastStateChange,
@@ -236,7 +249,7 @@ export namespace SignalApi {
   export interface Status {
     host: string,
     state: State,
-    error?: Error
+    error?: string
     reconnectIn: number,
     connectionStarted: number
     lastStateChange: number

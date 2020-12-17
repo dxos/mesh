@@ -6,7 +6,7 @@ import assert from 'assert';
 import debug from 'debug';
 import nanomessagerpc from 'nanomessage-rpc';
 import { promisify } from 'util';
-import WebSocket from 'ws';
+import WebSocket from 'isomorphic-ws';
 
 import { Event, sleep, Trigger } from '@dxos/async';
 
@@ -69,7 +69,7 @@ export class WebsocketRpc {
     };
     this._socket.onerror = e => {
       log(`Signal socket error ${this._host} ${e.message}`);
-      this.error.emit(e.error);
+      this.error.emit(e.error ?? new Error(e.message));
     };
     this._rpc = nanomessagerpc({
       send: async (data: Uint8Array) => {
