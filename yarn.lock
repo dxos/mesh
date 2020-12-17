@@ -1101,17 +1101,6 @@
     source-map-support "^0.5.12"
     tiny-lru "^7.0.6"
 
-"@dxos/codec-protobuf@1.1.0-beta.10":
-  version "1.1.0-beta.10"
-  resolved "https://registry.npmjs.org/@dxos/codec-protobuf/-/codec-protobuf-1.1.0-beta.10.tgz#f217e871a4e4a8c4665ae02ac1a9dfba1b264c44"
-  integrity sha512-4EZg4kpvNZQ9s1ufs2TXP/ReYE/riB5t6+yJYI+ZHDtEXRPVtgoreSzZyiSMboPTG3fqanH0pe4lW6nuBzwiiA==
-  dependencies:
-    assert "^2.0.0"
-    buffer "^5.4.3"
-    lodash.merge "^4.6.2"
-    protobufjs "^6.9.0"
-    source-map-support "^0.5.12"
-
 "@dxos/codec-protobuf@1.1.0-beta.11":
   version "1.1.0-beta.11"
   resolved "https://registry.npmjs.org/@dxos/codec-protobuf/-/codec-protobuf-1.1.0-beta.11.tgz#2325420040ce97a450390e097ae60f525a62b80c"
@@ -1122,26 +1111,24 @@
     lodash.merge "^4.6.2"
     protobufjs "^6.9.0"
 
-"@dxos/codec-protobuf@^0.2.0":
+"@dxos/codec-protobuf@^0.2.2":
   version "0.2.2"
-  resolved "https://registry.npmjs.org/@dxos/codec-protobuf/-/codec-protobuf-0.2.2.tgz#364a24e83cb70497dbcec0defe42016348fcabd6"
+  resolved "https://registry.yarnpkg.com/@dxos/codec-protobuf/-/codec-protobuf-0.2.2.tgz#364a24e83cb70497dbcec0defe42016348fcabd6"
   integrity sha512-DkFkkciaSLbn6jnD8wwfpzyEOhwMHRQHHNJziN+NmfEWbhmvgyUAWsB4cVmvaGfaYWEhOrmloBtBZMMn6XDilw==
   dependencies:
     protobufjs "^6.10.1"
 
-"@dxos/crypto@1.0.7":
-  version "1.0.7"
-  resolved "https://registry.npmjs.org/@dxos/crypto/-/crypto-1.0.7.tgz#7f80f2712302037e0a29bb1f6d023fdab899c14b"
-  integrity sha512-ED+AChA9N8hIMgTcuopNhe81xICykEAP0dKILiTJpBCqiEXyzRClLBkdIY4n6UJUpBmVvrnBLRxw8IU/+jVijg==
+"@dxos/codec-protobuf@~1.1.0-beta.11":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@dxos/codec-protobuf/-/codec-protobuf-1.1.1.tgz#905bba854905e49d30c8ba3426057b3261f35a17"
+  integrity sha512-z2VDf5sqBG/0fNEYC1bYmsaiGBP3gaQ6BKodHvLHkUgFImxszAzbjdBVm7waXqQU19CXKkahKTbfrjtLKLzdZQ==
   dependencies:
-    crypto-js "^3.1.9-1"
-    humanhash "^1.0.4"
-    hypercore-crypto "^1.0.0"
+    protobufjs "^6.10.1"
 
-"@dxos/crypto@^1.0.0-beta.7":
-  version "1.0.5"
-  resolved "https://registry.npmjs.org/@dxos/crypto/-/crypto-1.0.5.tgz#16e884f33a2edff0eee91d6a71ed5e79631353ca"
-  integrity sha512-G2csaAHRLZMhHrNU1FP+kzAYfyWOQGq+M2uAsp0fib/k6egIM/S9BIP5hQbdGvIv0xlbkLNDtcYWef96flRJ2g==
+"@dxos/crypto@1.0.7", "@dxos/crypto@~1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@dxos/crypto/-/crypto-1.0.7.tgz#7f80f2712302037e0a29bb1f6d023fdab899c14b"
+  integrity sha512-ED+AChA9N8hIMgTcuopNhe81xICykEAP0dKILiTJpBCqiEXyzRClLBkdIY4n6UJUpBmVvrnBLRxw8IU/+jVijg==
   dependencies:
     crypto-js "^3.1.9-1"
     humanhash "^1.0.4"
@@ -1154,9 +1141,9 @@
   dependencies:
     debug "^4.1.1"
 
-"@dxos/eslint-plugin@1.0.10":
+"@dxos/eslint-plugin@~1.0.10":
   version "1.0.10"
-  resolved "https://registry.npmjs.org/@dxos/eslint-plugin/-/eslint-plugin-1.0.10.tgz#165105a271996c1feb47db87e81ac84d8d03b655"
+  resolved "https://registry.yarnpkg.com/@dxos/eslint-plugin/-/eslint-plugin-1.0.10.tgz#165105a271996c1feb47db87e81ac84d8d03b655"
   integrity sha512-SRWuN1uOojfZbhSqV+ViQLgZuONxHGLsSObmLJU+HtjX7x2XLg0DiCsSbbOKLd7tO6r9uHIK4PcmhbLYlNGh9Q==
   dependencies:
     "@rushstack/eslint-patch" "^1.0.6"
@@ -1193,7 +1180,7 @@
     source-map-support "^0.5.12"
     through2 "^3.0.1"
 
-"@dxos/gem-core@1.0.0-beta.25", "@dxos/gem-core@^1.0.0-beta.25":
+"@dxos/gem-core@^1.0.0-beta.25", "@dxos/gem-core@~1.0.0-beta.25":
   version "1.0.0-beta.25"
   resolved "https://registry.npmjs.org/@dxos/gem-core/-/gem-core-1.0.0-beta.25.tgz#85b551d05c32fe9162bae8882bce6c48d7d8a0f6"
   integrity sha512-F+2CUF0gAmSto++6SyTYIQwSRg2wg397olNaJYBHqfxPAHwHT1narMfxb7zbwn/DXtrbcazZRUqk5ZXjk5B+xw==
@@ -1208,9 +1195,9 @@
     react-dom "^16.13.1"
     react-resize-aware "^3.0.0"
 
-"@dxos/gem-spore@1.0.0-beta.25":
+"@dxos/gem-spore@~1.0.0-beta.25":
   version "1.0.0-beta.25"
-  resolved "https://registry.npmjs.org/@dxos/gem-spore/-/gem-spore-1.0.0-beta.25.tgz#de804677667c29cc616c056f27abbd35bf172297"
+  resolved "https://registry.yarnpkg.com/@dxos/gem-spore/-/gem-spore-1.0.0-beta.25.tgz#de804677667c29cc616c056f27abbd35bf172297"
   integrity sha512-m7UpcXByhvR1azrA8THc1XuCxhgL3F9CGnnnw+JeaH3Rrm9NpCfr25JLnWoEXcOP7Zy9KrdtcrEGP6CkCQveLQ==
   dependencies:
     "@dxos/gem-core" "^1.0.0-beta.25"
@@ -1253,10 +1240,10 @@
     ngraph.graph "^19.0.3"
     source-map-support "^0.5.12"
 
-"@dxos/react-ux@~2.7.41-alpha.0":
-  version "2.7.41-alpha.0"
-  resolved "https://registry.yarnpkg.com/@dxos/react-ux/-/react-ux-2.7.41-alpha.0.tgz#499d6fc4a735799a97277dfc221fb4243238d282"
-  integrity sha512-LsMoaMPGJWmH1kCy5+pvblnqxlh665bBXgceE7aBA2IQZwSHQhorz4r0WPjqONmzW8mmHWc3OoMTAI/PSr3c3A==
+"@dxos/react-ux@~2.7.43-alpha.0":
+  version "2.7.43-alpha.0"
+  resolved "https://registry.yarnpkg.com/@dxos/react-ux/-/react-ux-2.7.43-alpha.0.tgz#8045d8b9d1626f04dfd999862bc5b585cf3123e5"
+  integrity sha512-Ywe/7aGaLbFGK6alUGJw5AWlIwGhW3OwzG+a7/hVgSPw0bO3TYB6hAd4KLx5Asdt3XQ+g0cyqClewngR/MmrSw==
   dependencies:
     "@dxos/crypto" "1.0.7"
     "@dxos/debug" "1.0.0-beta.73"
@@ -1267,14 +1254,14 @@
     lodash.isplainobject "^4.0.6"
     uuid "^3.3.3"
 
-"@dxos/util@~2.4.0":
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/@dxos/util/-/util-2.4.0.tgz#4b71e34ca8bf17a1a0b904718f732c4fdbc7e4b7"
-  integrity sha512-lXYAUoFFsFQhyWdoQfLQVl1rKXzs3q/EJqIti7KadaBQfyL7VvxRM7ecXBFMX2GsMfq2lASUSdvQmIHqyKQMGA==
+"@dxos/util@~2.6.16":
+  version "2.6.16"
+  resolved "https://registry.yarnpkg.com/@dxos/util/-/util-2.6.16.tgz#1a472b78f347ee02fa390dbbb7a043a243ffd2fe"
+  integrity sha512-vJPqutLwdQITNf+Uq6Xm1grPn7+lbHljjkWTKHBq/h/OIrOYT3+ZKqL+x8n0pKxJaqJy/1nXHScd0rXlMT89+w==
   dependencies:
     "@dxos/async" "^1.0.0-beta.8"
-    "@dxos/codec-protobuf" "^0.2.0"
-    "@dxos/crypto" "^1.0.0-beta.7"
+    "@dxos/codec-protobuf" "^0.2.2"
+    "@dxos/crypto" "1.0.7"
     "@types/debug" "^4.1.1"
     "@types/end-of-stream" "^1.4.0"
     "@types/lodash" "^4.14.159"
