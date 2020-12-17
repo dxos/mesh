@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.0.3](https://www.github.com/dxos/mesh/compare/v1.0.2...v1.0.3) (2020-12-17)
+
+
+### Bug Fixes
+
+* Signal stability issues ([#39](https://www.github.com/dxos/mesh/issues/39)) ([2f6eb42](https://www.github.com/dxos/mesh/commit/2f6eb4229bcef5daae447348a860b7aa4270483a))
+
 ### [1.0.2](https://www.github.com/dxos/mesh/compare/v1.0.1...v1.0.2) (2020-12-17)
 
 
