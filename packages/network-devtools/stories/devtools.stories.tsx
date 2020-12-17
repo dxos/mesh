@@ -23,7 +23,6 @@ const createPeer = async (controlTopic: PublicKey, peerId: PublicKey, topologyFa
     signal: ['wss://apollo1.kube.moon.dxos.network/dxos/signal']
   });
   const presencePlugin = new Presence(peerId.asBuffer());
-  await networkManager.start();
   networkManager.joinProtocolSwarm({
     topic: controlTopic,
     peerId,
@@ -106,7 +105,7 @@ const GraphDemo = ({ topic, topology }: { topic: PublicKey, topology: () => Topo
         onClick={killPeer}
       />
 
-      <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 200, background: 'white' }}>
+      <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 500, background: 'white' }}>
         <SignalStatus status={signalStatus} />
         <SignalTrace trace={signalTrace} />
       </div>

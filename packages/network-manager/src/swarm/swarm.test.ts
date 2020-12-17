@@ -38,7 +38,8 @@ describe('Swarm', () => {
         await swarm2.onSignal(msg);
       },
       () => {},
-      false
+      false,
+      undefined
     );
     swarm2 = new Swarm(
       topic,
@@ -54,7 +55,8 @@ describe('Swarm', () => {
         await swarm1.onSignal(msg);
       },
       () => {},
-      false
+      false,
+      undefined
     );
   });
 

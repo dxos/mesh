@@ -9,7 +9,7 @@ import { PublicKey } from '@dxos/crypto';
 import { Protocol } from '@dxos/protocol';
 import { ComplexMap } from '@dxos/util';
 
-import { SignalApi } from '../signal/signal-api';
+import { SignalApi } from '../signal';
 import { Connection } from './connection';
 import { WebrtcConnection } from './webrtc-connection';
 

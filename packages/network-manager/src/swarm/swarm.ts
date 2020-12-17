@@ -10,7 +10,7 @@ import { discoveryKey, PublicKey } from '@dxos/crypto';
 import { ComplexMap, ComplexSet } from '@dxos/util';
 
 import { ProtocolProvider } from '../network-manager';
-import { SignalApi } from '../signal/signal-api';
+import { SignalApi } from '../signal';
 import { SwarmController, Topology } from '../topology/topology';
 import { Connection } from './connection';
 import { InMemoryConnection } from './in-memory-connection';
@@ -56,6 +56,7 @@ export class Swarm {
     private readonly _sendSignal: (message: SignalApi.SignalMessage) => Promise<void>,
     private readonly _lookup: () => void,
     private readonly _inMemory: boolean,
+    private readonly _label: string | undefined,
     private readonly _webrtcConfig?: any
   ) {
     _topology.init(this._getSwarmController());
@@ -63,6 +64,13 @@ export class Swarm {
 
   get ownPeerId () {
     return this._ownPeerId;
+  }
+
+  /**
+   * Custom label assigned to this swarm. Used in devtools to display human-readable names for swarms.
+   */
+  get label (): string | undefined {
+    return this._label;
   }
 
   onPeerCandidatesChanged (candidates: PublicKey[]) {

@@ -2,39 +2,52 @@
 // Copyright 2020 DXOS.org
 //
 
-import assert from 'assert';
 import debug from 'debug';
-import WebSocket from 'isomorphic-ws';
-import nanomessagerpc from 'nanomessage-rpc';
 import { SignalData } from 'simple-peer';
-import { promisify } from 'util';
 
-import { Event, sleep, Trigger } from '@dxos/async';
+import { Event, sleep } from '@dxos/async';
 import { PublicKey } from '@dxos/crypto';
 
-const TIMEOUT = 3_000;
+import { WebsocketRpc } from './websocket-rpc';
 
 const log = debug('dxos:network-manager:signal-api');
+
+const DEFAULT_RECONNECT_TIMEOUT = 1000;
+
+const RPC_TIMEOUT = 3_000;
 
 /**
  * Establishes a websocket connection to signal server and provides RPC methods.
  */
 export class SignalApi {
-  private _state = SignalApi.State.NOT_CONNECTED;
-
-  private _socket?: WebSocket;
+  private _state = SignalApi.State.CONNECTING;
 
   private _lastError?: Error;
 
-  private readonly _rpc: any;
+  /**
+   * Number of milliseconds after which the connection will be attempted again in case of error.
+   */
+  private _reconnectAfter = DEFAULT_RECONNECT_TIMEOUT;
 
-  private readonly _connectTrigger = new Trigger();
+  /**
+   * Timestamp of when the connection attempt was began.
+   */
+  private _connectionStarted = Date.now();
+
+  /**
+   * Timestamp of last state change.
+   */
+  private _lastStateChange = Date.now();
+
+  private _reconnectIntervalId?: NodeJS.Timeout;
+
+  private _client!: WebsocketRpc;
+
+  private _clientCleanup: (() => void)[] = [];
 
   readonly statusChanged = new Event<SignalApi.Status>();
 
   readonly commandTrace = new Event<SignalApi.CommandTrace>();
-
-  private _messageId = Date.now();
 
   /**
    * @param _host Signal server websocket URL.
@@ -46,136 +59,137 @@ export class SignalApi {
     private readonly _onOffer: (message: SignalApi.SignalMessage) => Promise<SignalApi.Answer>,
     private readonly _onSignal: (message: SignalApi.SignalMessage) => Promise<void>
   ) {
-    this._rpc = nanomessagerpc({
-      send: async (data: Uint8Array) => {
-        await this._connectTrigger.wait();
-        assert(this._socket, 'No socket');
-        await promisify(this._socket.send.bind(this._socket) as any)(data);
-      },
-      subscribe: (next: (data: any) => void) => {
-        this._connectTrigger.wait().then(() => {
-          assert(this._socket, 'No socket');
-          this._socket.onmessage = async e => {
-            try {
-              // e.data is Buffer in node, and Blob in chrome
-              let data: Buffer;
-              if (Object.getPrototypeOf(e.data).constructor.name === 'Blob') {
-                data = Buffer.from(await (e.data as any).arrayBuffer());
-              } else {
-                data = e.data as any;
-              }
-              next(data);
-            } catch (err) {
-              console.error('Unhandled error in signal server RPC:');
-              console.error(err);
-            }
-          };
-        });
+    this._setState(SignalApi.State.CONNECTING);
+    this._createClient();
+  }
 
-        return () => {
-          if (this._socket) {
-            this._socket.onmessage = () => {};
-          }
-        };
+  private _setState (newState: SignalApi.State) {
+    this._state = newState;
+    this._lastStateChange = Date.now();
+    log(`Signal state changed ${JSON.stringify(this.getStatus())}`);
+    this.statusChanged.emit(this.getStatus());
+  }
+
+  private _createClient () {
+    this._connectionStarted = Date.now();
+    try {
+      this._client = new WebsocketRpc(this._host);
+    } catch (error) {
+      if (this._state === SignalApi.State.RE_CONNECTING) {
+        this._reconnectAfter *= 2;
       }
-    });
-    this._rpc.on('error', console.log);
-    this._rpc.actions({
-      offer: (message: any) => this._onOffer({
-        id: PublicKey.from(message.id),
-        remoteId: PublicKey.from(message.remoteId),
-        topic: PublicKey.from(message.topic),
-        sessionId: PublicKey.from(message.sessionId),
-        data: message.data
-      })
-    });
-    this._rpc.on('signal', (msg: SignalApi.SignalMessage) => this._onSignal({
+
+      this._lastError = error;
+      this._setState(SignalApi.State.DISCONNECTED);
+
+      this._reconnect();
+    }
+    this._client.addHandler('offer', (message: any) => this._onOffer({
+      id: PublicKey.from(message.id),
+      remoteId: PublicKey.from(message.remoteId),
+      topic: PublicKey.from(message.topic),
+      sessionId: PublicKey.from(message.sessionId),
+      data: message.data
+    }));
+    this._client.subscribe('signal', (msg: SignalApi.SignalMessage) => this._onSignal({
       id: PublicKey.from(msg.id),
       remoteId: PublicKey.from(msg.remoteId),
       topic: PublicKey.from(msg.topic),
       sessionId: PublicKey.from(msg.sessionId),
       data: msg.data
     }));
-    this.statusChanged.emit(this.getStatus());
+
+    this._clientCleanup.push(this._client.connected.on(() => {
+      log('Socket connected');
+      this._lastError = undefined;
+      this._reconnectAfter = DEFAULT_RECONNECT_TIMEOUT;
+      this._setState(SignalApi.State.CONNECTED);
+    }));
+    this._clientCleanup.push(this._client.error.on(error => {
+      log(`Socket error: ${error.message}`);
+      if (this._state === SignalApi.State.CLOSED) {
+        return;
+      }
+
+      if (this._state === SignalApi.State.RE_CONNECTING) {
+        this._reconnectAfter *= 2;
+      }
+
+      this._lastError = error;
+      this._setState(SignalApi.State.DISCONNECTED);
+
+      this._reconnect();
+    }));
+    this._clientCleanup.push(this._client.disconnected.on(() => {
+      log('Socket disconnected');
+      // This is also called in case of error, but we already have disconnected the socket on error, so no need to do anything here.
+      if (this._state !== SignalApi.State.CONNECTING && this._state !== SignalApi.State.RE_CONNECTING) {
+        return;
+      }
+
+      if (this._state === SignalApi.State.RE_CONNECTING) {
+        this._reconnectAfter *= 2;
+      }
+
+      this._setState(SignalApi.State.DISCONNECTED);
+
+      this._reconnect();
+    }));
+    this._clientCleanup.push(this._client.commandTrace.on(trace => this.commandTrace.emit(trace)));
   }
 
-  connect () {
-    if (this._state !== SignalApi.State.NOT_CONNECTED) {
-      throw new Error('Invalid state');
+  private _reconnect () {
+    if (this._reconnectIntervalId !== undefined) {
+      console.error('Signal api already reconnecting.');
+      return;
     }
-    this._state = SignalApi.State.CONNECTING;
 
-    this._socket = new WebSocket(this._host);
-    this._socket.onopen = () => {
-      log(`Connected ${this._host}`);
-      this._state = SignalApi.State.CONNECTED;
-      this.statusChanged.emit(this.getStatus());
-      this._connectTrigger.wake();
-    };
-    this._socket.onclose = () => {
-      log(`Disconnected ${this._host}`);
-      this._state = SignalApi.State.DISCONNECTED;
-      this.statusChanged.emit(this.getStatus());
-      // TODO(marik-d): Reconnect.
-    };
-    this._socket.onerror = e => {
-      log(`Signal socket error ${this._host} ${e.message}`);
-      this._state = SignalApi.State.ERROR;
-      this._lastError = e.error;
-      this.statusChanged.emit(this.getStatus());
-      console.error('Signal socket error');
-      console.error(e.error);
-      // TODO(marik-d): Reconnect.
-    };
+    this._reconnectIntervalId = setTimeout(() => {
+      this._reconnectIntervalId = undefined;
+
+      this._clientCleanup.forEach(cb => cb());
+      this._clientCleanup = [];
+
+      // Close client if it wasn't already closed.
+      this._client.close().catch(() => {});
+
+      this._setState(SignalApi.State.RE_CONNECTING);
+      this._createClient();
+    }, this._reconnectAfter);
   }
 
   async close () {
-    await this._rpc.close();
-    this._socket?.close();
+    this._clientCleanup.forEach(cb => cb());
+    this._clientCleanup = [];
+
+    if (this._reconnectIntervalId !== undefined) {
+      clearTimeout(this._reconnectIntervalId);
+    }
+
+    await this._client.close();
+    this._setState(SignalApi.State.CLOSED);
   }
 
   getStatus (): SignalApi.Status {
     return {
       host: this._host,
       state: this._state,
-      error: this._lastError
+      error: this._lastError?.message,
+      reconnectIn: this._reconnectAfter,
+      connectionStarted: this._connectionStarted,
+      lastStateChange: this._lastStateChange
     };
   }
 
-  private async _rpcCall (method: string, payload: any): Promise<any> {
-    await this._rpc.open();
-    const start = Date.now();
-    try {
-      const response = await Promise.race([
-        this._rpc.call(method, payload),
-        sleep(TIMEOUT).then(() => Promise.reject(new Error(`Signal RPC call timed out in ${TIMEOUT} ms`)))
-      ]);
-      this.commandTrace.emit({
-        messageId: `${this._host}-${this._messageId++}`,
-        host: this._host,
-        time: Date.now() - start,
-        method,
-        payload,
-        response
-      });
-      log(`Signal RPC ${this._host}: ${method} ${JSON.stringify(payload)} ${JSON.stringify(response)}`);
-      return response;
-    } catch (err) {
-      log(`Signal RPC error ${this._host}: ${method} ${JSON.stringify(payload)} ${err.message}`);
-      this.commandTrace.emit({
-        messageId: `${this._host}-${this._messageId++}`,
-        host: this._host,
-        time: Date.now() - start,
-        method,
-        payload,
-        error: err.message
-      });
-      throw err;
-    }
+  private async _callWithTimeout (method: string, payload: any) {
+    return Promise.race([
+      this._client.call(method, payload),
+      sleep(RPC_TIMEOUT).then(() => Promise.reject(new Error(`Signal RPC call timed out in ${RPC_TIMEOUT} ms`)))
+    ]);
   }
 
   async join (topic: PublicKey, peerId: PublicKey): Promise<PublicKey[]> {
-    const peers: Buffer[] = await this._rpcCall('join', {
+    const peers: Buffer[] = await this._callWithTimeout('join', {
       id: peerId.asBuffer(),
       topic: topic.asBuffer()
     });
@@ -183,14 +197,14 @@ export class SignalApi {
   }
 
   async leave (topic: PublicKey, peerId: PublicKey): Promise<void> {
-    await this._rpcCall('leave', {
+    await this._callWithTimeout('leave', {
       id: peerId.asBuffer(),
       topic: topic.asBuffer()
     });
   }
 
   async lookup (topic: PublicKey): Promise<PublicKey[]> {
-    const peers: Buffer[] = await this._rpcCall('lookup', {
+    const peers: Buffer[] = await this._callWithTimeout('lookup', {
       topic: topic.asBuffer()
     });
     return peers.map(id => PublicKey.from(id));
@@ -201,7 +215,7 @@ export class SignalApi {
    * @returns Other peer's _onOffer callback return value.
    */
   async offer (payload: SignalApi.SignalMessage): Promise<SignalApi.Answer> {
-    return this._rpcCall('offer', {
+    return this._client.call('offer', {
       id: payload.id.asBuffer(),
       remoteId: payload.remoteId.asBuffer(),
       topic: payload.topic.asBuffer(),
@@ -214,43 +228,47 @@ export class SignalApi {
    * Routes an offer to the other peer's _onSignal callback.
    */
   async signal (payload: SignalApi.SignalMessage): Promise<void> {
-    await this._rpc.open();
-    const serializedPayload = {
+    return this._client.emit('signal', {
       id: payload.id.asBuffer(),
       remoteId: payload.remoteId.asBuffer(),
       topic: payload.topic.asBuffer(),
       sessionId: payload.sessionId.asBuffer(),
       data: payload.data
-    };
-    this.commandTrace.emit({
-      messageId: `${this._host}-${this._messageId++}`,
-      host: this._host,
-      time: 0,
-      method: 'signal',
-      payload: serializedPayload
     });
-    return this._rpc.emit('signal', serializedPayload);
   }
 }
 
 export namespace SignalApi {
   export enum State {
-    NOT_CONNECTED = 'NOT_CONNECTED',
+    /** Connection is being established. */
     CONNECTING = 'CONNECTING',
+
+    /** Connection is being re-established. */
+    RE_CONNECTING = 'RE_CONNECTING',
+
+    /** Connected. */
     CONNECTED = 'CONNECTED',
-    ERROR = 'ERROR',
+
+    /** Server terminated the connection. Socket will be reconnected. */
     DISCONNECTED = 'DISCONNECTED',
+
+    /** Socket was closed. */
+    CLOSED = 'CLOSED',
   }
 
   export interface Status {
     host: string,
     state: State,
-    error?: Error
+    error?: string
+    reconnectIn: number,
+    connectionStarted: number
+    lastStateChange: number
   }
 
   export interface CommandTrace {
     messageId: string
     host: string
+    incoming: boolean
     time: number
     method: string
     payload: any

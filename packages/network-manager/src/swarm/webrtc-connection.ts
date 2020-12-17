@@ -11,7 +11,7 @@ import { Event } from '@dxos/async';
 import { PublicKey } from '@dxos/crypto';
 import { Protocol } from '@dxos/protocol';
 
-import { SignalApi } from '../signal/signal-api';
+import { SignalApi } from '../signal';
 import { Connection } from './connection';
 
 const log = debug('dxos:network-manager:swarm:connection');

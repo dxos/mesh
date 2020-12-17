@@ -7,6 +7,7 @@ import waitForExpect from 'wait-for-expect';
 
 import { PublicKey } from '@dxos/crypto';
 
+import { afterTest } from '../testutils';
 import { SignalApi } from './signal-api';
 
 describe('SignalApi', () => {
@@ -28,8 +29,6 @@ describe('SignalApi', () => {
   it('join', async () => {
     api = new SignalApi('wss://apollo1.kube.moon.dxos.network/dxos/signal', (async () => {}) as any, async () => {});
 
-    api.connect();
-
     const join = await api.join(topic, peer1);
     expect(join).toEqual([peer1]);
 
@@ -41,8 +40,6 @@ describe('SignalApi', () => {
     const offerMock = mockFn<(msg: SignalApi.SignalMessage) => Promise<SignalApi.Answer>>()
       .resolvesTo({ accept: true });
     api = new SignalApi('wss://apollo1.kube.moon.dxos.network/dxos/signal', offerMock, async () => {});
-
-    api.connect();
 
     await api.join(topic, peer1);
 
@@ -63,8 +60,6 @@ describe('SignalApi', () => {
       .resolvesTo();
     api = new SignalApi('wss://apollo1.kube.moon.dxos.network/dxos/signal', (async () => {}) as any, signalMock);
 
-    api.connect();
-
     await api.join(topic, peer1);
 
     const msg: SignalApi.SignalMessage = {
@@ -80,4 +75,23 @@ describe('SignalApi', () => {
       expect(signalMock).toHaveBeenCalledWith([msg]);
     }, 4_000);
   }).timeout(5_000);
+
+  it('join across multiple signal servers', async () => {
+    api = new SignalApi('wss://apollo1.kube.moon.dxos.network/dxos/signal', (async () => {}) as any, async () => {});
+    const api2 = new SignalApi('wss://apollo2.kube.moon.dxos.network/dxos/signal', (async () => {}) as any, async () => {});
+    afterTest(() => api.close());
+
+    await api.join(topic, peer1);
+    await api2.join(topic, peer2);
+
+    await waitForExpect(async () => {
+      const peers = await api2.lookup(topic);
+      expect(peers.length).toEqual(2);
+    }, 40_000);
+
+    await waitForExpect(async () => {
+      const peers = await api.lookup(topic);
+      expect(peers.length).toEqual(2);
+    }, 40_000);
+  }).timeout(50_000);
 });

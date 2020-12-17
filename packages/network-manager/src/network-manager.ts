@@ -9,10 +9,7 @@ import { PublicKey } from '@dxos/crypto';
 import { Protocol } from '@dxos/protocol';
 import { ComplexMap } from '@dxos/util';
 
-import { InMemorySignalManager } from './signal/in-memory-signal-manager';
-import { SignalManager } from './signal/interface';
-import { SignalApi } from './signal/signal-api';
-import { WebsocketSignalManager } from './signal/websocket-signal-manager';
+import { InMemorySignalManager, SignalManager, SignalApi, WebsocketSignalManager } from './signal';
 import { SwarmMapper } from './swarm-mapper';
 import { Swarm } from './swarm/swarm';
 import { Topology } from './topology/topology';
@@ -52,13 +49,6 @@ export class NetworkManager {
     this._signal.onSignal.on(msg => this._swarms.get(msg.topic)?.onSignal(msg));
   }
 
-  // TODO(marik-d): Remove.
-  async start () {
-    if (this._signal instanceof WebsocketSignalManager) {
-      await this._signal.connect();
-    }
-  }
-
   getSwarmMap (topic: PublicKey): SwarmMapper | undefined {
     return this._maps.get(topic);
   }
@@ -91,6 +81,7 @@ export class NetworkManager {
         this._signal.lookup(topic);
       },
       this._signal instanceof InMemorySignalManager,
+      options.label,
       { iceServers: this._ice }
     );
     this._swarms.set(topic, swarm);
@@ -118,6 +109,14 @@ export class NetworkManager {
     await swarm.destroy();
     this._swarms.delete(topic);
   }
+
+  // TODO(marik-d): Remove.
+  /**
+   * @default
+   */
+  async start () {
+    console.warn('NetworkManger.start is deprecated.');
+  }
 }
 
 export interface SwarmOptions {
@@ -144,4 +143,9 @@ export interface SwarmOptions {
    * Presence plugin for network mapping, if exists.
    */
   presence?: any /* Presence */
+
+  /**
+   * Custom label assigned to this swarm. Used in devtools to display human-readable names for swarms.
+   */
+  label?: string
 }
