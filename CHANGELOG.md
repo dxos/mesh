@@ -1,5 +1,20 @@
 # Changelog
 
+### [1.0.2](https://www.github.com/dxos/mesh/compare/v1.0.1...v1.0.2) (2020-12-17)
+
+
+### Bug Fixes
+
+* Expose network devtools for devtools ([#44](https://www.github.com/dxos/mesh/issues/44)) ([e4f4443](https://www.github.com/dxos/mesh/commit/e4f4443b7d68ef09a59e1ec272e740ec72cd32ba))
+
+### [1.0.1](https://www.github.com/dxos/mesh/compare/v1.0.0...v1.0.1) (2020-12-17)
+
+
+### Bug Fixes
+
+* Fix failing storybook ([#43](https://www.github.com/dxos/mesh/issues/43)) ([f2c66e6](https://www.github.com/dxos/mesh/commit/f2c66e60e93a140e0ebeb278d4668f4cc449f4c4))
+* Upgrade DXOS dependencies ([#40](https://www.github.com/dxos/mesh/issues/40)) ([e84a18b](https://www.github.com/dxos/mesh/commit/e84a18b736dbc63b4e3a3e75bb10ff20cb9ab746))
+
 ## 1.0.0 (2020-12-16)
 
 
