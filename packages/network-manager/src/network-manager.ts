@@ -5,6 +5,7 @@
 import assert from 'assert';
 import debug from 'debug';
 
+import { Event } from '@dxos/async';
 import { PublicKey } from '@dxos/crypto';
 import { Protocol } from '@dxos/protocol';
 import { ComplexMap } from '@dxos/util';
@@ -32,8 +33,14 @@ export class NetworkManager {
 
   private readonly _signal: SignalManager;
 
+  public readonly topicsUpdated = new Event<void>();
+
   get signal () {
     return this._signal;
+  }
+
+  get topics () {
+    return Array.from(this._swarms.keys());
   }
 
   constructor (options: NetworkManagerOptions = {}) {
@@ -87,6 +94,7 @@ export class NetworkManager {
     this._swarms.set(topic, swarm);
     this._signal.join(topic, peerId);
     this._maps.set(topic, new SwarmMapper(swarm, presence));
+    this.topicsUpdated.emit();
 
     return () => this.leaveProtocolSwarm(topic);
   }
@@ -108,6 +116,7 @@ export class NetworkManager {
 
     await swarm.destroy();
     this._swarms.delete(topic);
+    this.topicsUpdated.emit();
   }
 
   // TODO(marik-d): Remove.
