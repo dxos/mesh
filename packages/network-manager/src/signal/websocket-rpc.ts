@@ -14,8 +14,6 @@ import { SignalApi } from './signal-api';
 
 const log = debug('dxos:network-manager:websocket-rpc');
 
-const TIMEOUT = 3_000;
-
 /**
  * A websocket connection paired with nanomessage-rpc endpoint.
  *
@@ -120,10 +118,7 @@ export class WebsocketRpc {
 
     const start = Date.now();
     try {
-      const response = await Promise.race([
-        this._rpc.call(method, payload),
-        sleep(TIMEOUT).then(() => Promise.reject(new Error(`Signal RPC call timed out in ${TIMEOUT} ms`)))
-      ]);
+      const response = await this._rpc.call(method, payload);
       this.commandTrace.emit({
         messageId: `${this._host}-${this._messageId++}`,
         host: this._host,
