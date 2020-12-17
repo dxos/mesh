@@ -7,10 +7,10 @@ import debug from 'debug';
 
 import { Event, synchronized } from '@dxos/async';
 import { PublicKey } from '@dxos/crypto';
+import { ComplexMap } from '@dxos/util';
 
 import { SignalManager } from './interface';
 import { SignalApi } from './signal-api';
-import { ComplexMap, ComplexSet } from '@dxos/util';
 
 const log = debug('dxos:network-manager:websocket-signal-manager');
 
@@ -20,7 +20,7 @@ export class WebsocketSignalManager implements SignalManager {
   /** Topics joined: topic => peerId */
   private readonly _topicsJoined = new ComplexMap<PublicKey, PublicKey>(x => x.toHex());
 
-  private readonly _topicsJoinedPerSignal = new Map<string, ComplexMap<PublicKey,PublicKey>>();
+  private readonly _topicsJoinedPerSignal = new Map<string, ComplexMap<PublicKey, PublicKey>>();
 
   private _reconcileTimeoutId?: NodeJS.Timeout;
 
@@ -56,23 +56,23 @@ export class WebsocketSignalManager implements SignalManager {
   join (topic: PublicKey, peerId: PublicKey) {
     log(`Join ${topic} ${peerId}`);
     this._topicsJoined.set(topic, peerId);
-    this._reconcileJoinedTopics(); 
+    this._reconcileJoinedTopics();
   }
 
   leave (topic: PublicKey, peerId: PublicKey) {
     log(`Leave ${topic} ${peerId}`);
     this._topicsJoined.delete(topic);
-    this._reconcileJoinedTopics(); 
+    this._reconcileJoinedTopics();
   }
-  
+
   @synchronized
-  private async _reconcileJoinedTopics() {
+  private async _reconcileJoinedTopics () {
     log('Reconciling joined topics');
-    const promises: Promise<void>[] = []
+    const promises: Promise<void>[] = [];
     for (const [host, server] of this._servers.entries()) {
-      for(const [topic, peerId] of this._topicsJoined.entries()) {
-        if(!this._topicsJoinedPerSignal.get(host)!.has(topic)) {
-          log(`Join ${topic} as ${peerId} on ${host}`)
+      for (const [topic, peerId] of this._topicsJoined.entries()) {
+        if (!this._topicsJoinedPerSignal.get(host)!.has(topic)) {
+          log(`Join ${topic} as ${peerId} on ${host}`);
           promises.push(server.join(topic, peerId).then(
             peers => {
               log(`Joined successfully ${host}`);
@@ -90,36 +90,35 @@ export class WebsocketSignalManager implements SignalManager {
           ));
         }
 
-        for(const [topic, peerId] of this._topicsJoinedPerSignal.get(host)!.entries()) {
-          if(!this._topicsJoined.has(topic)) {
-            log(`Leave ${topic} as ${peerId} on ${host}`)
-             promises.push(server.leave(topic, peerId).then(
-               () => {
+        for (const [topic, peerId] of this._topicsJoinedPerSignal.get(host)!.entries()) {
+          if (!this._topicsJoined.has(topic)) {
+            log(`Leave ${topic} as ${peerId} on ${host}`);
+            promises.push(server.leave(topic, peerId).then(
+              () => {
                 log(`Left successfully ${host}`);
                 this._topicsJoinedPerSignal.get(host)!.delete(topic);
-               },
-               err => {
+              },
+              err => {
                 log(`Leave error ${host} ${err.message}`);
                 this._reconcile();
-               }
-             ));
+              }
+            ));
           }
         }
       }
-      
     }
-    await Promise.all(promises)
+    await Promise.all(promises);
   }
 
-  private _reconcile() {
-    if(this._reconcileTimeoutId !== undefined) {
+  private _reconcile () {
+    if (this._reconcileTimeoutId !== undefined) {
       return;
     }
     log('Will reconcile in 3 seconds');
     this._reconcileTimeoutId = setTimeout(() => {
       this._reconcileTimeoutId = undefined;
       this._reconcileJoinedTopics();
-    }, 3_000)
+    }, 3_000);
   }
 
   lookup (topic: PublicKey) {
@@ -131,7 +130,7 @@ export class WebsocketSignalManager implements SignalManager {
           // TODO(marik-d): Deduplicate peers.
           this.peerCandidatesChanged.emit([topic, peers]);
         },
-        err => {
+        () => {
           // Error will already be reported in devtools. No need to do anything here.
         }
       );

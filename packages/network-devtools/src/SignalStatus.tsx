@@ -15,7 +15,7 @@ export const SignalStatus = ({ status }: SignalStatusProps) => {
   useEffect(() => {
     const id = setInterval(() => setTime(Date.now()), 1000);
     return () => clearInterval(id);
-  }, [])
+  }, []);
 
   return (
     <ul>
@@ -26,14 +26,14 @@ export const SignalStatus = ({ status }: SignalStatusProps) => {
           }}
           key={s.host}
         >
-          {s.host} {s.state} 
+          {s.host} {s.state}
           {s.error && <div>{s.error}</div>}
           {s.state === SignalApi.State.DISCONNECTED && <div>Will reconnect in {Math.floor((s.lastStateChange + s.reconnectIn - time) / 1000)} s</div>}
           {s.state === SignalApi.State.CONNECTED && <div>Connected for {Math.floor((time - s.connectionStarted) / 1000)} s</div>}
         </li>
       ))}
     </ul>
-  )
+  );
 };
 
 function getColor (state: SignalApi.State) {

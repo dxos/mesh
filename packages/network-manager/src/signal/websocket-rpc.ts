@@ -4,11 +4,11 @@
 
 import assert from 'assert';
 import debug from 'debug';
+import WebSocket from 'isomorphic-ws';
 import nanomessagerpc from 'nanomessage-rpc';
 import { promisify } from 'util';
-import WebSocket from 'isomorphic-ws';
 
-import { Event, sleep, Trigger } from '@dxos/async';
+import { Event, Trigger } from '@dxos/async';
 
 import { SignalApi } from './signal-api';
 
@@ -170,10 +170,10 @@ export class WebsocketRpc {
             time: Date.now() - begin,
             method,
             payload: data,
-            response,
-          })
+            response
+          });
           return response;
-        } catch(error) {
+        } catch (error) {
           this.commandTrace.emit({
             messageId: `${this._host}-${this._messageId++}`,
             host: this._host,
@@ -181,8 +181,8 @@ export class WebsocketRpc {
             time: Date.now() - begin,
             method,
             payload: data,
-            error: error.message,
-          })
+            error: error.message
+          });
           throw error;
         }
       }

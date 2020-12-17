@@ -70,12 +70,12 @@ export class SignalApi {
     this.statusChanged.emit(this.getStatus());
   }
 
-  private _createClient() {
+  private _createClient () {
     this._connectionStarted = Date.now();
     try {
       this._client = new WebsocketRpc(this._host);
-    } catch(error) {
-      if(this._state === SignalApi.State.RE_CONNECTING) {
+    } catch (error) {
+      if (this._state === SignalApi.State.RE_CONNECTING) {
         this._reconnectAfter *= 2;
       }
 
@@ -100,18 +100,18 @@ export class SignalApi {
     }));
 
     this._clientCleanup.push(this._client.connected.on(() => {
-      log(`Socket connected`);
+      log('Socket connected');
       this._lastError = undefined;
       this._reconnectAfter = DEFAULT_RECONNECT_TIMEOUT;
-      this._setState(SignalApi.State.CONNECTED)
+      this._setState(SignalApi.State.CONNECTED);
     }));
     this._clientCleanup.push(this._client.error.on(error => {
       log(`Socket error: ${error.message}`);
-      if(this._state === SignalApi.State.CLOSED) {
+      if (this._state === SignalApi.State.CLOSED) {
         return;
       }
 
-      if(this._state === SignalApi.State.RE_CONNECTING) {
+      if (this._state === SignalApi.State.RE_CONNECTING) {
         this._reconnectAfter *= 2;
       }
 
@@ -121,13 +121,13 @@ export class SignalApi {
       this._reconnect();
     }));
     this._clientCleanup.push(this._client.disconnected.on(() => {
-      log(`Socket disconnected`);
+      log('Socket disconnected');
       // This is also called in case of error, but we already have disconnected the socket on error, so no need to do anything here.
-      if(this._state !== SignalApi.State.CONNECTING && this._state !== SignalApi.State.RE_CONNECTING) {
+      if (this._state !== SignalApi.State.CONNECTING && this._state !== SignalApi.State.RE_CONNECTING) {
         return;
       }
 
-      if(this._state === SignalApi.State.RE_CONNECTING) {
+      if (this._state === SignalApi.State.RE_CONNECTING) {
         this._reconnectAfter *= 2;
       }
 
@@ -138,9 +138,9 @@ export class SignalApi {
     this._clientCleanup.push(this._client.commandTrace.on(trace => this.commandTrace.emit(trace)));
   }
 
-  private _reconnect() {
-    if(this._reconnectIntervalId !== undefined) {
-      console.error('Signal api already reconnecting.')
+  private _reconnect () {
+    if (this._reconnectIntervalId !== undefined) {
+      console.error('Signal api already reconnecting.');
       return;
     }
 
@@ -155,7 +155,6 @@ export class SignalApi {
 
       this._setState(SignalApi.State.RE_CONNECTING);
       this._createClient();
-
     }, this._reconnectAfter);
   }
 
@@ -163,7 +162,7 @@ export class SignalApi {
     this._clientCleanup.forEach(cb => cb());
     this._clientCleanup = [];
 
-    if(this._reconnectIntervalId !== undefined) {
+    if (this._reconnectIntervalId !== undefined) {
       clearTimeout(this._reconnectIntervalId);
     }
 
@@ -178,12 +177,12 @@ export class SignalApi {
       error: this._lastError?.message,
       reconnectIn: this._reconnectAfter,
       connectionStarted: this._connectionStarted,
-      lastStateChange: this._lastStateChange,
+      lastStateChange: this._lastStateChange
     };
   }
 
-  private async _callWithTimeout(method: string, payload: any) {
-    return  Promise.race([
+  private async _callWithTimeout (method: string, payload: any) {
+    return Promise.race([
       this._client.call(method, payload),
       sleep(RPC_TIMEOUT).then(() => Promise.reject(new Error(`Signal RPC call timed out in ${RPC_TIMEOUT} ms`)))
     ]);
