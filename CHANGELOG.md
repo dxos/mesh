@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.0.6](https://www.github.com/dxos/mesh/compare/v1.0.5...v1.0.6) (2020-12-21)
+
+
+### Bug Fixes
+
+* Show timeouts in command trace & lookup interval ([#54](https://www.github.com/dxos/mesh/issues/54)) ([5a3d828](https://www.github.com/dxos/mesh/commit/5a3d828da1fbd02ef7799ec513dae26106978193))
+
 ### [1.0.5](https://www.github.com/dxos/mesh/compare/v1.0.4...v1.0.5) (2020-12-21)
 
 
