@@ -14,7 +14,7 @@ export interface SignalTraceProps {
 export const SignalTrace = ({ trace }: SignalTraceProps) => (
   <div style={{ overflowY: 'auto' }}>
     {trace.map(msg => (
-      <div key={msg.messageId}>
+      <div style={{ color: msg.error ? 'red' : undefined }} key={msg.messageId}>
         {msg.incoming ? 'inc' : 'out'} {msg.method} {msg.time} ms
         <JsonTreeView data={{ msg }} depth={0} root={undefined as any} size={undefined as any} onSelect={undefined as any} />
       </div>

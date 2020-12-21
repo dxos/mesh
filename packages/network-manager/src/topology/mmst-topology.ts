@@ -54,7 +54,7 @@ export class MMSTTopology implements Topology {
     assert(!this._controller, 'Already initialized');
     this._controller = controller;
 
-    this._lookupIntervalId = setTimeout(() => {
+    this._lookupIntervalId = setInterval(() => {
       controller.lookup();
     }, 10_000);
   }

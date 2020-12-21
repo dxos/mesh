@@ -8,11 +8,13 @@ import WebSocket from 'isomorphic-ws';
 import nanomessagerpc from 'nanomessage-rpc';
 import { promisify } from 'util';
 
-import { Event, Trigger } from '@dxos/async';
+import { Event, sleep, Trigger } from '@dxos/async';
 
 import { SignalApi } from './signal-api';
 
 const log = debug('dxos:network-manager:websocket-rpc');
+
+const RPC_TIMEOUT = 3_000;
 
 /**
  * A websocket connection paired with nanomessage-rpc endpoint.
@@ -113,12 +115,16 @@ export class WebsocketRpc {
   }
 
   async call (method: string, payload: any): Promise<any> {
-    await this._rpc.open();
-    await this._connectTrigger.wait();
-
     const start = Date.now();
     try {
-      const response = await this._rpc.call(method, payload);
+      const response = await Promise.race([
+        (async () => {
+          await this._rpc.open();
+          await this._connectTrigger.wait();
+          return this._rpc.call(method, payload);
+        })(),
+        sleep(RPC_TIMEOUT).then(() => Promise.reject(new Error(`Signal RPC call timed out in ${RPC_TIMEOUT} ms`)))
+      ]);
       this.commandTrace.emit({
         messageId: `${this._host}-${this._messageId++}`,
         host: this._host,

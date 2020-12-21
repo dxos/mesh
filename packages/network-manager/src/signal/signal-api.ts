@@ -5,7 +5,7 @@
 import debug from 'debug';
 import { SignalData } from 'simple-peer';
 
-import { Event, sleep } from '@dxos/async';
+import { Event } from '@dxos/async';
 import { PublicKey } from '@dxos/crypto';
 
 import { WebsocketRpc } from './websocket-rpc';
@@ -13,8 +13,6 @@ import { WebsocketRpc } from './websocket-rpc';
 const log = debug('dxos:network-manager:signal-api');
 
 const DEFAULT_RECONNECT_TIMEOUT = 1000;
-
-const RPC_TIMEOUT = 3_000;
 
 /**
  * Establishes a websocket connection to signal server and provides RPC methods.
@@ -181,15 +179,8 @@ export class SignalApi {
     };
   }
 
-  private async _callWithTimeout (method: string, payload: any) {
-    return Promise.race([
-      this._client.call(method, payload),
-      sleep(RPC_TIMEOUT).then(() => Promise.reject(new Error(`Signal RPC call timed out in ${RPC_TIMEOUT} ms`)))
-    ]);
-  }
-
   async join (topic: PublicKey, peerId: PublicKey): Promise<PublicKey[]> {
-    const peers: Buffer[] = await this._callWithTimeout('join', {
+    const peers: Buffer[] = await this._client.call('join', {
       id: peerId.asBuffer(),
       topic: topic.asBuffer()
     });
@@ -197,14 +188,14 @@ export class SignalApi {
   }
 
   async leave (topic: PublicKey, peerId: PublicKey): Promise<void> {
-    await this._callWithTimeout('leave', {
+    await this._client.call('leave', {
       id: peerId.asBuffer(),
       topic: topic.asBuffer()
     });
   }
 
   async lookup (topic: PublicKey): Promise<PublicKey[]> {
-    const peers: Buffer[] = await this._callWithTimeout('lookup', {
+    const peers: Buffer[] = await this._client.call('lookup', {
       topic: topic.asBuffer()
     });
     return peers.map(id => PublicKey.from(id));
