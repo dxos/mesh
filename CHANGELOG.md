@@ -1,5 +1,13 @@
 # Changelog
 
+### [1.0.5](https://www.github.com/dxos/mesh/compare/v1.0.4...v1.0.5) (2020-12-21)
+
+
+### Bug Fixes
+
+* React as a peer dependency of devtools ([#53](https://www.github.com/dxos/mesh/issues/53)) ([ff6c697](https://www.github.com/dxos/mesh/commit/ff6c69713e658bb8588f40d72439ede52c0982b0))
+* Upgrade DXOS dependencies ([#50](https://www.github.com/dxos/mesh/issues/50)) ([3349c98](https://www.github.com/dxos/mesh/commit/3349c98615ce886ce3072ad54bcb3451e537c97d))
+
 ### [1.0.4](https://www.github.com/dxos/mesh/compare/v1.0.3...v1.0.4) (2020-12-17)
 
 
