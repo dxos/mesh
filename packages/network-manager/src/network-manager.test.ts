@@ -84,7 +84,7 @@ describe('Network manager', () => {
     await promise;
   }).timeout(10_000);
 
-  it.only('two peers with different signal & turn servers', async () => {
+  it('two peers with different signal & turn servers', async () => {
     const topic = PublicKey.random();
     const peer1Id = PublicKey.random();
     const peer2Id = PublicKey.random();
