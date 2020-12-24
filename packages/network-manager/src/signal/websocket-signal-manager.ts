@@ -169,10 +169,12 @@ export class WebsocketSignalManager implements SignalManager {
       for(const server of this._servers.values()) {
         server.offer(msg).then(
           answer => {
+            log(`Offer answer ${JSON.stringify(answer)}`);
             // Only first call to resolve is processed.
             resolve(answer);
           },
           error => {
+            log(`Offer error ${error.message}`);
             if(++errorCount === serverCount) {
               // Reject if all servers have rejected.
               reject(error);
