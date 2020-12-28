@@ -72,6 +72,7 @@ describe('Swarm', () => {
     expect(swarm2.connections.length).toEqual(0);
 
     swarm1.onPeerCandidatesChanged([secondPeerId]);
+    swarm2.onPeerCandidatesChanged([firstPeerId]);
 
     await Promise.all([
       swarm1.connected.waitForCount(1),
@@ -81,10 +82,10 @@ describe('Swarm', () => {
     const swarm1Connection = swarm1.connections[0];
     const swarm2Connection = swarm2.connections[0];
     const onData = mockFn<(data: Buffer) => void>().returns(undefined);
-    (swarm2Connection as WebrtcConnection).peer.on('data', onData);
+    (swarm2Connection as WebrtcConnection).peer!.on('data', onData);
 
     const data = Buffer.from('1234');
-    (swarm1Connection as WebrtcConnection).peer.send(data);
+    (swarm1Connection as WebrtcConnection).peer!.send(data);
     await waitForExpect(() => {
       expect(onData).toHaveBeenCalledWith([data]);
     });

@@ -53,6 +53,10 @@ export class InMemoryConnection implements Connection {
     return this._sessionId;
   }
 
+  connect () {
+
+  }
+
   signal (msg: SignalApi.SignalMessage): void {
     // Does nothing.
   }

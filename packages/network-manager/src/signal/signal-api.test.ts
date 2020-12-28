@@ -5,11 +5,11 @@
 import { expect, mockFn } from 'earljs';
 import waitForExpect from 'wait-for-expect';
 
+import { sleep } from '@dxos/async';
 import { PublicKey } from '@dxos/crypto';
 
 import { afterTest } from '../testutils';
 import { SignalApi } from './signal-api';
-import { sleep } from '@dxos/async';
 
 describe('SignalApi', () => {
   let topic: PublicKey;
@@ -96,7 +96,7 @@ describe('SignalApi', () => {
     }, 40_000);
   }).timeout(50_000);
 
-  it('newly joined peer can receive signals from other signal servers', async () => {
+  it.skip('newly joined peer can receive signals from other signal servers', async () => {
     const offerMock = mockFn<(msg: SignalApi.SignalMessage) => Promise<SignalApi.Answer>>()
       .resolvesTo({ accept: true });
     const signalMock = mockFn<(msg: SignalApi.SignalMessage) => Promise<void>>()
@@ -106,18 +106,18 @@ describe('SignalApi', () => {
     afterTest(() => api.close());
 
     await api.join(topic, peer1);
-    await sleep(3000)
+    await sleep(3000);
     await api2.join(topic, peer2);
 
-    const sessionId = PublicKey.random()
+    const sessionId = PublicKey.random();
     const answer = await api2.offer({
       remoteId: peer1,
       id: peer2,
       topic,
       sessionId,
       data: {}
-    })
-    expect(answer).toEqual({ accept: true })
+    });
+    expect(answer).toEqual({ accept: true });
 
     const msg: SignalApi.SignalMessage = {
       id: peer2,

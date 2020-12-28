@@ -32,7 +32,7 @@ describe('Network manager', () => {
     inMemory,
     topology = new FullyConnectedTopology(),
     signal = !inMemory ? ['wss://apollo1.kube.moon.dxos.network/dxos/signal'] : undefined,
-    ice,
+    ice
   }: CreatePeerOptions) => {
     const networkManager = new NetworkManager({ signal, ice });
 
@@ -89,9 +89,9 @@ describe('Network manager', () => {
     const peer1Id = PublicKey.random();
     const peer2Id = PublicKey.random();
 
-    const { plugin: plugin1 } = await createPeer({ topic, peerId: peer1Id, signal: ['wss://apollo1.kube.moon.dxos.network/dxos/signal'], ice: [{"urls":"turn:apollo1.kube.moon.dxos.network:3478","username":"dxos","credential":"dxos"}] });
-    await sleep(3000)
-    const { plugin: plugin2 } = await createPeer({ topic, peerId: peer2Id, signal: ['wss://apollo2.kube.moon.dxos.network/dxos/signal'], ice: [{"urls":"turn:apollo2.kube.moon.dxos.network:3478","username":"dxos","credential":"dxos"}]  });
+    const { plugin: plugin1 } = await createPeer({ topic, peerId: peer1Id, signal: ['wss://apollo1.kube.moon.dxos.network/dxos/signal'], ice: [{ urls: 'turn:apollo1.kube.moon.dxos.network:3478', username: 'dxos', credential: 'dxos' }] });
+    await sleep(3000);
+    const { plugin: plugin2 } = await createPeer({ topic, peerId: peer2Id, signal: ['wss://apollo2.kube.moon.dxos.network/dxos/signal'], ice: [{ urls: 'turn:apollo2.kube.moon.dxos.network:3478', username: 'dxos', credential: 'dxos' }] });
 
     const mockReceive = mockFn<[Protocol, string]>().returns(undefined);
     plugin1.on('receive', mockReceive);

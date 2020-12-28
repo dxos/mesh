@@ -28,6 +28,8 @@ export class Swarm {
 
   private readonly _discoveredPeers = new ComplexSet<PublicKey>(x => x.toHex());
 
+  private readonly _peerCandidatesUpdated = new Event();
+
   get connections () {
     return Array.from(this._connections.values());
   }
@@ -82,6 +84,7 @@ export class Swarm {
       }
       this._discoveredPeers.add(candidate);
     }
+    this._peerCandidatesUpdated.emit();
     this._topology.update();
   }
 
@@ -91,6 +94,8 @@ export class Swarm {
     const remoteId = message.id;
     assert(message.remoteId.equals(this._ownPeerId));
     assert(message.topic.equals(this._topic));
+
+    await this._waitForPeerCandidate(remoteId);
 
     // Check if we are already trying to connect to that peer.
     if (this._connections.has(message.id)) {
@@ -109,7 +114,8 @@ export class Swarm {
 
     let accept = false;
     if (await this._topology.onOffer(message.id)) {
-      this._createConnection(false, message.id, message.sessionId);
+      const connection = this._createConnection(false, message.id, message.sessionId);
+      connection.connect();
       accept = true;
     }
     this._topology.update();
@@ -176,27 +182,27 @@ export class Swarm {
 
     const sessionId = PublicKey.random();
 
-    this._createConnection(true, remoteId, sessionId);
+    const connection = this._createConnection(true, remoteId, sessionId);
     this._sendOffer({
       id: this._ownPeerId,
       remoteId,
       sessionId,
       topic: this._topic,
       data: {}
-    }).then(
-      answer => {
-        if (!answer.accept) {
+    })
+      .then(answer => {
+        if (answer.accept) {
+          connection.connect();
+        } else {
           // If the peer rejected our connection remove it from the set of candidates.
           this._discoveredPeers.delete(remoteId);
-          this._closeConnection(remoteId);
-          this._topology.update();
         }
-      },
-      err => {
+        this._topology.update();
+      })
+      .catch(err => {
         console.error('Offer error:');
         console.error(err);
-      }
-    );
+      });
     this._topology.update();
   }
 
@@ -247,5 +253,37 @@ export class Swarm {
     this._connections.delete(peerId);
     this.connectionRemoved.emit(connection);
     await connection.close();
+  }
+
+  private async _waitForPeerCandidate (peerId: PublicKey): Promise<void> {
+    if (this._discoveredPeers.has(peerId)) {
+      log(`Offering peer is already discovered ${peerId}`);
+      return;
+    }
+
+    // Error is created on top level to preserve the stack trace.
+    const timeoutError = new Error('Timed out on trying to discover a peer');
+    log(`Waiting for offering peer to be discovered ${peerId}`);
+
+    return new Promise((resolve, reject) => {
+      const lookupIntervalId = setInterval(() => this._lookup(), 1000);
+      const timeoutIntervalId = setTimeout(() => {
+        log(`Timeout on waiting for offering peer discovery ${peerId}`);
+        reject(timeoutError);
+        clearInterval(lookupIntervalId);
+        clearTimeout(timeoutIntervalId);
+        unsubscribe();
+      }, 10_000);
+      const unsubscribe = this._peerCandidatesUpdated.on(() => {
+        if (this._discoveredPeers.has(peerId)) {
+          log(`Discovered offering peer ${peerId}`);
+          resolve();
+          clearInterval(lookupIntervalId);
+          clearTimeout(timeoutIntervalId);
+          unsubscribe();
+        }
+      });
+      this._lookup();
+    });
   }
 }
