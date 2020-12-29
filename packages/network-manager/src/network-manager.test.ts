@@ -6,7 +6,7 @@ import { expect, mockFn } from 'earljs';
 import { describe, it } from 'mocha';
 import waitForExpect from 'wait-for-expect';
 
-import { Event } from '@dxos/async';
+import { Event, sleep } from '@dxos/async';
 import { PublicKey } from '@dxos/crypto';
 import { Protocol } from '@dxos/protocol';
 
@@ -21,11 +21,20 @@ interface CreatePeerOptions {
   peerId: PublicKey
   inMemory?: boolean
   topology?: Topology
+  signal?: string[]
+  ice?: any
 }
 
 describe('Network manager', () => {
-  const createPeer = async ({ topic, peerId, inMemory, topology = new FullyConnectedTopology() }: CreatePeerOptions) => {
-    const networkManager = new NetworkManager({ signal: !inMemory ? ['wss://apollo1.kube.moon.dxos.network/dxos/signal'] : undefined });
+  const createPeer = async ({
+    topic,
+    peerId,
+    inMemory,
+    topology = new FullyConnectedTopology(),
+    signal = !inMemory ? ['wss://apollo1.kube.moon.dxos.network/dxos/signal'] : undefined,
+    ice
+  }: CreatePeerOptions) => {
+    const networkManager = new NetworkManager({ signal, ice });
 
     const plugin = new TestProtocolPlugin(peerId.asBuffer());
     const protocolProvider = testProtocolProvider(topic.asBuffer(), peerId.asBuffer(), plugin);
@@ -73,6 +82,27 @@ describe('Network manager', () => {
     const promise = Event.wrap(plugin2, 'disconnect').waitForCount(1);
     await networkManager1.leaveProtocolSwarm(topic);
     await promise;
+  }).timeout(10_000);
+
+  it('two peers with different signal & turn servers', async () => {
+    const topic = PublicKey.random();
+    const peer1Id = PublicKey.random();
+    const peer2Id = PublicKey.random();
+
+    const { plugin: plugin1 } = await createPeer({ topic, peerId: peer1Id, signal: ['wss://apollo1.kube.moon.dxos.network/dxos/signal'], ice: [{ urls: 'turn:apollo1.kube.moon.dxos.network:3478', username: 'dxos', credential: 'dxos' }] });
+    await sleep(3000);
+    const { plugin: plugin2 } = await createPeer({ topic, peerId: peer2Id, signal: ['wss://apollo2.kube.moon.dxos.network/dxos/signal'], ice: [{ urls: 'turn:apollo2.kube.moon.dxos.network:3478', username: 'dxos', credential: 'dxos' }] });
+
+    const mockReceive = mockFn<[Protocol, string]>().returns(undefined);
+    plugin1.on('receive', mockReceive);
+
+    plugin2.on('connect', async () => {
+      plugin2.send(peer1Id.asBuffer(), 'Foo');
+    });
+
+    await waitForExpect(() => {
+      expect(mockReceive).toHaveBeenCalledWith([expect.a(Protocol), 'Foo']);
+    });
   }).timeout(10_000);
 
   describe('StarTopology', () => {

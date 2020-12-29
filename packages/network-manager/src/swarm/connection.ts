@@ -19,6 +19,8 @@ export interface Connection {
 
   state: WebrtcConnection.State;
 
+  connect(): void;
+
   signal (msg: SignalApi.SignalMessage): void;
 
   close (): Promise<void>;

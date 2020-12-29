@@ -25,6 +25,9 @@ describe('Connection', () => {
       PublicKey.random(),
       async msg => {}
     );
+    expect(connection.state).toEqual(WebrtcConnection.State.WAITING_FOR_ANSWER);
+
+    connection.connect();
 
     expect(connection.state).toEqual(WebrtcConnection.State.INITIATING_CONNECTION);
 
@@ -71,6 +74,9 @@ describe('Connection', () => {
       }
     );
     afterTest(() => connection2.close());
+
+    connection1.connect();
+    connection2.connect();
 
     expect(connection1.state).toEqual(WebrtcConnection.State.INITIATING_CONNECTION);
     expect(connection2.state).toEqual(WebrtcConnection.State.WAITING_FOR_CONNECTION);
