@@ -14,7 +14,7 @@ In traditional centralized systems, discovery and signaling are services deploye
 
 # System Overview
 Signal Mesh comprises a set of nodes that form a [DHT](https://en.wikipedia.org/wiki/Distributed_hash_table) implemented with [@hyperswarm/dht](https://github.com/hyperswarm/dht) over a single swarm topic that is chosen at network genesis and hashed with the current mesh protocol version. This allows concurrent operation of several different protocol versions as well as operation of multiple testnets if required. 
-Nodes bootstrap their DHT from records found in the [DXOS Naming Service](https://github.com/wirelineio/wns/).
+Nodes bootstrap their DHT from records found in the [DXOS Naming Service](https://github.com/wirelineio/dxns/).
 
 DHT peer connections between nodes use the [Dat Hypercore Wire Protocol, v8](https://github.com/mafintosh/simple-hypercore-protocol) and [Noise Protocol](http://www.noiseprotocol.org/) transport layer security. A multicast-capable [RPC](https://en.wikipedia.org/wiki/Remote_procedure_call) protocol operates on these secure peer connections, implemented with [DXOS Broadcast Protocol](https://github.com/dxos/broadcast) and [moleculer](https://github.com/moleculerjs/moleculer). The RPC protocol provides the following functionality:
 
