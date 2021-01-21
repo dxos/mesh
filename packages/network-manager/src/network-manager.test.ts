@@ -51,8 +51,8 @@ describe('Network manager', () => {
     const peer1Id = PublicKey.random();
     const peer2Id = PublicKey.random();
 
-    const { plugin: plugin1 } = await createPeer({ topic, peerId: peer1Id });
-    const { plugin: plugin2 } = await createPeer({ topic, peerId: peer2Id });
+    const { plugin: plugin1, networkManager: nm1 } = await createPeer({ topic, peerId: peer1Id });
+    const { plugin: plugin2, networkManager: nm2 } = await createPeer({ topic, peerId: peer2Id });
 
     const mockReceive = mockFn<[Protocol, string]>().returns(undefined);
     plugin1.on('receive', mockReceive);
@@ -64,6 +64,9 @@ describe('Network manager', () => {
     await waitForExpect(() => {
       expect(mockReceive).toHaveBeenCalledWith([expect.a(Protocol), 'Foo']);
     });
+
+    await nm1.destroy();
+    await nm2.destroy();
   }).timeout(10_000);
 
   it('join an leave swarm', async () => {
@@ -72,7 +75,7 @@ describe('Network manager', () => {
     const peer2Id = PublicKey.random();
 
     const { networkManager: networkManager1, plugin: plugin1 } = await createPeer({ topic, peerId: peer1Id });
-    const { plugin: plugin2 } = await createPeer({ topic, peerId: peer2Id });
+    const { networkManager: networkManager2, plugin: plugin2 } = await createPeer({ topic, peerId: peer2Id });
 
     await Promise.all([
       Event.wrap(plugin1, 'connect').waitForCount(1),
@@ -82,6 +85,9 @@ describe('Network manager', () => {
     const promise = Event.wrap(plugin2, 'disconnect').waitForCount(1);
     await networkManager1.leaveProtocolSwarm(topic);
     await promise;
+
+    await networkManager1.destroy();
+    await networkManager2.destroy();
   }).timeout(10_000);
 
   it('two peers with different signal & turn servers', async () => {
@@ -89,9 +95,9 @@ describe('Network manager', () => {
     const peer1Id = PublicKey.random();
     const peer2Id = PublicKey.random();
 
-    const { plugin: plugin1 } = await createPeer({ topic, peerId: peer1Id, signal: ['wss://apollo1.kube.moon.dxos.network/dxos/signal'], ice: [{ urls: 'turn:apollo1.kube.moon.dxos.network:3478', username: 'dxos', credential: 'dxos' }] });
+    const { networkManager: networkManager1, plugin: plugin1 } = await createPeer({ topic, peerId: peer1Id, signal: ['wss://apollo1.kube.moon.dxos.network/dxos/signal'], ice: [{ urls: 'turn:apollo1.kube.moon.dxos.network:3478', username: 'dxos', credential: 'dxos' }] });
     await sleep(3000);
-    const { plugin: plugin2 } = await createPeer({ topic, peerId: peer2Id, signal: ['wss://apollo2.kube.moon.dxos.network/dxos/signal'], ice: [{ urls: 'turn:apollo2.kube.moon.dxos.network:3478', username: 'dxos', credential: 'dxos' }] });
+    const { networkManager: networkManager2, plugin: plugin2 } = await createPeer({ topic, peerId: peer2Id, signal: ['wss://apollo2.kube.moon.dxos.network/dxos/signal'], ice: [{ urls: 'turn:apollo2.kube.moon.dxos.network:3478', username: 'dxos', credential: 'dxos' }] });
 
     const mockReceive = mockFn<[Protocol, string]>().returns(undefined);
     plugin1.on('receive', mockReceive);
@@ -103,6 +109,9 @@ describe('Network manager', () => {
     await waitForExpect(() => {
       expect(mockReceive).toHaveBeenCalledWith([expect.a(Protocol), 'Foo']);
     });
+
+    await networkManager1.destroy();
+    await networkManager2.destroy();
   }).timeout(10_000);
 
   describe('StarTopology', () => {
@@ -133,8 +142,8 @@ describe('Network manager', () => {
       const peer1Id = PublicKey.random();
       const peer2Id = PublicKey.random();
 
-      const { plugin: plugin1 } = await createPeer({ topic, peerId: peer1Id, inMemory: true });
-      const { plugin: plugin2 } = await createPeer({ topic, peerId: peer2Id, inMemory: true });
+      const { networkManager: nm1, plugin: plugin1 } = await createPeer({ topic, peerId: peer1Id, inMemory: true });
+      const { networkManager: nm2, plugin: plugin2 } = await createPeer({ topic, peerId: peer2Id, inMemory: true });
 
       const mockReceive = mockFn<[Protocol, string]>().returns(undefined);
       plugin1.on('receive', mockReceive);
@@ -146,6 +155,9 @@ describe('Network manager', () => {
       await waitForExpect(() => {
         expect(mockReceive).toHaveBeenCalledWith([expect.a(Protocol), 'Foo']);
       });
+
+      nm1.destroy();
+      nm2.destroy();
     }).timeout(10_000);
 
     it('two swarms at the same time', async () => {

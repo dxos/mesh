@@ -126,6 +126,15 @@ export class NetworkManager {
   async start () {
     console.warn('NetworkManger.start is deprecated.');
   }
+
+  async destroy () {
+    for (const swarm of this._swarms.values()) {
+      await swarm.destroy().catch(err => {
+        log('Failed to destroy swarm');
+        log(err);
+      });
+    }
+  }
 }
 
 export interface SwarmOptions {
