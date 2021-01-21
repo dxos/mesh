@@ -90,7 +90,7 @@ describe('Network manager', () => {
     await networkManager2.destroy();
   }).timeout(10_000);
 
-  it('two peers with different signal & turn servers', async () => {
+  it.skip('two peers with different signal & turn servers', async () => {
     const topic = PublicKey.random();
     const peer1Id = PublicKey.random();
     const peer2Id = PublicKey.random();
