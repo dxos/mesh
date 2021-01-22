@@ -1,5 +1,17 @@
 # Changelog
 
+### [1.0.8](https://www.github.com/dxos/mesh/compare/v1.0.7...v1.0.8) (2021-01-22)
+
+
+### Features
+
+* WNS migration ([#60](https://www.github.com/dxos/mesh/issues/60)) ([831d39c](https://www.github.com/dxos/mesh/commit/831d39c934d7d0546ab94eaec0c7db4b3e213b7e))
+
+
+### Bug Fixes
+
+* Upgrade DXOS dependencies ([#52](https://www.github.com/dxos/mesh/issues/52)) ([b6b5aff](https://www.github.com/dxos/mesh/commit/b6b5aff8a71ae58dc0cead67a641a905d30adf0e))
+
 ### [1.0.7](https://www.github.com/dxos/mesh/compare/v1.0.6...v1.0.7) (2021-01-22)
 
 
