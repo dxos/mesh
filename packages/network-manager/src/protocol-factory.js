@@ -14,7 +14,6 @@ const log = debug('dxos:network-manager');
  * Returns a function that takes a channel parameter, returns a Protocol object
  * with its context set to channel, plugins from plugins parameter and session
  * set to session parameter.
- * @typedef {function({channel, protocolContext?: *}): *} ProtocolProvider
  *
  * @param {Object} session TODO(burdon): Document this.
  * @param {[plugin]} plugins array of Protocol plugin objects to add to created Protocol objects
