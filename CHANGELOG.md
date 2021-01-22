@@ -1,5 +1,13 @@
 # Changelog
 
+### [1.0.7](https://www.github.com/dxos/mesh/compare/v1.0.6...v1.0.7) (2021-01-22)
+
+
+### Bug Fixes
+
+* Add missing export ([89edf0d](https://www.github.com/dxos/mesh/commit/89edf0d06da155594ff6a97fea9214fe8ee03173))
+* Cross kube connection tests ([#56](https://www.github.com/dxos/mesh/issues/56)) ([f1e070e](https://www.github.com/dxos/mesh/commit/f1e070e15902a6c04bc5a4d718b1a602e01806e0))
+
 ### [1.0.6](https://www.github.com/dxos/mesh/compare/v1.0.5...v1.0.6) (2020-12-21)
 
 
