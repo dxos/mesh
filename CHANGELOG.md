@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.0.9](https://www.github.com/dxos/mesh/compare/v1.0.8...v1.0.9) (2021-02-02)
+
+
+### Bug Fixes
+
+* React-ux as a peer dependency ([#63](https://www.github.com/dxos/mesh/issues/63)) ([9953e6e](https://www.github.com/dxos/mesh/commit/9953e6ecbdc0ef4695fae03d2969f01e455a4a29))
+
 ### [1.0.8](https://www.github.com/dxos/mesh/compare/v1.0.7...v1.0.8) (2021-01-22)
 
 

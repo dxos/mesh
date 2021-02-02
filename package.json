@@ -1,6 +1,6 @@
 {
   "name": "mesh",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "private": true,
   "description": "DXOS mesh monorepo.",
   "homepage": "https://github.com/dxos/mesh#readme",
